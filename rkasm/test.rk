@@ -1,0 +1,20 @@
+main:
+    add   x1   x1  x2
+    addi  x1   x2   1
+    addi  x1   a2  -1
+    store x1 zero  16
+    load  x2 zero  16
+hoge:
+    sub    sp   sp  3
+    store  s0   sp  0
+    store  s1   sp  1
+    store  ra   sp  3 
+    loadi  a0  334    ;関数の引数
+    jump    ra func
+hoga:
+func:
+    load  s0 sp 0
+    load  s1 sp 1
+    load  ra sp 3
+    add   sp sp 5
+    jumpr ra 0
