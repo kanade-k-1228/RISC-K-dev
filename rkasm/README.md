@@ -1,32 +1,19 @@
 # RKASM
 
-RISC-Kのアセンブラです。
+RISC-K のアセンブラです。
 
 ## 処理の流れ
 
 1. プリプロセッサ
-    - コメントの削除
-    - 空行の削除
+   - コメントの削除
+   - 空行の削除
 2. アセンブラ
-    - 命令
+   - 命令
 3. リンカ
-    - ラベルの位置を書き換える
+   - ラベルの位置を書き換える
 
 ## 疑似命令(未実装)
 
-mov x1 x2 = store x1 zero x2
-
-push 
-
-pop
-
-## アセンブリフォーマット
-
-|     |    |     |     |     |           |
-|-----|----|-----|-----|-----|-----------|
-| DSS | op | rd  | rs1 | rs2 | add       |
-| DSI | op | rd  | rs1 | imm | addi,load |
-| DI  | op | rd  | imm |     | loadi     |
-| SSI | op |     |     |     | store     |
-| DSL | op | rd  | rs1 | lab | jump      |
-| SSL | op | rs1 | rs2 | lab | be,bl     |
+- mov x1 x2 = store x1 zero x2
+- push x = store x zero, addi sp 1
+- pop x = subi sp 1, load x zero

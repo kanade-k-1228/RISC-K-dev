@@ -1,5 +1,7 @@
 # RISC-K ISA
 
+## 命令一覧
+
 - calc / calci
   - add / addi
   - sub / subi
@@ -11,15 +13,3 @@
 - jump
 - breq
 - brlt
-
-## 疑似命令
-
-- mov r1 r2
-  - add 
-- mov m1 m2
-  - ld
-  - st
-- push x
-  - st x zero 
-  - addi sp 1
-- pop
