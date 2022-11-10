@@ -1,0 +1,26 @@
+; 関数呼び出し(ABI)
+; T,Aは関数内で自由に使用可能
+; Sは関数内で使う場合、復元する必要がある
+
+; 1 : 呼び出し側
+;   1 : 変更されるレジスタ(T,A)をスタックにPush
+;   2 : 引数をレジスタAにセット
+;   3 : 不足する場合、引数をスタックにPush
+;   4 : jump ra で関数にジャンプ
+; 2 : 関数側
+;   1 : 
+; 2 : 保存レジスタをスタックに　Push
+; 2 : 引数をレジスタにセット
+; 引数をAレジスタに置く
+
+zero:
+    loadi  a0  0x0001
+    jump   ra  zero  func
+    addi   s0  a0  0x0000
+here:
+    jump   ra  zero  here
+
+; a+1 を計算する関数
+func:
+    addi  a0    a0  0x0001
+    jump  zero  ra  zero

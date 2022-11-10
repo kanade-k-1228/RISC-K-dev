@@ -1,0 +1,14 @@
+; 再帰的にフィボナッチ数列を求める
+
+; レジスタをスタックに退避する
+
+; a0 に
+; f_n = f_n-1 + f_n-2
+fib:
+    breq   a0  zero  fib0
+    loadi  t1  1
+    breq   a0  t1    fib1
+fib0:
+    loadi  a0  0
+fib1:
+    loadi  a0  1
