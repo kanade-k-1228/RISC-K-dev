@@ -1,39 +1,29 @@
-#include<iostream>
-#include<array>
-#include<unistd.h>
+#include "../rkisa/rkisa.hpp"
+#include "cpu.hpp"
+#include <unistd.h>
 
-std::array<uint16_t, 0xffff> mem;
-uint16_t pc = 0;
-std::array<uint16_t, 0xffff> rom;
+// int main(int argc, char* argv[]) {
+//   std::string fname = argv[1];  // 入力ファイル名
+//   // バイナリの読み込み
+//   CPU cpu;
+//   cpu.load_rom(fname);
+//   // 実行
+//   while(true) {
+//     cpu.dump();
+//     cpu.step();
+//     sleep(1);
+//   }
+//   return 0;
+// }
 
-void next(uint16_t code){
-    uint16_t opc = code & 0x000f;
-    uint16_t rs1 = code > 4 & 0x000f;
-    uint16_t rs2 = code > 8 & 0x000f;
-    uint16_t rd  = code > 12 & 0x000f;
-    uint16_t imm = get_imm(code,opc);
-    switch (opc){
-    case 0:
-        break;
-    case 1:
-        break;
+// こういうふうに、命令を手書きしてもシュミレーションできる
 
-    default:
-        break;
-    }
-}
+int main() {
+  CPU cpu;
+  cpu.loadi(T0, 0x1111);
+  cpu.loadi(T1, 0x2222);
+  cpu.add(T0, T0, T1);
+  cpu.dump();
 
-// 即値デコーダ
-uint16_t get_imm(uint16_t code, uint16_t opc){
-
-}
-
-int main(){
-    // バイナリ読み込み
-
-    // 実行
-    while(true){
-        next(rom[pc]);
-        sleep(1);
-    }
+  return 0;
 }
