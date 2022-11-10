@@ -12,6 +12,21 @@ RISC-Kのアセンブラです。
 3. リンカ
     - ラベルの位置を書き換える
 
-## 疑似命令
+## 疑似命令(未実装)
 
 mov x1 x2 = store x1 zero x2
+
+push 
+
+pop
+
+## アセンブリフォーマット
+
+|     |    |     |     |     |           |
+|-----|----|-----|-----|-----|-----------|
+| DSS | op | rd  | rs1 | rs2 | add       |
+| DSI | op | rd  | rs1 | imm | addi,load |
+| DI  | op | rd  | imm |     | loadi     |
+| SSI | op |     |     |     | store     |
+| DSL | op | rd  | rs1 | lab | jump      |
+| SSL | op | rs1 | rs2 | lab | be,bl     |
