@@ -4,4 +4,4 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -g -static")
 
 project(rkcc CXX)
 
-add_executable(rkcc rkcc.cpp)
+add_executable(rkcc rkcc.cpp token.cpp ast.cpp)
