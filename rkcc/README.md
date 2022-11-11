@@ -43,7 +43,6 @@ RISC-K 用の C コンパイラ
                    | <struct-or-union-specifier>
                    | <enum-specifier>
                    | <typedef-name>
-
 ```
 
 宣言指定子とは、ストレージ指定子または型指定子または型？？
@@ -63,16 +62,7 @@ RISC-K 用の C コンパイラ
                     | union
 
 <struct-declaration> ::= {<specifier-qualifier>}* <struct-declarator-list>
-```
 
-union（共用体）というのは、同じメモリに異なる型の変数を入れることができる
-
-構造体が直積、共用体が直和に対応しており、構造体と共用体が対になる概念。
-
-バグの温床になるのでできるだけ使わないほうがいいです。
-どうしてもメモリを節約したいときに、きちんと排他的であることを確認して使いましょう。
-
-```
 <specifier-qualifier> ::= <type-specifier>
                         | <type-qualifier>
 
@@ -82,7 +72,9 @@ union（共用体）というのは、同じメモリに異なる型の変数を
 <struct-declarator> ::= <declarator>
                       | <declarator> : <constant-expression>
                       | : <constant-expression>
+```
 
+```
 <declarator> ::= {<pointer>}? <direct-declarator>
 
 <pointer> ::= * {<type-qualifier>}* {<pointer>}?
@@ -97,38 +89,59 @@ union（共用体）というのは、同じメモリに異なる型の変数を
                       | <direct-declarator> ( {<identifier>}* )
 ```
 
-### 式
+### 定式
 
 下に行くほど、優先度が高い演算になります。
 
 ```
 <constant-expression> ::= <conditional-expression>
+```
 
-# 三項演算子
+#### 三項演算子
+
+```
 <conditional-expression> ::= <logical-or-expression>
                            | <logical-or-expression> ? <expression> : <conditional-expression>
+```
 
-# 論理OR
+#### 論理 OR
+
+```
 <logical-or-expression> ::= <logical-and-expression>
                           | <logical-or-expression> || <logical-and-expression>
+```
 
-# 論理AND
+#### 論理 AND
+
+```
 <logical-and-expression> ::= <inclusive-or-expression>
                            | <logical-and-expression> && <inclusive-or-expression>
+```
 
-# ビットOR
+#### ビット OR
+
+```
 <inclusive-or-expression> ::= <exclusive-or-expression>
                             | <inclusive-or-expression> | <exclusive-or-expression>
+```
 
-# ビットXOR
+#### ビット XOR
+
+```
 <exclusive-or-expression> ::= <and-expression>
                             | <exclusive-or-expression> ^ <and-expression>
+```
 
-# ビットAND
+#### ビット AND
+
+```
 <and-expression> ::= <equality-expression>
                    | <and-expression> & <equality-expression>
+```
 
-# 比較演算
+#### 比較演算
+
+```
 <equality-expression> ::= <relational-expression>
                         | <equality-expression> == <relational-expression>
                         | <equality-expression> != <relational-expression>
@@ -138,13 +151,19 @@ union（共用体）というのは、同じメモリに異なる型の変数を
                           | <relational-expression> > <shift-expression>
                           | <relational-expression> <= <shift-expression>
                           | <relational-expression> >= <shift-expression>
+```
 
-# シフト演算
+#### シフト演算
+
+```
 <shift-expression> ::= <additive-expression>
                      | <shift-expression> << <additive-expression>
                      | <shift-expression> >> <additive-expression>
+```
 
-# 四則演算
+#### 四則演算
+
+```
 <additive-expression> ::= <multiplicative-expression>
                         | <additive-expression> + <multiplicative-expression>
                         | <additive-expression> - <multiplicative-expression>
@@ -153,20 +172,29 @@ union（共用体）というのは、同じメモリに異なる型の変数を
                               | <multiplicative-expression> * <cast-expression>
                               | <multiplicative-expression> / <cast-expression>
                               | <multiplicative-expression> % <cast-expression>
+```
 
-# キャスト
+#### キャスト
+
+```
 <cast-expression> ::= <unary-expression>
                     | ( <type-name> ) <cast-expression>
+```
 
-# 単項演算
+#### 単項演算
+
+```
 <unary-expression> ::= <postfix-expression>
                      | ++ <unary-expression>
                      | -- <unary-expression>
                      | <unary-operator> <cast-expression>
                      | sizeof <unary-expression>
                      | sizeof <type-name>
+```
 
-# 後置演算
+#### 後置演算
+
+```
 <postfix-expression> ::= <primary-expression>
                        | <postfix-expression> [ <expression> ]
                        | <postfix-expression> ( {<assignment-expression>}* )
@@ -174,14 +202,20 @@ union（共用体）というのは、同じメモリに異なる型の変数を
                        | <postfix-expression> -> <identifier>
                        | <postfix-expression> ++
                        | <postfix-expression> --
+```
 
-# 最優先の式
+#### 最優先の式
+
+```
 <primary-expression> ::= <identifier>
                        | <constant>
                        | <string>
                        | ( <expression> )
+```
 
-# 定数値
+#### 定数値
+
+```
 <constant> ::= <integer-constant>
              | <character-constant>
              | <floating-constant>
@@ -216,11 +250,11 @@ union（共用体）というのは、同じメモリに異なる型の変数を
                    | -
                    | ~
                    | !
-
 ```
 
-```
+### 型
 
+```
 <type-name> ::= {<specifier-qualifier>}+ {<abstract-declarator>}?
 
 <parameter-type-list> ::= <parameter-list>
@@ -268,7 +302,6 @@ union（共用体）というのは、同じメモリに異なる型の変数を
 
 <initializer-list> ::= <initializer>
                      | <initializer-list> , <initializer>
-
 ```
 
 ### 文
