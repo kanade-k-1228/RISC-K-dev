@@ -68,3 +68,75 @@ Node* primary(Tokens& tokens) {
     return node;
   }
 }
+
+Node* constant_expr(Tokens& tokens){
+
+}
+
+Node* conditional_expr(Tokens& tokens){
+
+}
+
+Node* logical_or_expr(Tokens& tokens){
+
+}
+
+Node* logical_or_expr(Tokens& tokens){
+
+}
+
+Node* logical_and_expr(Tokens& tokens){
+
+}
+
+Node* inclusive_or_expr(Tokens& tokens){
+
+}
+
+Node* exclusive_or_expr(Tokens& tokens){
+
+}
+
+Node* and_expr(Tokens& tokens){
+
+}
+
+Node* equality_expr(Tokens& tokens){
+
+}
+
+Node* relational_expr(Tokens& tokens){
+
+}
+
+Node* shift_expr(Tokens& tokens){
+
+}
+
+Node* additive_expr(Tokens& tokens){
+
+}
+
+Node* multiplicative_expr(Tokens& tokens){
+
+}
+
+Node* cast_expr(Tokens& tokens){
+
+}
+
+Node* unary_expr(Tokens& tokens){
+
+}
+
+Node* postfix_expr(Tokens& tokens){
+
+}
+
+Node* primary_expr(Tokens& tokens){
+
+}
+
+Node* constant(Tokens& tokens){
+
+}

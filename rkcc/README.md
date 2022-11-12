@@ -204,7 +204,7 @@ RISC-K 用の C コンパイラ
                        | <postfix-expression> --
 ```
 
-#### 最優先の式
+#### 最小単位
 
 ```
 <primary-expression> ::= <identifier>
