@@ -12,7 +12,7 @@ std::string Token::print() {
     return str;
 }
 
-bool Tokens::consume_if_token_is(std::string str) {
+bool Tokens::consume(std::string str) {
   if(this->size() > 0 && this->at(0).str == str) {
     this->erase(this->begin());
     return true;
@@ -20,8 +20,9 @@ bool Tokens::consume_if_token_is(std::string str) {
     return false;
 }
 
-bool Tokens::expect_token_is(std::string str) {
+bool Tokens::expect(std::string str) {
   if(this->size() > 0 && this->at(0).str == str) {
+    this->erase(this->begin());
     return true;
   } else {
     error("Parse Error");

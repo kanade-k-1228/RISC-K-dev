@@ -9,21 +9,6 @@ public:
     Reserved,
     Identifier,
     Number,
-    Equal,         // =
-    SemiCollon,    // ;
-    Plus,          // +
-    Minus,         // -
-    Astarisc,      // *
-    Slash,         // /
-    Percent,       // %
-    ParOpen,       // (
-    ParClose,      // )
-    BracketOpen,   // <
-    BracketClose,  // >
-    CurlyOpen,     // {
-    CurlyClose,    // }
-    AngleOpen,     // <
-    AngleClose,    //
   };
 
   Type type;
@@ -35,9 +20,9 @@ public:
 
 namespace TokenRegex {
 const std::regex blank(R"(^(\s))");
-const std::regex reserved(R"(^(\+|-|\*|/|\(|\)))");
-
-// const std::regex reserved(R"(^(\+|-|\*|/|%|\(|\)|=|;))");
+// 長いほうから順にマッチ
+// "++" は "+" "+" ではなく、"++"
+const std::regex reserved(R"(^((\|\|)|(\^\^)|(&&)|(==)|(!=)|(<=)|(>=)|(<<)|(>>)|(\+\+)|(--)|\?|:|\||\^|&|<|>|\+|-|\*|/|%|\(|\)))");
 const std::regex number("^([0-9]+)");
 const std::regex equal(R"(^(=))");
 const std::regex semicolon(R"(^(;))");
@@ -52,8 +37,8 @@ const std::regex parclose(R"(^\))");
 
 class Tokens : public std::vector<Token> {
 public:
-  bool consume_if_token_is(std::string);
-  bool expect_token_is(std::string);
+  bool consume(std::string);
+  bool expect(std::string);
   std::string token_head();
 };
 

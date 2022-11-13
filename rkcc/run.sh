@@ -1,4 +1,4 @@
 cd build
 make
 cd ..
-./build/rkcc test
+./build/rkcc test.cyy
