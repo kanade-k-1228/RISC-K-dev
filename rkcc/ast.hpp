@@ -48,14 +48,14 @@ public:
 
 Node* expr(Tokens&);
 Node* cond(Tokens&);
-Node* l_or(Tokens&);
-Node* l_xor(Tokens&);
-Node* l_and(Tokens&);
-Node* b_or(Tokens&);
-Node* b_xor(Tokens&);
-Node* b_and(Tokens&);
-Node* equal(Tokens&);
-Node* relate(Tokens&);
+Node* logical_or(Tokens&);
+Node* logical_xor(Tokens&);
+Node* logical_and(Tokens&);
+Node* bit_or(Tokens&);
+Node* bit_xor(Tokens&);
+Node* bit_and(Tokens&);
+Node* equality(Tokens&);
+Node* relation(Tokens&);
 Node* shift(Tokens&);
 Node* add(Tokens&);
 Node* mul(Tokens&);

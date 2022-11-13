@@ -19,20 +19,13 @@ public:
 };
 
 namespace TokenRegex {
-const std::regex blank(R"(^(\s))");
-// 長いほうから順にマッチ
-// "++" は "+" "+" ではなく、"++"
-const std::regex reserved(R"(^((\|\|)|(\^\^)|(&&)|(==)|(!=)|(<=)|(>=)|(<<)|(>>)|(\+\+)|(--)|\?|:|\||\^|&|<|>|\+|-|\*|/|%|\(|\)))");
+const std::regex blank("^\\s");
+const std::regex reserved("^("
+                          "(if)|(goto)|(while)|(do)|(for)"
+                          "|(\\|\\|)|(\\^\\^)|(&&)|(==)|(!=)|(<=)|(>=)|(<<)|(>>)|(\\+\\+)|(--)"
+                          "|\\?|:|\\||\\^|&|<|>|\\+|-|\\*|/|%|\\(|\\)"
+                          ")");
 const std::regex number("^([0-9]+)");
-const std::regex equal(R"(^(=))");
-const std::regex semicolon(R"(^(;))");
-const std::regex plus(R"(^(\+))");
-const std::regex minus(R"(^(-))");
-const std::regex astarisc(R"(^(\*))");
-const std::regex slash(R"(^(/))");
-const std::regex percent("^(%)");
-const std::regex paropen(R"(^\()");
-const std::regex parclose(R"(^\))");
 }  // namespace TokenRegex
 
 class Tokens : public std::vector<Token> {

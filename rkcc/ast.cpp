@@ -76,7 +76,7 @@ Node* expr(Tokens& tokens) {
 }
 
 Node* cond(Tokens& tokens) {
-  Node* node = l_or(tokens);
+  Node* node = logical_or(tokens);
   if(tokens.consume("?")) {
     Node* true_expr = expr(tokens);
     tokens.expect(":");
@@ -88,76 +88,76 @@ Node* cond(Tokens& tokens) {
   }
 }
 
-Node* l_or(Tokens& tokens) {
-  Node* node = l_xor(tokens);
+Node* logical_or(Tokens& tokens) {
+  Node* node = logical_xor(tokens);
   for(;;) {
     if(tokens.consume("||"))
-      node = new Node(Node::Type::LogicalOr, node, l_xor(tokens));
+      node = new Node(Node::Type::LogicalOr, node, logical_xor(tokens));
     else
       return node;
   }
 }
 
-Node* l_xor(Tokens& tokens) {
-  Node* node = l_and(tokens);
+Node* logical_xor(Tokens& tokens) {
+  Node* node = logical_and(tokens);
   for(;;) {
     if(tokens.consume("^^"))
-      node = new Node(Node::Type::LogicalXor, node, l_and(tokens));
+      node = new Node(Node::Type::LogicalXor, node, logical_and(tokens));
     else
       return node;
   }
 }
 
-Node* l_and(Tokens& tokens) {
-  Node* node = b_or(tokens);
+Node* logical_and(Tokens& tokens) {
+  Node* node = bit_or(tokens);
   for(;;) {
     if(tokens.consume("&&"))
-      node = new Node(Node::Type::LogicalAnd, node, b_or(tokens));
+      node = new Node(Node::Type::LogicalAnd, node, bit_or(tokens));
     else
       return node;
   }
 }
 
-Node* b_or(Tokens& tokens) {
-  Node* node = b_xor(tokens);
+Node* bit_or(Tokens& tokens) {
+  Node* node = bit_xor(tokens);
   for(;;) {
     if(tokens.consume("|"))
-      node = new Node(Node::Type::BitOr, node, b_xor(tokens));
+      node = new Node(Node::Type::BitOr, node, bit_xor(tokens));
     else
       return node;
   }
 }
 
-Node* b_xor(Tokens& tokens) {
-  Node* node = b_and(tokens);
+Node* bit_xor(Tokens& tokens) {
+  Node* node = bit_and(tokens);
   for(;;) {
     if(tokens.consume("^"))
-      node = new Node(Node::Type::BitXor, node, b_and(tokens));
+      node = new Node(Node::Type::BitXor, node, bit_and(tokens));
     else
       return node;
   }
 }
 
-Node* b_and(Tokens& tokens) {
-  Node* node = equal(tokens);
+Node* bit_and(Tokens& tokens) {
+  Node* node = equality(tokens);
   for(;;) {
     if(tokens.consume("&"))
-      node = new Node(Node::Type::BitAnd, node, equal(tokens));
+      node = new Node(Node::Type::BitAnd, node, equality(tokens));
     else
       return node;
   }
 }
 
-Node* equal(Tokens& tokens) {
-  Node* node = relate(tokens);
+Node* equality(Tokens& tokens) {
+  Node* node = relation(tokens);
   if(tokens.consume("=="))
-    node = new Node(Node::Type::EQ, node, relate(tokens));
+    node = new Node(Node::Type::EQ, node, relation(tokens));
   else if(tokens.consume("!="))
-    node = new Node(Node::Type::NEQ, node, relate(tokens));
+    node = new Node(Node::Type::NEQ, node, relation(tokens));
   return node;
 }
 
-Node* relate(Tokens& tokens) {
+Node* relation(Tokens& tokens) {
   Node* node = shift(tokens);
   if(tokens.consume("<"))
     node = new Node(Node::Type::LT, node, shift(tokens));
