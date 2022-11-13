@@ -42,9 +42,10 @@ public:
   Type type;
   Node *lhs, *rhs, *cond;
   int val;
-  std::string print();
-  int evaluate();
 };
+
+std::string print(Node* node);
+int evaluate(Node* node);
 
 Node* expr(Tokens&);
 Node* cond(Tokens&);

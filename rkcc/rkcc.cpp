@@ -30,8 +30,8 @@ int main(int argc, char* argv[]) {
 
     // 構文木
     Node* root = expr(tokens);
-    std::cout << root->print();
+    std::cout << print(root);
     // 計算結果
-    std::cout << " = " << root->evaluate() << std::endl;
+    std::cout << " = " << evaluate(root) << std::endl;
   }
 }

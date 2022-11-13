@@ -12,61 +12,61 @@ Node::Node(Type type, Node* lhs)
 Node::Node(int val)
     : type(Type::Num), lhs(nullptr), rhs(nullptr), cond(nullptr), val(val) {}
 
-std::string Node::print() {
-  if(type == Type::Cond) return "( " + cond->print() + " ? " + lhs->print() + " : " + rhs->print() + " )";
-  if(type == Type::LogicalOr) return "( " + lhs->print() + " || " + rhs->print() + " )";
-  if(type == Type::LogicalXor) return "( " + lhs->print() + " ^^ " + rhs->print() + " )";
-  if(type == Type::LogicalAnd) return "( " + lhs->print() + " && " + rhs->print() + " )";
-  if(type == Type::BitOr) return "( " + lhs->print() + " | " + rhs->print() + " )";
-  if(type == Type::BitXor) return "( " + lhs->print() + " ^ " + rhs->print() + " )";
-  if(type == Type::BitAnd) return "( " + lhs->print() + " & " + rhs->print() + " )";
-  if(type == Type::EQ) return "( " + lhs->print() + " == " + rhs->print() + " )";
-  if(type == Type::NEQ) return "( " + lhs->print() + " != " + rhs->print() + " )";
-  if(type == Type::LT) return "( " + lhs->print() + " < " + rhs->print() + " )";
-  if(type == Type::LEQ) return "( " + lhs->print() + " <= " + rhs->print() + " )";
-  if(type == Type::GT) return "( " + lhs->print() + " > " + rhs->print() + " )";
-  if(type == Type::GEQ) return "( " + lhs->print() + " >= " + rhs->print() + " )";
-  if(type == Type::RShift) return "( " + lhs->print() + " >> " + rhs->print() + " )";
-  if(type == Type::LShift) return "( " + lhs->print() + " << " + rhs->print() + " )";
-  if(type == Type::Add) return "( " + lhs->print() + " + " + rhs->print() + " )";
-  if(type == Type::Sub) return "( " + lhs->print() + " - " + rhs->print() + " )";
-  if(type == Type::Mul) return "( " + lhs->print() + " * " + rhs->print() + " )";
-  if(type == Type::Div) return "( " + lhs->print() + " / " + rhs->print() + " )";
-  if(type == Type::Mod) return "( " + lhs->print() + " % " + rhs->print() + " )";
-  if(type == Type::UnaryAdd) return "( ++ " + lhs->print() + " )";
-  if(type == Type::UnarySub) return "( -- " + lhs->print() + " )";
-  if(type == Type::PostAdd) return "( " + lhs->print() + " ++ )";
-  if(type == Type::PostSub) return "( " + lhs->print() + " -- )";
-  if(type == Type::Num) return std::to_string(val);
+std::string print(Node* node) {
+  if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LogicalXor) return "( " + print(node->lhs) + " ^^ " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LogicalAnd) return "( " + print(node->lhs) + " && " + print(node->rhs) + " )";
+  if(node->type == Node::Type::BitOr) return "( " + print(node->lhs) + " | " + print(node->rhs) + " )";
+  if(node->type == Node::Type::BitXor) return "( " + print(node->lhs) + " ^ " + print(node->rhs) + " )";
+  if(node->type == Node::Type::BitAnd) return "( " + print(node->lhs) + " & " + print(node->rhs) + " )";
+  if(node->type == Node::Type::EQ) return "( " + print(node->lhs) + " == " + print(node->rhs) + " )";
+  if(node->type == Node::Type::NEQ) return "( " + print(node->lhs) + " != " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LT) return "( " + print(node->lhs) + " < " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LEQ) return "( " + print(node->lhs) + " <= " + print(node->rhs) + " )";
+  if(node->type == Node::Type::GT) return "( " + print(node->lhs) + " > " + print(node->rhs) + " )";
+  if(node->type == Node::Type::GEQ) return "( " + print(node->lhs) + " >= " + print(node->rhs) + " )";
+  if(node->type == Node::Type::RShift) return "( " + print(node->lhs) + " >> " + print(node->rhs) + " )";
+  if(node->type == Node::Type::LShift) return "( " + print(node->lhs) + " << " + print(node->rhs) + " )";
+  if(node->type == Node::Type::Add) return "( " + print(node->lhs) + " + " + print(node->rhs) + " )";
+  if(node->type == Node::Type::Sub) return "( " + print(node->lhs) + " - " + print(node->rhs) + " )";
+  if(node->type == Node::Type::Mul) return "( " + print(node->lhs) + " * " + print(node->rhs) + " )";
+  if(node->type == Node::Type::Div) return "( " + print(node->lhs) + " / " + print(node->rhs) + " )";
+  if(node->type == Node::Type::Mod) return "( " + print(node->lhs) + " % " + print(node->rhs) + " )";
+  if(node->type == Node::Type::UnaryAdd) return "( ++ " + print(node->lhs) + " )";
+  if(node->type == Node::Type::UnarySub) return "( -- " + print(node->lhs) + " )";
+  if(node->type == Node::Type::PostAdd) return "( " + print(node->lhs) + " ++ )";
+  if(node->type == Node::Type::PostSub) return "( " + print(node->lhs) + " -- )";
+  if(node->type == Node::Type::Num) return std::to_string(node->val);
   return "";
 }
 
-int Node::evaluate() {
-  if(type == Type::Cond) return cond->evaluate() ? lhs->evaluate() : rhs->evaluate();
-  if(type == Type::LogicalOr) return lhs->evaluate() | rhs->evaluate();
-  if(type == Type::LogicalXor) return lhs->evaluate() ^ rhs->evaluate();
-  if(type == Type::LogicalAnd) return lhs->evaluate() & rhs->evaluate();
-  if(type == Type::BitOr) return lhs->evaluate() | rhs->evaluate();
-  if(type == Type::BitXor) return lhs->evaluate() ^ rhs->evaluate();
-  if(type == Type::BitAnd) return lhs->evaluate() & rhs->evaluate();
-  if(type == Type::EQ) return lhs->evaluate() == rhs->evaluate();
-  if(type == Type::NEQ) return lhs->evaluate() != rhs->evaluate();
-  if(type == Type::LT) return lhs->evaluate() < rhs->evaluate();
-  if(type == Type::LEQ) return lhs->evaluate() <= rhs->evaluate();
-  if(type == Type::GT) return lhs->evaluate() > rhs->evaluate();
-  if(type == Type::GEQ) return lhs->evaluate() >= rhs->evaluate();
-  if(type == Type::RShift) return lhs->evaluate() >> rhs->evaluate();
-  if(type == Type::LShift) return lhs->evaluate() << rhs->evaluate();
-  if(type == Type::Add) return lhs->evaluate() + rhs->evaluate();
-  if(type == Type::Sub) return lhs->evaluate() - rhs->evaluate();
-  if(type == Type::Mul) return lhs->evaluate() * rhs->evaluate();
-  if(type == Type::Div) return lhs->evaluate() / rhs->evaluate();
-  if(type == Type::Mod) return lhs->evaluate() % rhs->evaluate();
-  if(type == Type::UnaryAdd) return lhs->evaluate() + 1;
-  if(type == Type::UnarySub) return lhs->evaluate() - 1;
-  if(type == Type::PostAdd) return lhs->evaluate() + 1;
-  if(type == Type::PostSub) return lhs->evaluate() - 1;
-  if(type == Type::Num) return val;
+int evaluate(Node* node) {
+  if(node->type == Node::Type::Cond) return evaluate(node->cond) ? evaluate(node->lhs) : evaluate(node->rhs);
+  if(node->type == Node::Type::LogicalOr) return evaluate(node->lhs) | evaluate(node->rhs);
+  if(node->type == Node::Type::LogicalXor) return evaluate(node->lhs) ^ evaluate(node->rhs);
+  if(node->type == Node::Type::LogicalAnd) return evaluate(node->lhs) & evaluate(node->rhs);
+  if(node->type == Node::Type::BitOr) return evaluate(node->lhs) | evaluate(node->rhs);
+  if(node->type == Node::Type::BitXor) return evaluate(node->lhs) ^ evaluate(node->rhs);
+  if(node->type == Node::Type::BitAnd) return evaluate(node->lhs) & evaluate(node->rhs);
+  if(node->type == Node::Type::EQ) return evaluate(node->lhs) == evaluate(node->rhs);
+  if(node->type == Node::Type::NEQ) return evaluate(node->lhs) != evaluate(node->rhs);
+  if(node->type == Node::Type::LT) return evaluate(node->lhs) < evaluate(node->rhs);
+  if(node->type == Node::Type::LEQ) return evaluate(node->lhs) <= evaluate(node->rhs);
+  if(node->type == Node::Type::GT) return evaluate(node->lhs) > evaluate(node->rhs);
+  if(node->type == Node::Type::GEQ) return evaluate(node->lhs) >= evaluate(node->rhs);
+  if(node->type == Node::Type::RShift) return evaluate(node->lhs) >> evaluate(node->rhs);
+  if(node->type == Node::Type::LShift) return evaluate(node->lhs) << evaluate(node->rhs);
+  if(node->type == Node::Type::Add) return evaluate(node->lhs) + evaluate(node->rhs);
+  if(node->type == Node::Type::Sub) return evaluate(node->lhs) - evaluate(node->rhs);
+  if(node->type == Node::Type::Mul) return evaluate(node->lhs) * evaluate(node->rhs);
+  if(node->type == Node::Type::Div) return evaluate(node->lhs) / evaluate(node->rhs);
+  if(node->type == Node::Type::Mod) return evaluate(node->lhs) % evaluate(node->rhs);
+  if(node->type == Node::Type::UnaryAdd) return evaluate(node->lhs) + 1;
+  if(node->type == Node::Type::UnarySub) return evaluate(node->lhs) - 1;
+  if(node->type == Node::Type::PostAdd) return evaluate(node->lhs) + 1;
+  if(node->type == Node::Type::PostSub) return evaluate(node->lhs) - 1;
+  if(node->type == Node::Type::Num) return node->val;
   return 0;
 }
 
