@@ -20,11 +20,11 @@ std::string Node::print() {
   }
 }
 
-int Node::reduct() {
-  if(type == Type::Add) return lhs->reduct() + rhs->reduct();
-  if(type == Type::Sub) return lhs->reduct() - rhs->reduct();
-  if(type == Type::Mul) return lhs->reduct() * rhs->reduct();
-  if(type == Type::Div) return lhs->reduct() / rhs->reduct();
+int Node::evaluate() {
+  if(type == Type::Add) return lhs->evaluate() + rhs->evaluate();
+  if(type == Type::Sub) return lhs->evaluate() - rhs->evaluate();
+  if(type == Type::Mul) return lhs->evaluate() * rhs->evaluate();
+  if(type == Type::Div) return lhs->evaluate() / rhs->evaluate();
   if(type == Type::Num) return val;
   exit(EXIT_FAILURE);
   return 0;
@@ -67,76 +67,4 @@ Node* primary(Tokens& tokens) {
     tokens.erase(tokens.begin());
     return node;
   }
-}
-
-Node* constant_expr(Tokens& tokens){
-
-}
-
-Node* conditional_expr(Tokens& tokens){
-
-}
-
-Node* logical_or_expr(Tokens& tokens){
-
-}
-
-Node* logical_or_expr(Tokens& tokens){
-
-}
-
-Node* logical_and_expr(Tokens& tokens){
-
-}
-
-Node* inclusive_or_expr(Tokens& tokens){
-
-}
-
-Node* exclusive_or_expr(Tokens& tokens){
-
-}
-
-Node* and_expr(Tokens& tokens){
-
-}
-
-Node* equality_expr(Tokens& tokens){
-
-}
-
-Node* relational_expr(Tokens& tokens){
-
-}
-
-Node* shift_expr(Tokens& tokens){
-
-}
-
-Node* additive_expr(Tokens& tokens){
-
-}
-
-Node* multiplicative_expr(Tokens& tokens){
-
-}
-
-Node* cast_expr(Tokens& tokens){
-
-}
-
-Node* unary_expr(Tokens& tokens){
-
-}
-
-Node* postfix_expr(Tokens& tokens){
-
-}
-
-Node* primary_expr(Tokens& tokens){
-
-}
-
-Node* constant(Tokens& tokens){
-
 }

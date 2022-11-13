@@ -24,29 +24,7 @@ int main(int argc, char* argv[]) {
   std::smatch match;
   Tokens tokens;
   while(std::getline(fin, line)) {
-    for(; line.length() > 0;) {
-      if(std::regex_search(line, match, reserved)) {
-        std::string match_str = match.str();
-        int match_length = match.length();
-        // 読み取った分だけ読み込みを進める
-        line.erase(0, match_length);
-        // トークンに追加
-        Token new_token(Token::Type::Reserved, match_str, 0);
-        tokens.push_back(new_token);
-      } else if(std::regex_search(line, match, num)) {
-        std::string match_str = match.str();
-        int match_length = match.length();
-        // 読み取った分だけ読み込みを進める
-        line.erase(0, match_length);
-        // トークンに追加
-        Token new_token(Token::Type::Number, match_str, std::stoi(match_str));
-        tokens.push_back(new_token);
-      } else if(std::regex_search(line, blank)) {
-        // 空白文字を消去
-        line.erase(0, 1);
-      }
-    }
-
+    tokenize(line, tokens);
     for(auto token : tokens) std::cout << token.print() << " ";
     std::cout << " --> ";
 
@@ -54,6 +32,6 @@ int main(int argc, char* argv[]) {
     Node* root = expr(tokens);
     std::cout << root->print();
     // 計算結果
-    std::cout << " = " << root->reduct() << std::endl;
+    std::cout << " = " << root->evaluate() << std::endl;
   }
 }
