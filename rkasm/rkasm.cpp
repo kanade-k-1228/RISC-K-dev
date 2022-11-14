@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
   }
 
   // 表示
-  std::cout << "PC     | rd/imm rs2/imm imm       op   rs1    | Operation " << std::endl;
+  // std::cout << "PC     | rd/imm rs2/imm imm       op   rs1    | Operation " << std::endl;
   program_cnt = 0;
   for(auto code : codes) std::cout << code.print() << std::endl;
   return EXIT_SUCCESS;

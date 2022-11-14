@@ -1,6 +1,5 @@
 zero: ; おまじないみたいなもの
 ; レジスタにダミーデータをセット
-; 関数の後もこれが保持される
     loadi  s0  0xc000
     loadi  s1  0xc111
     loadi  s2  0xc222
@@ -22,21 +21,21 @@ zero: ; おまじないみたいなもの
     subi   sp  sp  1
     store  t3  sp  0
     subi   sp  sp  1
-    store  a0  sp  0
-    subi   sp  sp  1
-    store  a1  sp  0
-    subi   sp  sp  1
-    store  a2  sp  0
-    subi   sp  sp  1
-    store  a3  sp  0
-    subi   sp  sp  1
 ; 引数をレジスタにセット
     loadi  a0  0x0001
     loadi  a1  0x0002
 ; 関数にジャンプ
     jump   ra  zero  func
 ; ここに戻ってくる
-    addi   s0  a0  0x0000
+; Tレジスタを復元
+    load   t3  sp  0
+    addi   sp  sp  1
+    load   t2  sp  0
+    addi   sp  sp  1
+    load   t1  sp  0
+    addi   sp  sp  1
+    load   t0  sp  0
+    addi   sp  sp  1
 
 ; 無限ループ
 here:

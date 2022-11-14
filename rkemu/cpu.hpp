@@ -4,15 +4,16 @@
 
 class CPU {
 public:
-  std::array<uint16_t, 0xffff> mem;
+  std::array<uint16_t, 0x10000> mem;
   uint16_t pc = 0;
-  std::array<uint32_t, 0xffff> rom;
+  std::array<uint32_t, 0x10000> rom;
 
   CPU();
 
   void load_rom(std::string);
   void dump();
 
+  void run(uint16_t code);
   void step();
 
   void add(uint16_t, uint16_t, uint16_t);

@@ -28,15 +28,15 @@ void CPU::load_rom(std::string fname) {
 }
 
 void CPU::dump() {
-  std::cout << "REGISTOR----------------------" << std::endl
-            << "         | Save | Temp | Argu" << std::endl
+  std::cout << "------------------------------" << std::endl
+            << "REGISTOR | Save | Temp | Argu" << std::endl
             << "PC: " << hex(pc) << " | " << hex(mem.at(S0)) << " | " << hex(mem.at(T0)) << " | " << hex(mem.at(A0)) << std::endl
             << "RA: " << hex(mem.at(RA)) << " | " << hex(mem.at(S1)) << " | " << hex(mem.at(T1)) << " | " << hex(mem.at(A1)) << std::endl
             << "SP: " << hex(mem.at(SP)) << " | " << hex(mem.at(S2)) << " | " << hex(mem.at(T2)) << " | " << hex(mem.at(A2)) << std::endl
             << "GP: " << hex(mem.at(GP)) << " | " << hex(mem.at(S3)) << " | " << hex(mem.at(T3)) << " | " << hex(mem.at(A3)) << std::endl
             << "STACK-------------------------" << std::endl;
   for(uint16_t sp = mem.at(SP); sp < mem.at(GP); sp++)
-    std::cout << hex(sp) << " : " << hex(mem.at(sp)) << std::endl;
+    std::cout << hex(sp + 1) << " : " << hex(mem.at(sp + 1)) << std::endl;
   std::cout << "------------------------------" << std::endl;
 }
 
@@ -66,7 +66,6 @@ void CPU::step() {
   if(opc == BREQ) breq(rs1, rs2, imm);
   if(opc == BRLT) brlt(rs1, rs2, imm);
   mem.at(ZERO) = 0;
-
   return;
 }
 
@@ -103,7 +102,7 @@ void CPU::subi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 }
 
 // load rd rs1 imm
-// rd <= m[rs1+imm]
+// rd = m[rs1+imm]
 void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
   std::cout << "load " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(mem.at(rs1) + imm);
@@ -111,7 +110,7 @@ void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
 }
 
 // loadi rd imm
-// rd <= imm
+// rd = imm
 void CPU::loadi(uint16_t rd, uint16_t imm) {
   std::cout << "loadi " << hex(rd) << " " << hex(imm) << std::endl;
   mem.at(rd) = imm;
@@ -119,16 +118,16 @@ void CPU::loadi(uint16_t rd, uint16_t imm) {
 }
 
 // store rs1 rs2 imm
-// m[rs1 + imm] <= rs2
+// m[rs1 + imm] = rs2
 void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  std::cout << "store " << hex(rs1) << " " << hex(imm) << std::endl;
+  std::cout << "store " << hex(rs2) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(mem.at(rs1) + imm) = mem.at(rs2);
   ++pc;
 }
 
 // jump rd rs1 imm
-// rd <= pc + 1
-// pc <= rs1 + imm
+// rd = pc + 1
+// pc = rs1 + imm
 void CPU::jump(uint16_t rd, uint16_t rs1, uint16_t imm) {
   std::cout << "jump " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = pc + 1;
@@ -136,14 +135,14 @@ void CPU::jump(uint16_t rd, uint16_t rs1, uint16_t imm) {
 }
 
 // breq rs1 rs2 imm
-// if(rs1==rs2) pc <= imm
+// if(rs1==rs2) pc = imm
 void CPU::breq(uint16_t rs1, uint16_t rs2, uint16_t imm) {
   std::cout << "breq " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) == mem.at(rs2)) ? imm : pc + 1;
 }
 
 // brlt rs1 rs2 imm
-// if(rs1<rs2) pc <= imm
+// if(rs1<rs2) pc = imm
 void CPU::brlt(uint16_t rs1, uint16_t rs2, uint16_t imm) {
   std::cout << "brlt " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) < mem.at(rs2)) ? imm : pc + 1;

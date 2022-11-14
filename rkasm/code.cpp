@@ -41,8 +41,8 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
       imm = get_imm(code_s.at(2));
     }
     if(op == STORE) {
-      rs1 = get_reg(code_s.at(1));
-      rs2 = get_reg(code_s.at(2));
+      rs2 = get_reg(code_s.at(1));
+      rs1 = get_reg(code_s.at(2));
       imm = get_imm(code_s.at(3));
     }
     if(op == JUMP) {
@@ -170,13 +170,14 @@ std::string Code::print() {
   if(is_label_target) {
     ss << cprint(label_target_name + ":" + hex(label_target_value), GREEN, 0);
   } else {
+    ss << hex(address) << " ";
     // Print Binary
-    ss << hex(address) << " | "
-       << std::bitset<6>((code >> 26) & 0x3f) << " "
-       << std::bitset<6>((code >> 20) & 0x3f) << " "
-       << std::bitset<10>((code >> 10) & 0x3ff) << " "
-       << std::bitset<4>((code >> 6) & 0xf) << " "
-       << std::bitset<6>(code & 0x3f) << " | ";
+    // ss << "| "
+    //    << std::bitset<6>((code >> 26) & 0x3f) << " "
+    //    << std::bitset<6>((code >> 20) & 0x3f) << " "
+    //    << std::bitset<10>((code >> 10) & 0x3ff) << " "
+    //    << std::bitset<4>((code >> 6) & 0xf) << " "
+    //    << std::bitset<6>(code & 0x3f) << " |";
     // Print Collered asm
     ss << cprint(code_s.at(0), RED, 6);
     if(op == CALC) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(code_s.at(3), BLUE, 8);
