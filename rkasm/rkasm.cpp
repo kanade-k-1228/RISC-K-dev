@@ -8,6 +8,7 @@
 #include <vector>
 
 int main(int argc, char* argv[]) {
+  if(argc != 2) error("Input one file name");
   std::string fname = argv[1];             // 入力ファイル
   std::map<std::string, uint16_t> labels;  // ラベルとアドレスの対応
   std::vector<Code> codes;                 // コード
@@ -27,7 +28,7 @@ int main(int argc, char* argv[]) {
     // 空行削除
     if(is_empty(line)) continue;
     // 行を解釈
-    const Code code(split(line, ' '), program_cnt);
+    const Code code(program_cnt, split(line, ' '));
     codes.push_back(code);
     // ラベルの場合、ラベルの指す位置をリストに記録
     // 命令の場合、PCをカウントアップする。

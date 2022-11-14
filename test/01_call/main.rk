@@ -4,8 +4,7 @@ zero:
     addi   s0  a0  0x0000
 here:
     jump   ra  zero  here
-
-; a+1 を計算する関数
+; a0 + a1 を計算する関数
 func:
-    addi  a0    a0  0x0001
+    add   a0    a0  a1
     jump  zero  ra  zero

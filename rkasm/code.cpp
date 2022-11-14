@@ -13,8 +13,8 @@ uint16_t get_imm(std::string);
 uint16_t get_op(std::string);
 uint16_t get_func(std::string);
 
-Code::Code(const std::vector<std::string> code_s, uint16_t address)
-    : code_s(code_s), address(address), is_label_target(false), is_label_reference(false) {
+Code::Code(const uint16_t address, const std::vector<std::string> code_s)
+    : address(address), code_s(code_s), is_label_target(false), is_label_reference(false) {
   // ラベル行の場合
   if(is_op(code_s.at(0))) {  // 命令行
     op_s = code_s.at(0);
@@ -122,7 +122,12 @@ uint16_t get_func(std::string op_s) {
 }
 
 uint16_t get_imm(std::string imm) {
-  return std::stoi(imm, nullptr, 0);
+  try {
+    return std::stoi(imm, nullptr, 0);
+  } catch(std::invalid_argument& e) {
+    error("Expect Number");
+    return 0;
+  }
 }
 
 uint32_t Code::get_bin() {

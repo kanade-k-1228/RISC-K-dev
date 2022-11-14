@@ -19,7 +19,7 @@ struct Code {
   uint16_t label_reference_value;
   std::string label_target_name;
   std::string label_reference_name;
-  Code(std::vector<std::string>, uint16_t);
+  Code(const uint16_t address, const std::vector<std::string> code_s);
   uint32_t get_bin();
   std::string print();
 };
