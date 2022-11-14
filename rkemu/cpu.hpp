@@ -3,11 +3,11 @@
 #include <iostream>
 
 class CPU {
+public:
   std::array<uint16_t, 0xffff> mem;
   uint16_t pc = 0;
   std::array<uint32_t, 0xffff> rom;
 
-public:
   CPU();
 
   void load_rom(std::string);

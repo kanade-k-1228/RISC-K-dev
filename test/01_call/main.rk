@@ -1,10 +1,51 @@
-zero:
+zero: ; おまじないみたいなもの
+; レジスタにダミーデータをセット
+; 関数の後もこれが保持される
+    loadi  s0  0xc000
+    loadi  s1  0xc111
+    loadi  s2  0xc222
+    loadi  s3  0xc333
+    loadi  t0  0xb000
+    loadi  t1  0xb111
+    loadi  t2  0xb222
+    loadi  t3  0xb333
+    loadi  a0  0xa000
+    loadi  a1  0xa111
+    loadi  a2  0xa222
+    loadi  a3  0xa333
+; スタックに退避
+    store  t0  sp  0
+    subi   sp  sp  1
+    store  t1  sp  0
+    subi   sp  sp  1
+    store  t2  sp  0
+    subi   sp  sp  1
+    store  t3  sp  0
+    subi   sp  sp  1
+    store  a0  sp  0
+    subi   sp  sp  1
+    store  a1  sp  0
+    subi   sp  sp  1
+    store  a2  sp  0
+    subi   sp  sp  1
+    store  a3  sp  0
+    subi   sp  sp  1
+; 引数をレジスタにセット
     loadi  a0  0x0001
+    loadi  a1  0x0002
+; 関数にジャンプ
     jump   ra  zero  func
+; ここに戻ってくる
     addi   s0  a0  0x0000
+
+; 無限ループ
 here:
     jump   ra  zero  here
-; a0 + a1 を計算する関数
+
+; 足し算を計算する関数
+; a0 = a0 + a1
+
 func:
+; Sレジスタを退避
     add   a0    a0  a1
     jump  zero  ra  zero

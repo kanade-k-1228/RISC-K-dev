@@ -127,6 +127,9 @@ uint16_t get_imm(std::string imm) {
   } catch(std::invalid_argument& e) {
     error("Expect Number");
     return 0;
+  } catch(std::out_of_range& e) {
+    error("Immidiate Out of Range");
+    return 0;
   }
 }
 
@@ -149,7 +152,6 @@ uint32_t Code::get_bin() {
     code |= (rs1 & 0x3F);
     code |= (op & 0x0F) << 6;
     code |= (imm & 0xFFFF) << 10;
-    code |= (func & 0x0F) << 20;
     code |= (rd & 0x3F) << 26;
   } else if(op == STORE || op == BREQ || op == BRLT) {
     code |= (rs1 & 0x3F);
