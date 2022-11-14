@@ -21,23 +21,24 @@ primary = num | "(" expr ")"
 - 演算子の拡張
 
 ```
-expr   = cond
-cond   = l_or  ("?" expr ":" expr)?
-l_or   = l_xor ("||" l_xor)*
-l_xor  = l_and ("^^" l_and)*
-l_and  = b_or  ("&&" b_or)*
-b_or   = b_xor ("|" b_xor)*
-b_xor  = b_and ("^" b_and)*
-b_and  = eqal  ("&" eqal)*
-equal  = relate ("==" relate | "!=" relate)
-relate = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)
-shift  = add ("<<" add | ">>" add)*
-add    = mul ("+" mul | "-" mul)*
-mul    = unary ("*" unary | "/" unary | "%" unary)*
-unary  = ("++"|"--")? post
-post   = prim ("++"|"--")?
-prim   = num | "(" expr ")"
+expr = cond
+cond = logical_or  ("?" expr ":" expr)?
+logical_or  = logical_xor ("||" logical_xor)*
+logical_xor = logical_and ("^^" logical_and)*
+logical_and = bit_or  ("&&" bit_or)*
+bit_or  = bit_xor ("|" bit_xor)*
+bit_xor = bit_and ("^" bit_and)*
+bit_and = eqal  ("&" eqal)*
+equal   = relate ("==" relate | "!=" relate)
+relate  = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)
+shift   = add ("<<" add | ">>" add)*
+add     = mul ("+" mul | "-" mul)*
+mul     = unary ("*" unary | "/" unary | "%" unary)*
+unary   = ("++"|"--")? post
+post    = prim ("++"|"--")?
+prim    = num | "(" expr ")"
 ```
+
 ### 今後
 
 - 文・変数・代入の実装
@@ -49,7 +50,6 @@ stmt = expr ";"
 assign = equal "=" assign
 primary = num | ident | "(" expr ")"
 ```
-
 
 ## BNF の解読
 
