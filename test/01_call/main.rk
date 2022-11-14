@@ -13,14 +13,11 @@ zero: ; おまじないみたいなもの
     loadi  a2  0xa222
     loadi  a3  0xa333
 ; スタックに退避
-    store  t0  sp  0
-    subi   sp  sp  1
-    store  t1  sp  0
-    subi   sp  sp  1
-    store  t2  sp  0
-    subi   sp  sp  1
-    store  t3  sp  0
-    subi   sp  sp  1
+    subi   sp  sp  4
+    store  t0  sp  1
+    store  t1  sp  2
+    store  t2  sp  3
+    store  t3  sp  4
 ; 引数をレジスタにセット
     loadi  a0  0x0001
     loadi  a1  0x0002
@@ -28,14 +25,11 @@ zero: ; おまじないみたいなもの
     jump   ra  zero  func
 ; ここに戻ってくる
 ; Tレジスタを復元
-    load   t3  sp  0
-    addi   sp  sp  1
-    load   t2  sp  0
-    addi   sp  sp  1
-    load   t1  sp  0
-    addi   sp  sp  1
-    load   t0  sp  0
-    addi   sp  sp  1
+    load   t3  sp  4
+    load   t2  sp  3
+    load   t1  sp  2
+    load   t0  sp  1
+    addi   sp  sp  4
 
 ; 無限ループ
 here:
@@ -45,6 +39,22 @@ here:
 ; a0 = a0 + a1
 
 func:
+; プロローグ
 ; Sレジスタを退避
+
+; 関数の本体
     add   a0    a0  a1
+
+; レジスタを荒らす
+    loadi s0  0xffff
+    loadi s1  0xffff
+    loadi s2  0xffff
+    loadi s3  0xffff
+    loadi t0  0xffff
+    loadi t1  0xffff
+    loadi t2  0xffff
+    loadi t3  0xffff
+
+; エピローグ
+; Sレジスタの復元
     jump  zero  ra  zero
