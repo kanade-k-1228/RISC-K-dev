@@ -11,8 +11,20 @@ std::string Token::print() {
   return str;
 }
 
+bool Tokens::type_is(Token::Type type) {
+  return (this->size() > 0 && this->at(0).type == type);
+}
+
 bool Tokens::consume(std::string str) {
   if(this->size() > 0 && this->at(0).str == str) {
+    this->erase(this->begin());
+    return true;
+  } else
+    return false;
+}
+
+bool Tokens::consume(Token::Type type) {
+  if(this->size() > 0 && this->at(0).type == type) {
     this->erase(this->begin());
     return true;
   } else
@@ -32,6 +44,11 @@ bool Tokens::expect(std::string str) {
 std::string Tokens::token_head() {
   if(this->size() == 0) return "";
   return this->at(0).str;
+}
+
+void Tokens::pop() {
+  this->erase(this->begin());
+  return;
 }
 
 void tokenize(std::string code, Tokens& tokens) {

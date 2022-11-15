@@ -32,7 +32,10 @@ const std::regex number("^([0-9]+)");
 class Tokens : public std::vector<Token> {
 public:
   bool consume(std::string);
+  bool consume(Token::Type);
+  bool type_is(Token::Type);
   bool expect(std::string);
+  void pop();
   std::string token_head();
 };
 

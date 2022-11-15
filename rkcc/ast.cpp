@@ -14,6 +14,9 @@ Node::Node(Type type, Node* lhs)
 Node::Node(int val)
     : type(Type::Num), lhs(nullptr), rhs(nullptr), cond(nullptr), val(val) {}
 
+Node::Node(std::string ident)
+    : type(Type::Ident), lhs(nullptr), rhs(nullptr), cond(nullptr), str(ident) {}
+
 std::string print(Node* node) {
   if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
@@ -40,6 +43,7 @@ std::string print(Node* node) {
   if(node->type == Node::Type::PostAdd) return "( " + print(node->lhs) + " ++ )";
   if(node->type == Node::Type::PostSub) return "( " + print(node->lhs) + " -- )";
   if(node->type == Node::Type::Num) return std::to_string(node->val);
+  if(node->type == Node::Type::Ident) return node->str;
   return "";
 }
 
@@ -247,9 +251,13 @@ Node* prim(Tokens& tokens) {
     Node* node = expr(tokens);
     tokens.expect(")");
     return node;
-  } else {
+  } else if(tokens.type_is(Token::Type::Number)) {
     Node* node = new Node(tokens.at(0).val);
-    tokens.erase(tokens.begin());
+    tokens.pop();
+    return node;
+  } else if(tokens.type_is(Token::Type::Identifier)) {
+    Node* node = new Node(tokens.at(0).str);
+    tokens.pop();
     return node;
   }
 }

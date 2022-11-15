@@ -41,18 +41,26 @@ prim    = num | "(" expr ")"
 
 ### 11/14
 
-- 変数の実装 
+- 変数の実装
+
+```
+primary = num | ident | "(" expr ")"
+```
+
+- 文の実装
+
+```
+program = statement*
+statement = expr ";"
+```
 
 ### 今後
 
-- 文・変数・代入の実装
-  - 変数はスタックに追加する
+- 代入の実装
+  - 変数はスタックに割り当てる
 
 ```
-program = stmt*
-stmt = expr ";"
 assign = equal "=" assign
-primary = num | ident | "(" expr ")"
 ```
 
 ## BNF の解読

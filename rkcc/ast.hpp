@@ -29,19 +29,23 @@ public:
     UnarySub,
     PostAdd,
     PostSub,
-    Num
+    Num,
+    Ident,
   };
-  // 三項演算子のコンストラクタ
-  Node(Type type, Node* cond, Node* lhs, Node* rhs);
-  // 二項演算子のコンストラクタ
-  Node(Type type, Node* lhs, Node* rhs);
-  // 単項演算子のコンストラクタ
-  Node(Type type, Node* lhs);
-  // 数値のコンストラクタ
-  Node(int val);
   Type type;
   Node *lhs, *rhs, *cond;
   int val;
+  std::string str;
+  // 三項演算子
+  Node(Type type, Node* cond, Node* lhs, Node* rhs);
+  // 二項演算子
+  Node(Type type, Node* lhs, Node* rhs);
+  // 単項演算子
+  Node(Type type, Node* lhs);
+  // 数値
+  Node(int val);
+  // 識別子
+  Node(std::string ident);
 };
 
 std::string print(Node* node);
