@@ -21,7 +21,7 @@ zero: ; おまじないみたいなもの
 ; 引数をレジスタにセット
     loadi  a0  0x0001
     loadi  a1  0x0002
-; 関数にジャンプ
+; Call
     jump   ra  zero  func
 ; ここに戻ってくる
 ; Tレジスタを復元
@@ -41,11 +41,19 @@ here:
 func:
 ; プロローグ
 ; Sレジスタを退避
+    subi   sp  sp  4
+    store  s0  sp  1
+    store  s1  sp  2
+    store  s2  sp  3
+    store  s3  sp  4
 
 ; 関数の本体
     add   a0    a0  a1
 
 ; レジスタを荒らす
+    loadi a1  0xffff
+    loadi a2  0xffff
+    loadi a3  0xffff
     loadi s0  0xffff
     loadi s1  0xffff
     loadi s2  0xffff
@@ -57,4 +65,11 @@ func:
 
 ; エピローグ
 ; Sレジスタの復元
+    load   s3  sp  4
+    load   s2  sp  3
+    load   s1  sp  2
+    load   s0  sp  1
+    addi   sp  sp  4
+
+; Return
     jump  zero  ra  zero

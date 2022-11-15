@@ -10,7 +10,7 @@ uint16_t decode_func(uint32_t, uint16_t);
 
 CPU::CPU() : mem{0}, rom{0} {
   mem.at(SP) = 0xffff;
-  mem.at(GP) = 0xffff;
+  mem.at(FP) = 0xffff;
 }
 
 void CPU::load_rom(std::string fname) {
@@ -33,9 +33,9 @@ void CPU::dump() {
             << "PC: " << hex(pc) << " | " << hex(mem.at(S0)) << " | " << hex(mem.at(T0)) << " | " << hex(mem.at(A0)) << std::endl
             << "RA: " << hex(mem.at(RA)) << " | " << hex(mem.at(S1)) << " | " << hex(mem.at(T1)) << " | " << hex(mem.at(A1)) << std::endl
             << "SP: " << hex(mem.at(SP)) << " | " << hex(mem.at(S2)) << " | " << hex(mem.at(T2)) << " | " << hex(mem.at(A2)) << std::endl
-            << "GP: " << hex(mem.at(GP)) << " | " << hex(mem.at(S3)) << " | " << hex(mem.at(T3)) << " | " << hex(mem.at(A3)) << std::endl
+            << "FP: " << hex(mem.at(FP)) << " | " << hex(mem.at(S3)) << " | " << hex(mem.at(T3)) << " | " << hex(mem.at(A3)) << std::endl
             << "STACK-------------------------" << std::endl;
-  for(uint16_t sp = mem.at(SP); sp < mem.at(GP); sp++)
+  for(uint16_t sp = mem.at(SP); sp < mem.at(FP); sp++)
     std::cout << hex(sp + 1) << " : " << hex(mem.at(sp + 1)) << std::endl;
   std::cout << "------------------------------" << std::endl;
 }

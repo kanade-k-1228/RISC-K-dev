@@ -1,6 +1,6 @@
 #include "ast.hpp"
-#include <vector>
 #include <string>
+#include <vector>
 
 Node::Node(Type type, Node* cond, Node* lhs, Node* rhs)
     : type(type), lhs(lhs), rhs(rhs), cond(cond), val(0) {}
@@ -43,9 +43,9 @@ std::string print(Node* node) {
   return "";
 }
 
-std::vector<std::string> print_tree(Node* node){
+std::vector<std::string> print_tree(Node* node) {
   std::vector<std::string> ret;
-  if(node->type==Node::Type::Num){
+  if(node->type == Node::Type::Num) {
     ret.at(0) = std::to_string(node->val);
     return ret;
   }

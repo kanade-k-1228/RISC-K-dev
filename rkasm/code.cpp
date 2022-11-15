@@ -81,7 +81,7 @@ uint16_t get_reg(std::string name) {
   if(name == "zero") return ZERO;
   if(name == "ra") return RA;
   if(name == "sp") return SP;
-  if(name == "gp") return GP;
+  if(name == "fp") return FP;
   if(name == "s0") return S0;
   if(name == "s1") return S1;
   if(name == "s2") return S2;
