@@ -6,10 +6,9 @@ Token::Token(Type type, std::string str, int val)
     : type(type), str(str), val(val) {}
 
 std::string Token::print() {
-  if(type == Type::Reserved)
-    return "\033[31m" + str + "\033[m";
-  else
-    return str;
+  if(type == Type::Reserved) return "\033[31m" + str + "\033[m";
+  if(type == Type::Identifier) return "\033[34m" + str + "\033[m";
+  return str;
 }
 
 bool Tokens::consume(std::string str) {
@@ -41,6 +40,14 @@ void tokenize(std::string code, Tokens& tokens) {
     if(std::regex_search(code, match, TokenRegex::blank)) {
       // 空白文字を消去
       code.erase(0, 1);
+    } else if(std::regex_search(code, match, TokenRegex::ident)) {
+      std::string match_str = match.str();
+      int match_length = match.length();
+      // 読み取った分だけ読み込みを進める
+      code.erase(0, match_length);
+      // トークンに追加
+      Token new_token(Token::Type::Identifier, match_str, 0);
+      tokens.push_back(new_token);
     } else if(std::regex_search(code, match, TokenRegex::reserved)) {
       std::string match_str = match.str();
       int match_length = match.length();

@@ -25,6 +25,7 @@ const std::regex reserved("^("
                           "|(\\|\\|)|(\\^\\^)|(&&)|(==)|(!=)|(<=)|(>=)|(<<)|(>>)|(\\+\\+)|(--)"
                           "|\\?|:|\\||\\^|&|<|>|\\+|-|\\*|/|%|\\(|\\)"
                           ")");
+const std::regex ident("^([_a-zA-Z][_0-9a-zA-Z]*)");
 const std::regex number("^([0-9]+)");
 }  // namespace TokenRegex
 
