@@ -1,4 +1,5 @@
 #include "ast.hpp"
+#include "utils.hpp"
 #include <string>
 #include <vector>
 
@@ -18,6 +19,7 @@ Node::Node(std::string ident)
     : type(Type::Ident), lhs(nullptr), rhs(nullptr), cond(nullptr), str(ident) {}
 
 std::string print(Node* node) {
+  if(node->type == Node::Type::Program) return print(node->lhs) + " ;\n" + print(node->rhs);
   if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalXor) return "( " + print(node->lhs) + " ^^ " + print(node->rhs) + " )";
@@ -53,6 +55,7 @@ std::vector<std::string> print_tree(Node* node) {
     ret.at(0) = std::to_string(node->val);
     return ret;
   }
+  return ret;
 }
 
 // 1 + 2 + 3 + 4
@@ -87,6 +90,20 @@ int evaluate(Node* node) {
   if(node->type == Node::Type::PostSub) return evaluate(node->lhs) - 1;
   if(node->type == Node::Type::Num) return node->val;
   return 0;
+}
+
+
+Node* program(Tokens& tokens) {
+  Node* node = statement(tokens);
+  if(!tokens.empty())
+    node = new Node(Node::Type::Program, node, program(tokens));
+  return node;
+}
+
+Node* statement(Tokens& tokens) {
+  Node* node = expr(tokens);
+  tokens.expect(";");
+  return node;
 }
 
 Node* expr(Tokens& tokens) {
@@ -259,5 +276,8 @@ Node* prim(Tokens& tokens) {
     Node* node = new Node(tokens.at(0).str);
     tokens.pop();
     return node;
+  } else {
+    error("Expected Primitive: " + tokens.head());
+    return nullptr;
   }
 }

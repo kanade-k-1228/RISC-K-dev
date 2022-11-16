@@ -41,7 +41,7 @@ bool Tokens::expect(std::string str) {
   }
 }
 
-std::string Tokens::token_head() {
+std::string Tokens::head() {
   if(this->size() == 0) return "";
   return this->at(0).str;
 }

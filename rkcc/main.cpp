@@ -25,13 +25,9 @@ int main(int argc, char* argv[]) {
   Tokens tokens;
   while(std::getline(fin, line)) {
     tokenize(line, tokens);
-    for(auto token : tokens) std::cout << token.print() << " ";
-    std::cout << " --> ";
-
-    // 構文木
-    Node* root = expr(tokens);
-    std::cout << print(root);
-    // 計算結果
-    std::cout << " = " << evaluate(root) << std::endl;
   }
+
+  // 構文木
+  Node* root = program(tokens);
+  std::cout << print(root) << std::endl;
 }

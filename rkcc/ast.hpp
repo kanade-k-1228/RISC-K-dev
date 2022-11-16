@@ -31,6 +31,8 @@ public:
     PostSub,
     Num,
     Ident,
+    Statement,
+    Program,
   };
   Type type;
   Node *lhs, *rhs, *cond;
@@ -51,6 +53,8 @@ public:
 std::string print(Node* node);
 int evaluate(Node* node);
 
+Node* program(Tokens&);
+Node* statement(Tokens&);
 Node* expr(Tokens&);
 Node* cond(Tokens&);
 Node* logical_or(Tokens&);

@@ -23,7 +23,7 @@ const std::regex blank("^\\s");
 const std::regex reserved("^("
                           "(if)|(goto)|(while)|(do)|(for)"
                           "|(\\|\\|)|(\\^\\^)|(&&)|(==)|(!=)|(<=)|(>=)|(<<)|(>>)|(\\+\\+)|(--)"
-                          "|\\?|:|\\||\\^|&|<|>|\\+|-|\\*|/|%|\\(|\\)"
+                          "|\\?|:|\\||\\^|&|<|>|\\+|-|\\*|/|%|\\(|\\)|;"
                           ")");
 const std::regex ident("^([_a-zA-Z][_0-9a-zA-Z]*)");
 const std::regex number("^([0-9]+)");
@@ -36,7 +36,7 @@ public:
   bool type_is(Token::Type);
   bool expect(std::string);
   void pop();
-  std::string token_head();
+  std::string head();
 };
 
 void tokenize(std::string, Tokens&);
