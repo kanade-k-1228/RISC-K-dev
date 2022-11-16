@@ -13,6 +13,9 @@ Node::Node(Type type, Node* lhs, Node* rhs)
 Node::Node(Type type, Node* lhs)
     : type(type), lhs(lhs), rhs(nullptr), cond(nullptr), val(0) {}
 
+Node::Node(Type type)
+    : type(type) {}
+
 Node::Node(int val)
     : type(Type::Num), lhs(nullptr), rhs(nullptr), cond(nullptr), val(val) {}
 
@@ -21,7 +24,7 @@ Node::Node(std::string ident)
 
 std::string print(Node* node) {
   if(node->type == Node::Type::Program) return print(node->lhs) + "\n" + print(node->rhs);
-  if(node->type == Node::Type::Assignment) return print(node->lhs) + " = " + print(node->rhs);
+  if(node->type == Node::Type::Assignment) return "( " + print(node->lhs) + " = " + print(node->rhs) + " )";
   if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalXor) return "( " + print(node->lhs) + " ^^ " + print(node->rhs) + " )";
@@ -48,7 +51,13 @@ std::string print(Node* node) {
   if(node->type == Node::Type::PostSub) return "( " + print(node->lhs) + " -- )";
   if(node->type == Node::Type::Num) return std::to_string(node->val);
   if(node->type == Node::Type::Ident) return node->str;
-  return "";
+  if(node->type == Node::Type::CompoundStmt) return print(node->lhs) + "\n" + print(node->rhs);
+  if(node->type == Node::Type::If) return "if:" + print(node->cond) + " {\n" + print(node->true_stmt) + "\n}";
+  if(node->type == Node::Type::IfElse) return "if:" + print(node->cond) + " {\n" + print(node->true_stmt) + "\n} else {\n" + print(node->false_stmt) + "\n}";
+  if(node->type == Node::Type::While) return "while:" + print(node->cond) + " {\n" + print(node->stmt) + "\n}";
+  if(node->type == Node::Type::DoWhile) return "do{\n" + print(node->stmt) + "\n} while:" + print(node->cond) + ";";
+  if(node->type == Node::Type::For) return "for:" + print(node->init) + ":" + print(node->cond) + ":" + print(node->iterate) + "{\n" + print(node->stmt) + "\n}";
+  return "NO PRINT FORMAT";
 }
 
 int evaluate(Node* node) {
@@ -89,9 +98,58 @@ Node* program(Tokens& tokens) {
 }
 
 Node* stmt(Tokens& tokens) {
-  Node* node = expr(tokens);
-  tokens.expect(";");
-  return node;
+  if(tokens.consume(";")) {
+    return new Node(Node::Type::Statement);
+  } else if(tokens.consume("{")) {
+    Node* node = stmt(tokens);
+    while(tokens.head() != "}") {
+      node = new Node(Node::Type::CompoundStmt, node, stmt(tokens));
+    }
+    tokens.expect("}");
+    return node;
+  } else if(tokens.consume("if")) {
+    Node* if_node = new Node(Node::Type::If);
+    tokens.expect("(");
+    if_node->cond = expr(tokens);
+    tokens.expect(")");
+    if_node->true_stmt = stmt(tokens);
+    if(tokens.consume("else")) {
+      if_node->type = Node::Type::IfElse;
+      if_node->false_stmt = stmt(tokens);
+    }
+    return if_node;
+  } else if(tokens.consume("while")) {
+    Node* while_node = new Node(Node::Type::While);
+    tokens.expect("(");
+    while_node->cond = expr(tokens);
+    tokens.expect(")");
+    while_node->stmt = stmt(tokens);
+    return while_node;
+  } else if(tokens.consume("do")) {
+    Node* do_while_node = new Node(Node::Type::DoWhile);
+    do_while_node->stmt = stmt(tokens);
+    tokens.expect("while");
+    tokens.expect("(");
+    do_while_node->cond = expr(tokens);
+    tokens.expect(")");
+    tokens.expect(";");
+    return do_while_node;
+  } else if(tokens.consume("for")) {
+    Node* for_node = new Node(Node::Type::For);
+    tokens.expect("(");
+    for_node->init = expr(tokens);
+    tokens.expect(";");
+    for_node->cond = expr(tokens);
+    tokens.expect(";");
+    for_node->iterate = expr(tokens);
+    tokens.expect(")");
+    for_node->stmt = stmt(tokens);
+    return for_node;
+  } else {
+    Node* node = expr(tokens);
+    tokens.expect(";");
+    return node;
+  }
 }
 
 Node* expr(Tokens& tokens) {

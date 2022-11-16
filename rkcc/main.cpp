@@ -23,9 +23,8 @@ int main(int argc, char* argv[]) {
   std::string line;
   std::smatch match;
   Tokens tokens;
-  while(std::getline(fin, line)) {
+  while(std::getline(fin, line))
     tokenize(line, tokens);
-  }
 
   // 構文木
   Node* root = program(tokens);

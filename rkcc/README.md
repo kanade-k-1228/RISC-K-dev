@@ -37,7 +37,13 @@ prim = num | ident | "(" expr ")"
 
 ```
 program = stmt*
-stmt = expr ";"
+stmt = ";"
+     | "{" stmt* "}"
+     | "if" "(" expr ")" stmt ("else" stmt)?
+     | "while" "(" expr ")" stmt
+     | "do" stmt "while" ( expr ) ";"
+     | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+     | expr ";"
 expr = assign
 assign = cond ("=" assign)?
 cond = logical_or ("?" expr ":" cond)?
@@ -56,33 +62,44 @@ post  = prim ("++"|"--")?
 prim  = num | ident | "(" expr ")"
 ```
 
-## BNF
+## c言語の文法
+
+### 用語
+
+- declaration : 宣言
+  - `int func(int,int);`
+- declarator : 宣言子
+- definition : 定義
+  - `int func(int a, int b){}`
+- qualifier : 修飾子
+  - `const`
+- specifier : 指定子
+- statement : 文
+- expression : 式
+
+### BNF
 
 ```
-program = ext_declaration*
-ext_declaration = funct_def | declaration
+program = external_declaration*
+external_declaration = function_definition | declaration
 ```
 
 external declaration は、関数ブロックの外での宣言のこと。
 
-プログラムは、トップレベルで見ると、関数定義か宣言のどちらか。
+プログラムは、トップレベルで見ると、関数定義か宣言の列になっている。
 
-```
-funct_def = dec_spec* declarator declaration* compound_stmt
-```
 
 ### 宣言
 
 ```
-dec_spec = storage_class_spec | type_spec | type_qual
+declaration_specifier = storage_class_specifier | type_specifier | type_qualifier
 
-storage_class_spec = "auto" | "register" | "static" | "extern" | "typedef"
+storage_class_specifier = "auto" | "register" | "static" | "extern" | "typedef"
 
-type_spec = "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned"
-          | struct_or_union_spec | enum_spec | typedef_name
+type_specifier = "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned"
+               | struct_or_union_specifier | enum_specifier | typedef_name
 
-type_qual = "const" | "volatile"
-
+type_qualifier = "const" | "volatile"
 ```
 
 ```
@@ -90,245 +107,119 @@ declarator = pointer? direct_declarator
 
 pointer = "*" type_qual* pointer?
 
-direct_declarator = ident
-                  | "(" declarator ")"
-                  | direct_declarator "[" const_expr? "]"
-                  | direct_declarator "(" param_type_list ")"
-                  | direct_declarator "(" ident* ")"
+direct_declarator = (ident | "(" declarator ")") ("[" const_expr? "]" | "(" param_type_list ")" | "(" ident* ")")
 ```
 
-
-### 構造体・共用体
+### 関数定義
 
 ```
-<struct-or-union-specifier> ::= <struct-or-union> <identifier> { {<struct-declaration>}+ }
-                              | <struct-or-union> { {<struct-declaration>}+ }
-                              | <struct-or-union> <identifier>
-
-<struct-or-union> ::= struct
-                    | union
-
-<struct-declaration> ::= {<specifier-qualifier>}* <struct-declarator-list>
-
-<specifier-qualifier> ::= <type-specifier>
-                        | <type-qualifier>
-
-<struct-declarator-list> ::= <struct-declarator>
-                           | <struct-declarator-list> , <struct-declarator>
-
-<struct-declarator> ::= <declarator>
-                      | <declarator> : <constant-expr>
-                      | : <constant-expr>
+function_definition = declaration_specifier* declarator declaration* compound_stmt
 ```
-
 
 ### 式
-
-```
-expr = assign_expr ("," assign_expr)?
-
-assign_expr = cond_expr | unary_expr assign_opr assign_expr
-
-assign_opr = "=" | "*=" | "/=" | "%=" | "+=" | "_=" | "<<=" | ">>=" | "&=" | "^=" | "|="
-
-unary_opr = "&" | "*" | "+" | "-" | "~" | "!"
-```
-
-### 定式
 
 下に行くほど、優先度が高い演算になります。
 
 ```
+expr = assign_expr ("," assign_expr)?
+
+assign_expr = cond_expr | unary_expr ("=" | "*=" | "/=" | "%=" | "+=" | "_=" | "<<=" | ">>=" | "&=" | "^=" | "|=") assign_expr
+
 const_expr = cond_expr
-cond_expr  = logical_or_expr ("?" expr ":" cond_expr)?
-logical_or  = logical_xor ("||" logical_xor)*
-logical_xor = logical_and ("^^" logical_and)*
+cond_expr  = logical_or ("?" expr ":" cond_expr)?
+logical_or  = logical_and ("||" logical_and)*
 logical_and = bit_or  ("&&" bit_or)*
 bit_or  = bit_xor ("|" bit_xor)*
 bit_xor = bit_and ("^" bit_and)*
-bit_and = eqal ("&" eqal)*
-equal      = relational ("==" relational | "!=" relational)*
+bit_and = eqality ("&" eqality)*
+equality   = relational ("==" relational | "!=" relational)*
 relational = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)*
 shift = add ("<<" add | ">>" add)*
 add   = mul ("+" mul | "-" mul)*
-mul   = unary ("*" unary | "/" unary | "%" unary)*
-unary   = ("++"|"--")? post
-post    = prim ("++"|"--")?
-primary = num | "(" expr ")"
-
-```
-
-#### 論理 AND
-
-```
-<logical_and_expr> ::= <inclusive_or_expr>
-                           | <logical_and_expr> && <inclusive_or_expr>
-```
-
-#### ビット OR
-
-```
-<inclusive_or_expr> ::= <exclusive_or_expr>
-                            | <inclusive_or_expr> | <exclusive_or_expr>
-```
-
-#### ビット XOR
-
-```
-<exclusive_or_expr> ::= <and_expr>
-                            | <exclusive_or_expr> ^ <and_expr>
-```
-
-#### ビット AND
-
-```
-<and_expr> ::= <equality_expr>
-                   | <and_expr> & <equality_expr>
-```
-
-#### 比較演算
-
-```
-<equality_expr> ::= <relational_expr>
-                        | <equality_expr> == <relational_expr>
-                        | <equality_expr> != <relational_expr>
-
-<relational_expr> ::= <shift_expr>
-                          | <relational_expr> < <shift_expr>
-                          | <relational_expr> > <shift_expr>
-                          | <relational_expr> <= <shift_expr>
-                          | <relational_expr> >= <shift_expr>
-```
-
-#### シフト演算
-
-```
-<shift_expr> ::= <additive_expr>
-                     | <shift_expr> << <additive_expr>
-                     | <shift_expr> >> <additive_expr>
-```
-
-#### 四則演算
-
-```
-<additive_expr> ::= <multiplicative_expr>
-                        | <additive_expr> + <multiplicative_expr>
-                        | <additive_expr> _ <multiplicative_expr>
-
-<multiplicative_expr> ::= <cast_expr>
-                              | <multiplicative_expr> * <cast_expr>
-                              | <multiplicative_expr> / <cast_expr>
-                              | <multiplicative_expr> % <cast_expr>
-```
-
-#### キャスト
-
-```
-<cast_expr> ::= <unary_expr>
-                    | ( <type_name> ) <cast_expr>
-```
-
-#### 単項演算
-
-```
-<unary_expr> ::= <postfix_expr>
-                     | ++ <unary_expr>
-                     | __ <unary_expr>
-                     | <unary_operator> <cast_expr>
-                     | sizeof <unary_expr>
-                     | sizeof <type_name>
-```
-
-#### 後置演算
-
-```
-<postfix_expr> ::= <primary_expr>
-                       | <postfix_expr> [ <expr> ]
-                       | <postfix_expr> ( {<assignment_expr>}* )
-                       | <postfix_expr> . <identifier>
-                       | <postfix_expr> _> <identifier>
-                       | <postfix_expr> ++
-                       | <postfix_expr> __
-```
-
-#### 最小単位
-
-```
-prim_expr = ident | const | str | "(" expr ")"
-```
-
-#### 定数値
-
-```
+mul   = cast ("*" cast | "/" cast | "%" cast)*
+cast  = ("(" type_name ")")* unary
+unary   = postfix
+        | ("++" | "--" ) unary
+        | ("&" | "*" | "+" | "-" | "~" | "!") cast
+        | "sizeof" unary
+        | "sizeof" type_name
+postfix = primary ("[" expr "]" | "(" assignment* ")" | "." ident | "->" ident | "++" | "--")*
+primary = ident | const | string | "(" expr ")"
 const = int_const | char_const | float_const | enum_const
-```
 
+ident = 'regexp:[a-zA-Z][a-zA-Z0-9_]*'
+int_const = '\d+'
+char_const = '[a-zA-Z]'
+float_const = '[+-]?([0-9]*[.])?[0-9]+f'
+enum_const='[a-zA-Z][a-zA-Z0-9_]*' // Same as identifier
+```
 
 ### 型
 
 ```
-<type_name> ::= {<specifier_qualifier>}+ {<abstract_declarator>}?
+type_name = specifier_qualifier+ abstract_declarator?
 
-<parameter_type_list> ::= <parameter_list>
-                        | <parameter_list> , ...
+parameter_type_list = parameter_list ("," "...")?
 
-<parameter_list> ::= <parameter_declaration>
-                   | <parameter_list> , <parameter_declaration>
+parameter_list = parameter_declaration ("," parameter_declaration)*
 
-<parameter_declaration> ::= {<declaration_specifier>}+ <declarator>
-                          | {<declaration_specifier>}+ <abstract_declarator>
-                          | {<declaration_specifier>}+
+parameter_declaration = declaration_specifier+ (declarator | abstract_declarator)
 
-<abstract_declarator> ::= <pointer>
-                        | <pointer> <direct_abstract_declarator>
-                        | <direct_abstract_declarator>
+abstract_declarator = pointer | pointer direct_abstract_declarator | direct_abstract_declarator
 
-<direct_abstract_declarator> ::=  ( <abstract_declarator> )
-                               | {<direct_abstract_declarator>}? [ {<constant_expr>}? ]
-                               | {<direct_abstract_declarator>}? ( {<parameter_type_list>}? )
+direct_abstract_declarator =  "(" abstract_declarator ")"
+                           | direct_abstract_declarator? "[" constant_expr? "]"
+                           | direct_abstract_declarator? "(" parameter_type_list? ")"
+```
+
+### 構造体・共用体
+
+```
+struct_or_union_specifier = ("struct"|"union") (ident | "{" struct_declarator+ "}" | ident "{" struct_decl+ "}")
+
+struct_declaration = specifier_qualifier* struct_declarator_list
+
+specifier_qualifier = type_specifier | type_qualifier
+
+struct_decl_list = struct_decl ("," struct_decl)*
+
+struct_decl = declarator | declarator ":" const_expr | ":" const_expr
+```
+
+### 列挙型
+
+```
+enum_specifier = "enum" (ident | ident "{" enum_list "}" | "{" enum_list "}")
+enum_list = (ident ("=" const_expr)?)*
 ```
 
 ```
-<enum_specifier> ::= enum <identifier> { <enumerator_list> }
-                   | enum { <enumerator_list> }
-                   | enum <identifier>
-
-<enumerator_list> ::= <enumerator>
-                    | <enumerator_list> , <enumerator>
-
-<enumerator> ::= <identifier>
-               | <identifier> = <constant_expr>
+typedef_name = ident
 ```
 
+### 宣言と初期化
+
 ```
-<typedef_name> ::= <identifier>
+declaration =  declaration_spec+ init_declarator* ";"
 
-<declaration> ::=  {<declaration_specifier>}+ {<init_declarator>}* ;
+init_declarator = declarator ("=" initializer)?
 
-<init_declarator> ::= <declarator>
-                    | <declarator> = <initializer>
-
-<initializer> ::= <assignment_expr>
-                | { <initializer_list> }
-                | { <initializer
-                list> , }
-
-init_list = initializer | init_list "," initializer
+initializer = assign_expr | "{" initializer ("," initializer)* (",")? "}"
 ```
 
 ### 文
 
 ```
-stmt = expr? ";"                             // expr 式文
-     | "{" decl* stmt* "}"                   // compound 複文
-     | "if" "(" expr ")" stmt ("else" stmt)? // selection 選択文
-     | ident ":" stmt                        // labeled ラベル文
+stmt = expr? ";"                             // expr : 式文
+     | "{" decl* stmt* "}"                   // compound :複文
+     | "if" "(" expr ")" stmt ("else" stmt)? // selection : 選択文
+     | ident ":" stmt                        // labeled : ラベル文
      | "case" const_expr : stmt 
      | "default" ":" stmt
-     | "while" "(" expr ")" stmt            // iteration 反復文
+     | "while" "(" expr ")" stmt            // iteration : 反復文
      | "do" stmt "while" ( expr ) ";"
      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
-     | "goto" ident ";"                     // jump ジャンプ文
+     | "goto" ident ";"                     // jump : ジャンプ文
      | "continue" ";"
      | "break" ";"
      | "return" expr? ";"
