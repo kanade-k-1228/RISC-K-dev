@@ -1,4 +1,9 @@
-zero:
+; プログラム開始前処理
+_main:
+    loadi sp 0xffff
+    loadi fp 0xffff
+    jump  zero zero main
+
 main:
     add   t0   t0  t1
     addi  t0   t0   1

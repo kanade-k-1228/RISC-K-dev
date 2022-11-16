@@ -1,0 +1,42 @@
+_reset:
+    jump _main
+
+_intr:
+    ; レジスタ退避
+    store sp
+    subi  sp  sp  4
+    store a0 sp + 1
+    store a1 sp + 2
+    store a2 sp + 3
+    store a3 sp + 4
+    ; 割り込み先にジャンプ
+    breq  iid  0x0001 _intr1
+    breq  iid  0x0002 _intr2
+    breq  iid  0x0003 _intr3
+    breq  iid  0x0004 _intr4
+_iret:
+    ; レジスタの復元
+    ; jump zero ira zero
+
+; 各割り込みの処理
+_intr1:
+_intr2:
+_intr3:
+_intr4:
+    jump zero zero _iret
+
+; プログラム開始前処理
+_main:
+    loadi sp 0xffff
+    loadi fp 0xffff
+    loadi ra _ret:
+    store ien 1;
+    jump  zero zero main
+
+; プログラム終了後処理
+_ret:
+    store cstop 1
+
+; メイン関数
+main:
+    jump zero zero _ret
