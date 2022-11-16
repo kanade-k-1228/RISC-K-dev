@@ -89,7 +89,6 @@ int evaluate(Node* node) {
   return 0;
 }
 
-
 Node* program(Tokens& tokens) {
   Node* node = stmt(tokens);
   if(!tokens.empty())
@@ -178,52 +177,37 @@ Node* cond(Tokens& tokens) {
 
 Node* logical_or(Tokens& tokens) {
   Node* node = logical_and(tokens);
-  for(;;) {
-    if(tokens.consume("||"))
-      node = new Node(Node::Type::LogicalOr, node, logical_and(tokens));
-    else
-      return node;
-  }
+  while(tokens.consume("||"))
+    node = new Node(Node::Type::LogicalOr, node, logical_and(tokens));
+  return node;
 }
 
 Node* logical_and(Tokens& tokens) {
   Node* node = bit_or(tokens);
-  for(;;) {
-    if(tokens.consume("&&"))
-      node = new Node(Node::Type::LogicalAnd, node, bit_or(tokens));
-    else
-      return node;
-  }
+  while(tokens.consume("&&"))
+    node = new Node(Node::Type::LogicalAnd, node, bit_or(tokens));
+  return node;
 }
 
 Node* bit_or(Tokens& tokens) {
   Node* node = bit_xor(tokens);
-  for(;;) {
-    if(tokens.consume("|"))
-      node = new Node(Node::Type::BitOr, node, bit_xor(tokens));
-    else
-      return node;
-  }
+  while(tokens.consume("|"))
+    node = new Node(Node::Type::BitOr, node, bit_xor(tokens));
+  return node;
 }
 
 Node* bit_xor(Tokens& tokens) {
   Node* node = bit_and(tokens);
-  for(;;) {
-    if(tokens.consume("^"))
-      node = new Node(Node::Type::BitXor, node, bit_and(tokens));
-    else
-      return node;
-  }
+  while(tokens.consume("^"))
+    node = new Node(Node::Type::BitXor, node, bit_and(tokens));
+  return node;
 }
 
 Node* bit_and(Tokens& tokens) {
   Node* node = equality(tokens);
-  for(;;) {
-    if(tokens.consume("&"))
-      node = new Node(Node::Type::BitAnd, node, equality(tokens));
-    else
-      return node;
-  }
+  while(tokens.consume("&"))
+    node = new Node(Node::Type::BitAnd, node, equality(tokens));
+  return node;
 }
 
 Node* equality(Tokens& tokens) {

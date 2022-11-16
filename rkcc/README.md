@@ -2,6 +2,14 @@
 
 RISC-K 用の C コンパイラ
 
+## 特徴
+
+- 型
+  - 型は int = uint16 のみ
+  - ポインタも 16bit
+  - const, volatile
+- 構造体
+
 ## 作業日誌
 
 ### 11/10
@@ -60,6 +68,15 @@ mul   = unary ("*" unary | "/" unary | "%" unary)*
 unary = ("++"|"--")? post
 post  = prim ("++"|"--")?
 prim  = num | ident | "(" expr ")"
+```
+
+### 今後
+
+- 関数定義の実装
+
+```
+program = funct_def
+function_definition = declaration_specifier* declarator declaration* compound_stmt
 ```
 
 ## c言語の文法
