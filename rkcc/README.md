@@ -19,100 +19,84 @@ primary = num | "(" expr ")"
 ### 11/13
 
 - 演算子の拡張
-
-```
-expr = cond
-cond = logical_or  ("?" expr ":" expr)?
-logical_or  = logical_xor ("||" logical_xor)*
-logical_xor = logical_and ("^^" logical_and)*
-logical_and = bit_or  ("&&" bit_or)*
-bit_or  = bit_xor ("|" bit_xor)*
-bit_xor = bit_and ("^" bit_and)*
-bit_and = eqal  ("&" eqal)*
-equal   = relate ("==" relate | "!=" relate)
-relate  = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)
-shift   = add ("<<" add | ">>" add)*
-add     = mul ("+" mul | "-" mul)*
-mul     = unary ("*" unary | "/" unary | "%" unary)*
-unary   = ("++"|"--")? post
-post    = prim ("++"|"--")?
-prim    = num | "(" expr ")"
-```
+  - ? :, ||, &&, |, ^, &, ==, !=, <, <=, >, >=, <<, >>, *, /, %, ++, --
 
 ### 11/15
 
 - 変数の実装
 
 ```
-primary = num | ident | "(" expr ")"
+prim = num | ident | "(" expr ")"
 ```
 
 ### 11/16
 
 - 文の実装
-
-```
-program = statement*
-statement = expr ";"
-```
-
-### 今後
-
 - 代入の実装
-  - 変数はスタックに割り当てる
+- 現時点での文法
 
 ```
-assign = equal "=" assign
+program = stmt*
+stmt = expr ";"
+expr = assign
+assign = cond ("=" assign)?
+cond = logical_or ("?" expr ":" cond)?
+logical_or  = logical_and ("||" logical_and)*
+logical_and = bit_or  ("&&" bit_or)*
+bit_or  = bit_xor ("|" bit_xor)*
+bit_xor = bit_and ("^" bit_and)*
+bit_and = equal ("&" equal)*
+equal = relat ("==" relat | "!=" relat)*
+relat = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)*
+shift = (shift "<<" | shift ">>")? add
+add   = mul ("+" mul | "-" mul)*
+mul   = unary ("*" unary | "/" unary | "%" unary)*
+unary = ("++"|"--")? post
+post  = prim ("++"|"--")?
+prim  = num | ident | "(" expr ")"
 ```
 
-## BNF の解読
+## BNF
 
 ```
-<translation-unit> ::= {<external-declaration>}*
-<external-declaration> ::= <function-definition>
-                         | <declaration>
+program = ext_declaration*
+ext_declaration = funct_def | declaration
 ```
 
-翻訳単位とは、外部宣言の列である。外部宣言とは、関数定義と、宣言である。
+external declaration は、関数ブロックの外での宣言のこと。
+
+プログラムは、トップレベルで見ると、関数定義か宣言のどちらか。
 
 ```
-<function-definition> ::= {<declaration-specifier>}* <declarator> {<declaration>}* <compound-statement>
+funct_def = dec_spec* declarator declaration* compound_stmt
 ```
-
-関数定義とは、宣言指定子、
 
 ### 宣言
 
 ```
-<declaration-specifier> ::= <storage-class-specifier>
-                          | <type-specifier>
-                          | <type-qualifier>
+dec_spec = storage_class_spec | type_spec | type_qual
 
-<storage-class-specifier> ::= auto
-                            | register
-                            | static
-                            | extern
-                            | typedef
+storage_class_spec = "auto" | "register" | "static" | "extern" | "typedef"
 
-<type-specifier> ::= void
-                   | char
-                   | short
-                   | int
-                   | long
-                   | float
-                   | double
-                   | signed
-                   | unsigned
-                   | <struct-or-union-specifier>
-                   | <enum-specifier>
-                   | <typedef-name>
+type_spec = "char" | "short" | "int" | "long" | "float" | "double" | "signed" | "unsigned"
+          | struct_or_union_spec | enum_spec | typedef_name
+
+type_qual = "const" | "volatile"
+
 ```
 
-宣言指定子とは、ストレージ指定子または型指定子または型？？
+```
+declarator = pointer? direct_declarator
 
-ストレージ指定子は、
+pointer = "*" type_qual* pointer?
 
-型指定子は、要する型の名前である。見慣れた名前が並んでる。
+direct_declarator = ident
+                  | "(" declarator ")"
+                  | direct_declarator "[" const_expr? "]"
+                  | direct_declarator "(" param_type_list ")"
+                  | direct_declarator "(" ident* ")"
+```
+
 
 ### 構造体・共用体
 
@@ -133,23 +117,21 @@ assign = equal "=" assign
                            | <struct-declarator-list> , <struct-declarator>
 
 <struct-declarator> ::= <declarator>
-                      | <declarator> : <constant-expression>
-                      | : <constant-expression>
+                      | <declarator> : <constant-expr>
+                      | : <constant-expr>
 ```
 
+
+### 式
+
 ```
-<declarator> ::= {<pointer>}? <direct-declarator>
+expr = assign_expr ("," assign_expr)?
 
-<pointer> ::= * {<type-qualifier>}* {<pointer>}?
+assign_expr = cond_expr | unary_expr assign_opr assign_expr
 
-<type-qualifier> ::= const
-                   | volatile
+assign_opr = "=" | "*=" | "/=" | "%=" | "+=" | "_=" | "<<=" | ">>=" | "&=" | "^=" | "|="
 
-<direct-declarator> ::= <identifier>
-                      | ( <declarator> )
-                      | <direct-declarator> [ {<constant-expression>}? ]
-                      | <direct-declarator> ( <parameter-type-list> )
-                      | <direct-declarator> ( {<identifier>}* )
+unary_opr = "&" | "*" | "+" | "-" | "~" | "!"
 ```
 
 ### 定式
@@ -157,268 +139,197 @@ assign = equal "=" assign
 下に行くほど、優先度が高い演算になります。
 
 ```
-<constant-expression> ::= <conditional-expression>
-```
+const_expr = cond_expr
+cond_expr  = logical_or_expr ("?" expr ":" cond_expr)?
+logical_or  = logical_xor ("||" logical_xor)*
+logical_xor = logical_and ("^^" logical_and)*
+logical_and = bit_or  ("&&" bit_or)*
+bit_or  = bit_xor ("|" bit_xor)*
+bit_xor = bit_and ("^" bit_and)*
+bit_and = eqal ("&" eqal)*
+equal      = relational ("==" relational | "!=" relational)*
+relational = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)*
+shift = add ("<<" add | ">>" add)*
+add   = mul ("+" mul | "-" mul)*
+mul   = unary ("*" unary | "/" unary | "%" unary)*
+unary   = ("++"|"--")? post
+post    = prim ("++"|"--")?
+primary = num | "(" expr ")"
 
-#### 三項演算子
-
-```
-<conditional-expression> ::= <logical-or-expression>
-                           | <logical-or-expression> ? <expression> : <conditional-expression>
-```
-
-#### 論理 OR
-
-```
-<logical-or-expression> ::= <logical-and-expression>
-                          | <logical-or-expression> || <logical-and-expression>
 ```
 
 #### 論理 AND
 
 ```
-<logical-and-expression> ::= <inclusive-or-expression>
-                           | <logical-and-expression> && <inclusive-or-expression>
+<logical_and_expr> ::= <inclusive_or_expr>
+                           | <logical_and_expr> && <inclusive_or_expr>
 ```
 
 #### ビット OR
 
 ```
-<inclusive-or-expression> ::= <exclusive-or-expression>
-                            | <inclusive-or-expression> | <exclusive-or-expression>
+<inclusive_or_expr> ::= <exclusive_or_expr>
+                            | <inclusive_or_expr> | <exclusive_or_expr>
 ```
 
 #### ビット XOR
 
 ```
-<exclusive-or-expression> ::= <and-expression>
-                            | <exclusive-or-expression> ^ <and-expression>
+<exclusive_or_expr> ::= <and_expr>
+                            | <exclusive_or_expr> ^ <and_expr>
 ```
 
 #### ビット AND
 
 ```
-<and-expression> ::= <equality-expression>
-                   | <and-expression> & <equality-expression>
+<and_expr> ::= <equality_expr>
+                   | <and_expr> & <equality_expr>
 ```
 
 #### 比較演算
 
 ```
-<equality-expression> ::= <relational-expression>
-                        | <equality-expression> == <relational-expression>
-                        | <equality-expression> != <relational-expression>
+<equality_expr> ::= <relational_expr>
+                        | <equality_expr> == <relational_expr>
+                        | <equality_expr> != <relational_expr>
 
-<relational-expression> ::= <shift-expression>
-                          | <relational-expression> < <shift-expression>
-                          | <relational-expression> > <shift-expression>
-                          | <relational-expression> <= <shift-expression>
-                          | <relational-expression> >= <shift-expression>
+<relational_expr> ::= <shift_expr>
+                          | <relational_expr> < <shift_expr>
+                          | <relational_expr> > <shift_expr>
+                          | <relational_expr> <= <shift_expr>
+                          | <relational_expr> >= <shift_expr>
 ```
 
 #### シフト演算
 
 ```
-<shift-expression> ::= <additive-expression>
-                     | <shift-expression> << <additive-expression>
-                     | <shift-expression> >> <additive-expression>
+<shift_expr> ::= <additive_expr>
+                     | <shift_expr> << <additive_expr>
+                     | <shift_expr> >> <additive_expr>
 ```
 
 #### 四則演算
 
 ```
-<additive-expression> ::= <multiplicative-expression>
-                        | <additive-expression> + <multiplicative-expression>
-                        | <additive-expression> - <multiplicative-expression>
+<additive_expr> ::= <multiplicative_expr>
+                        | <additive_expr> + <multiplicative_expr>
+                        | <additive_expr> _ <multiplicative_expr>
 
-<multiplicative-expression> ::= <cast-expression>
-                              | <multiplicative-expression> * <cast-expression>
-                              | <multiplicative-expression> / <cast-expression>
-                              | <multiplicative-expression> % <cast-expression>
+<multiplicative_expr> ::= <cast_expr>
+                              | <multiplicative_expr> * <cast_expr>
+                              | <multiplicative_expr> / <cast_expr>
+                              | <multiplicative_expr> % <cast_expr>
 ```
 
 #### キャスト
 
 ```
-<cast-expression> ::= <unary-expression>
-                    | ( <type-name> ) <cast-expression>
+<cast_expr> ::= <unary_expr>
+                    | ( <type_name> ) <cast_expr>
 ```
 
 #### 単項演算
 
 ```
-<unary-expression> ::= <postfix-expression>
-                     | ++ <unary-expression>
-                     | -- <unary-expression>
-                     | <unary-operator> <cast-expression>
-                     | sizeof <unary-expression>
-                     | sizeof <type-name>
+<unary_expr> ::= <postfix_expr>
+                     | ++ <unary_expr>
+                     | __ <unary_expr>
+                     | <unary_operator> <cast_expr>
+                     | sizeof <unary_expr>
+                     | sizeof <type_name>
 ```
 
 #### 後置演算
 
 ```
-<postfix-expression> ::= <primary-expression>
-                       | <postfix-expression> [ <expression> ]
-                       | <postfix-expression> ( {<assignment-expression>}* )
-                       | <postfix-expression> . <identifier>
-                       | <postfix-expression> -> <identifier>
-                       | <postfix-expression> ++
-                       | <postfix-expression> --
+<postfix_expr> ::= <primary_expr>
+                       | <postfix_expr> [ <expr> ]
+                       | <postfix_expr> ( {<assignment_expr>}* )
+                       | <postfix_expr> . <identifier>
+                       | <postfix_expr> _> <identifier>
+                       | <postfix_expr> ++
+                       | <postfix_expr> __
 ```
 
 #### 最小単位
 
 ```
-<primary-expression> ::= <identifier>
-                       | <constant>
-                       | <string>
-                       | ( <expression> )
+prim_expr = ident | const | str | "(" expr ")"
 ```
 
 #### 定数値
 
 ```
-<constant> ::= <integer-constant>
-             | <character-constant>
-             | <floating-constant>
-             | <enumeration-constant>
+const = int_const | char_const | float_const | enum_const
 ```
 
-### 式
-
-```
-<expression> ::= <assignment-expression>
-               | <expression> , <assignment-expression>
-
-<assignment-expression> ::= <conditional-expression>
-                          | <unary-expression> <assignment-operator> <assignment-expression>
-
-<assignment-operator> ::= =
-                        | *=
-                        | /=
-                        | %=
-                        | +=
-                        | -=
-                        | <<=
-                        | >>=
-                        | &=
-                        | ^=
-                        | |=
-
-
-<unary-operator> ::= &
-                   | *
-                   | +
-                   | -
-                   | ~
-                   | !
-```
 
 ### 型
 
 ```
-<type-name> ::= {<specifier-qualifier>}+ {<abstract-declarator>}?
+<type_name> ::= {<specifier_qualifier>}+ {<abstract_declarator>}?
 
-<parameter-type-list> ::= <parameter-list>
-                        | <parameter-list> , ...
+<parameter_type_list> ::= <parameter_list>
+                        | <parameter_list> , ...
 
-<parameter-list> ::= <parameter-declaration>
-                   | <parameter-list> , <parameter-declaration>
+<parameter_list> ::= <parameter_declaration>
+                   | <parameter_list> , <parameter_declaration>
 
-<parameter-declaration> ::= {<declaration-specifier>}+ <declarator>
-                          | {<declaration-specifier>}+ <abstract-declarator>
-                          | {<declaration-specifier>}+
+<parameter_declaration> ::= {<declaration_specifier>}+ <declarator>
+                          | {<declaration_specifier>}+ <abstract_declarator>
+                          | {<declaration_specifier>}+
 
-<abstract-declarator> ::= <pointer>
-                        | <pointer> <direct-abstract-declarator>
-                        | <direct-abstract-declarator>
+<abstract_declarator> ::= <pointer>
+                        | <pointer> <direct_abstract_declarator>
+                        | <direct_abstract_declarator>
 
-<direct-abstract-declarator> ::=  ( <abstract-declarator> )
-                               | {<direct-abstract-declarator>}? [ {<constant-expression>}? ]
-                               | {<direct-abstract-declarator>}? ( {<parameter-type-list>}? )
+<direct_abstract_declarator> ::=  ( <abstract_declarator> )
+                               | {<direct_abstract_declarator>}? [ {<constant_expr>}? ]
+                               | {<direct_abstract_declarator>}? ( {<parameter_type_list>}? )
 ```
 
 ```
-<enum-specifier> ::= enum <identifier> { <enumerator-list> }
-                   | enum { <enumerator-list> }
+<enum_specifier> ::= enum <identifier> { <enumerator_list> }
+                   | enum { <enumerator_list> }
                    | enum <identifier>
 
-<enumerator-list> ::= <enumerator>
-                    | <enumerator-list> , <enumerator>
+<enumerator_list> ::= <enumerator>
+                    | <enumerator_list> , <enumerator>
 
 <enumerator> ::= <identifier>
-               | <identifier> = <constant-expression>
+               | <identifier> = <constant_expr>
 ```
 
 ```
-<typedef-name> ::= <identifier>
+<typedef_name> ::= <identifier>
 
-<declaration> ::=  {<declaration-specifier>}+ {<init-declarator>}* ;
+<declaration> ::=  {<declaration_specifier>}+ {<init_declarator>}* ;
 
-<init-declarator> ::= <declarator>
+<init_declarator> ::= <declarator>
                     | <declarator> = <initializer>
 
-<initializer> ::= <assignment-expression>
-                | { <initializer-list> }
-                | { <initializer-list> , }
+<initializer> ::= <assignment_expr>
+                | { <initializer_list> }
+                | { <initializer
+                list> , }
 
-<initializer-list> ::= <initializer>
-                     | <initializer-list> , <initializer>
+init_list = initializer | init_list "," initializer
 ```
 
 ### 文
 
 ```
-<statement> ::= <labeled-statement>
-              | <expression-statement>
-              | <compound-statement>
-              | <selection-statement>
-              | <iteration-statement>
-              | <jump-statement>
-```
-
-#### 複文
-
-```
-<compound-statement> ::= { {<declaration>}* {<statement>}* }
-```
-
-#### ラベル文
-
-```
-<labeled-statement> ::= <identifier> : <statement>
-                      | case <constant-expression> : <statement>
-                      | default : <statement>
-```
-
-#### 式文
-
-```
-<expression-statement> ::= {<expression>}? ;
-```
-
-#### 選択文
-
-```
-<selection-statement> ::= if ( <expression> ) <statement>
-                        | if ( <expression> ) <statement> else <statement>
-                        | switch ( <expression> ) <statement>
-```
-
-#### 反復文
-
-```
-<iteration-statement> ::= while ( <expression> ) <statement>
-                        | do <statement> while ( <expression> ) ;
-                        | for ( {<expression>}? ; {<expression>}? ; {<expression>}? ) <statement>
-```
-
-#### ジャンプ文
-
-```
-<jump-statement> ::= goto <identifier> ;
-                   | continue ;
-                   | break ;
-                   | return {<expression>}? ;
+stmt = expr? ";"                             // expr 式文
+     | "{" decl* stmt* "}"                   // compound 複文
+     | "if" "(" expr ")" stmt ("else" stmt)? // selection 選択文
+     | ident ":" stmt                        // labeled ラベル文
+     | "case" const_expr : stmt 
+     | "default" ":" stmt
+     | "while" "(" expr ")" stmt            // iteration 反復文
+     | "do" stmt "while" ( expr ) ";"
+     | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+     | "goto" ident ";"                     // jump ジャンプ文
+     | "continue" ";"
+     | "break" ";"
+     | "return" expr? ";"
 ```

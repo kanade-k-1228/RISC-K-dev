@@ -33,6 +33,7 @@ public:
     Ident,
     Statement,
     Program,
+    Assignment,  // =
   };
   Type type;
   Node *lhs, *rhs, *cond;
@@ -54,8 +55,9 @@ std::string print(Node* node);
 int evaluate(Node* node);
 
 Node* program(Tokens&);
-Node* statement(Tokens&);
+Node* stmt(Tokens&);
 Node* expr(Tokens&);
+Node* assign(Tokens&);
 Node* cond(Tokens&);
 Node* logical_or(Tokens&);
 Node* logical_xor(Tokens&);
@@ -64,7 +66,7 @@ Node* bit_or(Tokens&);
 Node* bit_xor(Tokens&);
 Node* bit_and(Tokens&);
 Node* equality(Tokens&);
-Node* relation(Tokens&);
+Node* relational(Tokens&);
 Node* shift(Tokens&);
 Node* add(Tokens&);
 Node* mul(Tokens&);

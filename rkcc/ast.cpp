@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "utils.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -19,7 +20,8 @@ Node::Node(std::string ident)
     : type(Type::Ident), lhs(nullptr), rhs(nullptr), cond(nullptr), str(ident) {}
 
 std::string print(Node* node) {
-  if(node->type == Node::Type::Program) return print(node->lhs) + " ;\n" + print(node->rhs);
+  if(node->type == Node::Type::Program) return print(node->lhs) + "\n" + print(node->rhs);
+  if(node->type == Node::Type::Assignment) return print(node->lhs) + " = " + print(node->rhs);
   if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalXor) return "( " + print(node->lhs) + " ^^ " + print(node->rhs) + " )";
@@ -48,20 +50,6 @@ std::string print(Node* node) {
   if(node->type == Node::Type::Ident) return node->str;
   return "";
 }
-
-std::vector<std::string> print_tree(Node* node) {
-  std::vector<std::string> ret;
-  if(node->type == Node::Type::Num) {
-    ret.at(0) = std::to_string(node->val);
-    return ret;
-  }
-  return ret;
-}
-
-// 1 + 2 + 3 + 4
-// └─+─┘   │   │
-//   └──+──┘   │
-//      └──+───┘
 
 int evaluate(Node* node) {
   if(node->type == Node::Type::Cond) return evaluate(node->cond) ? evaluate(node->lhs) : evaluate(node->rhs);
@@ -94,20 +82,28 @@ int evaluate(Node* node) {
 
 
 Node* program(Tokens& tokens) {
-  Node* node = statement(tokens);
+  Node* node = stmt(tokens);
   if(!tokens.empty())
     node = new Node(Node::Type::Program, node, program(tokens));
   return node;
 }
 
-Node* statement(Tokens& tokens) {
+Node* stmt(Tokens& tokens) {
   Node* node = expr(tokens);
   tokens.expect(";");
   return node;
 }
 
 Node* expr(Tokens& tokens) {
+  Node* node = assign(tokens);
+  return node;
+}
+
+Node* assign(Tokens& tokens) {
   Node* node = cond(tokens);
+  if(tokens.consume("=")) {
+    node = new Node(Node::Type::Assignment, node, assign(tokens));
+  }
   return node;
 }
 
@@ -116,29 +112,17 @@ Node* cond(Tokens& tokens) {
   if(tokens.consume("?")) {
     Node* true_expr = expr(tokens);
     tokens.expect(":");
-    Node* false_expr = expr(tokens);
+    Node* false_expr = cond(tokens);
     node = new Node(Node::Type::Cond, node, true_expr, false_expr);
-    return node;
-  } else {
-    return node;
   }
+  return node;
 }
 
 Node* logical_or(Tokens& tokens) {
-  Node* node = logical_xor(tokens);
-  for(;;) {
-    if(tokens.consume("||"))
-      node = new Node(Node::Type::LogicalOr, node, logical_xor(tokens));
-    else
-      return node;
-  }
-}
-
-Node* logical_xor(Tokens& tokens) {
   Node* node = logical_and(tokens);
   for(;;) {
-    if(tokens.consume("^^"))
-      node = new Node(Node::Type::LogicalXor, node, logical_and(tokens));
+    if(tokens.consume("||"))
+      node = new Node(Node::Type::LogicalOr, node, logical_and(tokens));
     else
       return node;
   }
@@ -185,15 +169,15 @@ Node* bit_and(Tokens& tokens) {
 }
 
 Node* equality(Tokens& tokens) {
-  Node* node = relation(tokens);
+  Node* node = relational(tokens);
   if(tokens.consume("=="))
-    node = new Node(Node::Type::EQ, node, relation(tokens));
+    node = new Node(Node::Type::EQ, node, relational(tokens));
   else if(tokens.consume("!="))
-    node = new Node(Node::Type::NEQ, node, relation(tokens));
+    node = new Node(Node::Type::NEQ, node, relational(tokens));
   return node;
 }
 
-Node* relation(Tokens& tokens) {
+Node* relational(Tokens& tokens) {
   Node* node = shift(tokens);
   if(tokens.consume("<"))
     node = new Node(Node::Type::LT, node, shift(tokens));

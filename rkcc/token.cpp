@@ -36,7 +36,7 @@ bool Tokens::expect(std::string str) {
     this->erase(this->begin());
     return true;
   } else {
-    error("Parse Error");
+    error("Parse Error: Expect: " + str);
     return false;
   }
 }
