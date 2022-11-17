@@ -5,7 +5,8 @@
 #include <sstream>
 
 void error(std::string message) {
-  std::cout << "------------------------------------------------" << std::endl;
+  std::cout << std::endl
+            << "------------------------------------------------" << std::endl;
   std::cout << "\033[31m ERROR! \033[m " << message << std::endl;
   // std::cout << std::setw(6) << line_cnt << ":" << line << std::endl;
   std::cout << "------------------------------------------------" << std::endl;

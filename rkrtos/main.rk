@@ -1,42 +1,111 @@
+zero:
 _reset:
-    jump _main
+    jump zero zero _main
 
 _intr:
     ; レジスタ退避
-    store sp
-    subi  sp  sp  4
-    store a0 sp + 1
-    store a1 sp + 2
-    store a2 sp + 3
-    store a3 sp + 4
+    store sp sp 0
+    subi  sp sp 4
+    store a0 sp 1
+    store a1 sp 2
+    store a2 sp 3
+    store a3 sp 4
     ; 割り込み先にジャンプ
-    breq  iid  0x0001 _intr1
-    breq  iid  0x0002 _intr2
-    breq  iid  0x0003 _intr3
-    breq  iid  0x0004 _intr4
+    loadi t0  0x0001
+    breq  iid t0 intr1
+    loadi t0  0x0002
+    breq  iid t0 intr2
+    loadi t0  0x0003
+    breq  iid t0 intr3
+    loadi t0  0x0004
+    breq  iid t0 intr4
 _iret:
     ; レジスタの復元
-    ; jump zero ira zero
-
-; 各割り込みの処理
-_intr1:
-_intr2:
-_intr3:
-_intr4:
-    jump zero zero _iret
+    load  a3 sp 4
+    load  a2 sp 3
+    load  a1 sp 2
+    load  a0 sp 1
+    addi  sp sp 4
+    load  sp sp 0
+    ; 割り込みから復帰
+    jump zero ira zero
 
 ; プログラム開始前処理
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
-    loadi ra _ret:
-    store ien 1;
-    jump  zero zero main
+    ori   scr scr 0b0000'1000'0000'0000 ; 割り込み許可
+    jump  zero zero os_init
 
 ; プログラム終了後処理
 _ret:
-    store cstop 1
-
-; メイン関数
-main:
     jump zero zero _ret
+    ; ori scr scr 0b1000'0000'0000'0000 ; クロック停止
+
+; シリアル送信
+; loadi a0 'a'
+; jump ra zero _print
+_print:
+    store a0 zero 0x0030
+    loadi a1 0x0001
+    store a1 zero 0x0031
+    jump zero ra zero
+
+; 各割り込みの処理
+intr1:
+    jump zero zero _iret
+intr2:
+    jump zero zero _iret
+intr3:
+    jump zero zero _iret
+intr4:
+    jump zero zero _iret
+
+hello:
+    loadi cout 0x48
+    loadi send 1
+    loadi cout 0x65
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x20
+    loadi send 1
+    loadi cout 0x57
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x72
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x64
+    loadi send 1
+    loadi cout 0x0A
+    loadi send 1
+    jump zero zero _ret
+
+os_init:
+    jump zero zero hello
+
+os_task_setup:
+    loadi t0 0xffff
+    store t0 a0 0 ; Stack Top
+    store t0 a0 1 ; Stack Base
+    store a1 a0 2 ; Priorty
+    store a1 a0 3 ; Base Priority
+
+os_save_context:
+
+os_restore_context:
+
+os_malloc:
+
+os_free:
+
+task_a:
+
+task_b:

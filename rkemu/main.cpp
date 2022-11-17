@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     bool is_break_point = use_bkp && break_points.contain(cpu.pc);
     cpu.step();
     if(is_break_point) cpu.dump();
-    sleep(1);
+    usleep(100000);
   }
   return 0;
 }

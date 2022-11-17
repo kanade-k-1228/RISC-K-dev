@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     line = trim_comment(line);
     // 空行削除
     if(is_empty(line)) continue;
+    std::cout << "\r" << line;
     // 行を解釈
     const Code code(program_cnt, split(line, ' '));
     codes.push_back(code);
@@ -67,7 +68,10 @@ int main(int argc, char* argv[]) {
   }
 
   // 表示
-  // std::cout << "PC     | rd/imm rs2/imm imm       op   rs1    | Operation " << std::endl;
+  std::cout << std::endl
+            << "------------------------------------------------" << std::endl
+            << "Assembler: " << fname << std::endl
+            << "------------------------------------------------" << std::endl;
   program_cnt = 0;
   for(auto code : codes) std::cout << code.print() << std::endl;
   return EXIT_SUCCESS;

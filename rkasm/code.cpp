@@ -41,7 +41,7 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     }
     if(op == LOADI) {
       rd = get_reg(code_s.at(1));
-      imm = get_imm(code_s.at(2));
+      set_imm_or_label(code_s.at(2));
     }
     if(op == STORE) {
       rs2 = get_reg(code_s.at(1));
@@ -51,15 +51,13 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     if(op == JUMP) {
       rd = get_reg(code_s.at(1));
       rs1 = get_reg(code_s.at(2));
-      label_reference_name = code_s.at(3);
-      is_label_reference = true;
+      set_imm_or_label(code_s.at(3));
       return;
     }
     if(op == BREQ || op == BRLT) {
       rs1 = get_reg(code_s.at(1));
       rs2 = get_reg(code_s.at(2));
-      label_reference_name = code_s.at(3);
-      is_label_reference = true;
+      set_imm_or_label(code_s.at(3));
       return;
     }
   } else if(is_label(code_s.at(0))) {
@@ -141,6 +139,18 @@ uint16_t get_imm(std::string imm) {
   }
 }
 
+void Code::set_imm_or_label(const std::string str) {
+  try {
+    this->imm = std::stoi(str, nullptr, 0);
+  } catch(std::out_of_range& e) {
+    error("Immidiate Out of Range: " + str);
+  } catch(std::invalid_argument& e) {
+    label_reference_name = str;
+    is_label_reference = true;
+  }
+  return;
+}
+
 uint32_t Code::get_bin() {
   code = 0;
   if(op == CALC) {
@@ -188,13 +198,23 @@ std::string Code::print() {
     //    << std::bitset<6>(code & 0x3f) << " |";
     // Print Collered asm
     ss << cprint(code_s.at(0), RED, 6);
-    if(op == CALC) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(code_s.at(3), BLUE, 8);
-    if(op == CALCI) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(imm), YELLOW, 8);
-    if(op == LOAD) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8);
-    if(op == LOADI) ss << cprint(code_s.at(1), BLUE, 6) << cprint(hex(imm), YELLOW, 8);
-    if(op == STORE) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(imm), YELLOW, 8);
-    if(op == JUMP) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(label_reference_name, GREEN, 8);
-    if(op == BREQ || op == BRLT) ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(label_reference_name, GREEN, 8);
+    if(op == CALC)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(code_s.at(3), BLUE, 8);
+    if(op == CALCI)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(imm), YELLOW, 8);
+    if(op == LOAD)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(imm), YELLOW, 8);
+    if(op == LOADI)
+      ss << cprint(code_s.at(1), BLUE, 6)
+         << (is_label_reference ? cprint(code_s.at(2), GREEN, 8) : cprint(hex(imm), YELLOW, 8));
+    if(op == STORE)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(imm), YELLOW, 8);
+    if(op == JUMP)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8)
+         << (is_label_reference ? cprint(code_s.at(3), GREEN, 8) : cprint(hex(imm), YELLOW, 8));
+    if(op == BREQ || op == BRLT)
+      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8)
+         << (is_label_reference ? cprint(code_s.at(3), GREEN, 8) : cprint(hex(imm), YELLOW, 8));
   }
   return ss.str();
 }

@@ -1,27 +1,105 @@
+zero:
+_reset:
+    jump zero zero _main
+
+_intr:
+    ; レジスタ退避
+    store sp sp 0
+    subi  sp sp 4
+    store a0 sp 1
+    store a1 sp 2
+    store a2 sp 3
+    store a3 sp 4
+    ; 割り込み先にジャンプ
+    loadi t0  0x0001
+    breq  iid t0 intr1
+    loadi t0  0x0002
+    breq  iid t0 intr2
+    loadi t0  0x0003
+    breq  iid t0 intr3
+    loadi t0  0x0004
+    breq  iid t0 intr4
+_iret:
+    ; レジスタの復元
+    load  a3 sp 4
+    load  a2 sp 3
+    load  a1 sp 2
+    load  a0 sp 1
+    addi  sp sp 4
+    load  sp sp 0
+    ; 割り込みから復帰
+    jump zero ira zero
+
 ; プログラム開始前処理
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
+    ori   scr scr 0b0000'1000'0000'0000 ; 割り込み許可
     jump  zero zero main
 
+; プログラム終了後処理
+_ret:
+    jump zero zero _ret
+    ; ori scr scr 0b1000'0000'0000'0000 ; クロック停止
+
+; シリアル送信
+; loadi a0 'a'
+; jump ra zero _print
+_print:
+    store a0 zero 0x0030
+    loadi a1 0x0001
+    store a1 zero 0x0031
+    jump zero ra zero
+
+; 各割り込みの処理
+intr1:
+    jump zero zero _iret
+intr2:
+    jump zero zero _iret
+intr3:
+    jump zero zero _iret
+intr4:
+    jump zero zero _iret
+
 main:
-    add   t0   t0  t1
-    addi  t0   t0   1
-    sub   t0   t0  t1
-    subi  t0   t1   1
-    store s1 zero  16
-    load  s2 zero  16
-hoge:
-    subi   sp   sp  3
-    store  s0   sp  0
-    store  s1   sp  1
-    store  ra   sp  3 
-    loadi  a0  334    ;関数の引数
-    jump    ra zero func
-hoga:
-func:
-    load  s0 sp 0
-    load  s1 sp 1
-    load  ra sp 3
-    addi  sp sp 5
-    jumpr ra 0
+    add   t0 t0 t0
+    sub   t0 t0 t0
+    and   t0 t0 t0
+    or    t0 t0 t0
+    xor   t0 t0 t0
+    not   t0 t0 t0
+    addi  t0 t0 0xff
+    subi  t0 t0 0xff
+    andi  t0 t0 0xff
+    ori   t0 t0 0xff
+    xori  t0 t0 0xff
+    load  t0 sp 0
+    loadi t0 0xffff
+    store t0 sp 0
+    jump  zero zero next
+next:
+    loadi cout 0x48
+    loadi send 1
+    loadi cout 0x65
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x20
+    loadi send 1
+    loadi cout 0x57
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x72
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x64
+    loadi send 1
+    loadi cout 0x0A
+    loadi send 1
+    jump zero zero _ret
