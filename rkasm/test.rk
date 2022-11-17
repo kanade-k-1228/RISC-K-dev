@@ -8,7 +8,7 @@ main:
     add   t0   t0  t1
     addi  t0   t0   1
     sub   t0   t0  t1
-    subi  t0   t1  -1
+    subi  t0   t1   1
     store s1 zero  16
     load  s2 zero  16
 hoge:

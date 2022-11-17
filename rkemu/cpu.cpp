@@ -42,8 +42,21 @@ void CPU::dump() {
 
 void CPU::step() {
   uint32_t code = rom.at(pc);
-  // std::cout << std::bitset<32>(code) << std::endl;
+  run(code);
+  // zero register is always 0x0000
+  mem.at(ZERO) = 0;
 
+  return;
+}
+
+void CPU::serial() {
+  if(mem.at(SEND) == 0x0001) {
+    std::cout << mem.at(COUT);
+    mem.at(SEND) = 0x0000;
+  }
+}
+
+void CPU::run(uint32_t code) {
   uint16_t opc = (code >> 6) & 0x000f;
   uint16_t func = decode_func(code, opc);
   uint16_t rs1 = (code >> 0) & 0x003f;
@@ -65,7 +78,6 @@ void CPU::step() {
   if(opc == JUMP) jump(rd, rs1, imm);
   if(opc == BREQ) breq(rs1, rs2, imm);
   if(opc == BRLT) brlt(rs1, rs2, imm);
-  mem.at(ZERO) = 0;
   return;
 }
 

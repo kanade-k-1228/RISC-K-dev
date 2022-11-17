@@ -13,9 +13,11 @@ public:
   void load_rom(std::string);
   void dump();
 
-  void run(uint16_t code);
   void step();
 
+  void serial();
+
+  void run(uint32_t code);
   void add(uint16_t, uint16_t, uint16_t);
   void addi(uint16_t, uint16_t, uint16_t);
   void sub(uint16_t, uint16_t, uint16_t);

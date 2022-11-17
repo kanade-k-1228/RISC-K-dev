@@ -1,3 +1,4 @@
+zero:
 _reset:
     jump _main
 
@@ -36,6 +37,10 @@ _main:
 ; プログラム終了後処理
 _ret:
     ori scr scr 0b1000'0000'0000'0000
+
+; シリアル送信
+_print:
+    jump zero ra zero
 
 ; 各割り込みの処理
 intr1:

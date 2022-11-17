@@ -15,6 +15,10 @@ enum Reg {
   A1 = 0x0D,
   A2 = 0x0E,
   A3 = 0x0F,
+  SCR = 0x10,
+  IID = 0x11,
+  COUT = 0x30,
+  SEND = 0x31,
 };
 
 enum OP {
