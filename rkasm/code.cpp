@@ -13,9 +13,12 @@ uint16_t get_imm(std::string);
 uint16_t get_op(std::string);
 uint16_t get_func(std::string);
 
+std::string reading_line;
+
 Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     : address(address), code_s(code_s), is_label_target(false), is_label_reference(false) {
   // ラベル行の場合
+  reading_line = code_s.at(0);
   if(is_op(code_s.at(0))) {  // 命令行
     op_s = code_s.at(0);
     op = get_op(op_s);
@@ -94,6 +97,11 @@ uint16_t get_reg(std::string name) {
   if(name == "a1") return A1;
   if(name == "a2") return A2;
   if(name == "a3") return A3;
+  if(name == "csr") return SCR;
+  if(name == "iid") return IID;
+  if(name == "ira") return IRA;
+  if(name == "cout") return COUT;
+  if(name == "send") return SEND;
   error("Invalid Registor Name: " + name);
   return 0;
 }

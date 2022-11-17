@@ -1,6 +1,6 @@
 zero:
 _reset:
-    jump _main
+    jump zero zero _main
 
 _intr:
     ; レジスタ退避
@@ -11,10 +11,14 @@ _intr:
     store a2 sp 3
     store a3 sp 4
     ; 割り込み先にジャンプ
-    breq  iid 0x0001 intr1
-    breq  iid 0x0002 intr2
-    breq  iid 0x0003 intr3
-    breq  iid 0x0004 intr4
+    loadi t0  0x0001
+    breq  iid t0 intr1
+    loadi t0  0x0002
+    breq  iid t0 intr2
+    loadi t0  0x0003
+    breq  iid t0 intr3
+    loadi t0  0x0004
+    breq  iid t0 intr4
 _iret:
     ; レジスタの復元
     load  a3 sp 4
@@ -30,16 +34,21 @@ _iret:
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
-    loadi ra _ret
     ori scr scr 0b0000'1000'0000'0000
     jump  zero zero main
 
 ; プログラム終了後処理
 _ret:
+    jump zero zero _ret
     ori scr scr 0b1000'0000'0000'0000
 
 ; シリアル送信
+; loadi a0 'a'
+; jump ra zero _print
 _print:
+    store a0 zero 0x0030
+    loadi a1 0x0001
+    store a1 zero 0x0031
     jump zero ra zero
 
 ; 各割り込みの処理
@@ -54,4 +63,28 @@ intr4:
 
 ; メイン関数
 main:
+    loadi cout 0x48
+    loadi send 1
+    loadi cout 0x65
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x20
+    loadi send 1
+    loadi cout 0x57
+    loadi send 1
+    loadi cout 0x6F
+    loadi send 1
+    loadi cout 0x72
+    loadi send 1
+    loadi cout 0x6C
+    loadi send 1
+    loadi cout 0x64
+    loadi send 1
+    loadi cout 0x0A
+    loadi send 1
     jump zero zero _ret

@@ -45,13 +45,14 @@ void CPU::step() {
   run(code);
   // zero register is always 0x0000
   mem.at(ZERO) = 0;
+  serial();
 
   return;
 }
 
 void CPU::serial() {
   if(mem.at(SEND) == 0x0001) {
-    std::cout << mem.at(COUT);
+    std::cout << (char)mem.at(COUT);
     mem.at(SEND) = 0x0000;
   }
 }
@@ -84,7 +85,7 @@ void CPU::run(uint32_t code) {
 // add rd rs1 rs2
 // rd = rs1 + rs2
 void CPU::add(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  std::cout << "add " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  // std::cout << "add " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) + mem.at(rs2);
   ++pc;
 }
@@ -92,7 +93,7 @@ void CPU::add(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // addi rd rs1 imm
 // rd = rs1 + imm
 void CPU::addi(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  std::cout << "addi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  // std::cout << "addi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) + imm;
   ++pc;
 }
@@ -100,7 +101,7 @@ void CPU::addi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // sub rd rs1 rs2
 // rd = rs1 - rs2
 void CPU::sub(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  std::cout << "sub " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  // std::cout << "sub " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) - mem.at(rs2);
   ++pc;
 }
@@ -108,7 +109,7 @@ void CPU::sub(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // subi rd rs1 imm
 // rd = rs1 - imm
 void CPU::subi(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  std::cout << "subi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  // std::cout << "subi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) - imm;
   ++pc;
 }
@@ -116,7 +117,7 @@ void CPU::subi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // load rd rs1 imm
 // rd = m[rs1+imm]
 void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  std::cout << "load " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  // std::cout << "load " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(mem.at(rs1) + imm);
   ++pc;
 }
@@ -124,7 +125,7 @@ void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // loadi rd imm
 // rd = imm
 void CPU::loadi(uint16_t rd, uint16_t imm) {
-  std::cout << "loadi " << hex(rd) << " " << hex(imm) << std::endl;
+  // std::cout << "loadi " << hex(rd) << " " << hex(imm) << std::endl;
   mem.at(rd) = imm;
   ++pc;
 }
@@ -132,7 +133,7 @@ void CPU::loadi(uint16_t rd, uint16_t imm) {
 // store rs1 rs2 imm
 // m[rs1 + imm] = rs2
 void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  std::cout << "store " << hex(rs2) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  // std::cout << "store " << hex(rs2) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(mem.at(rs1) + imm) = mem.at(rs2);
   ++pc;
 }
@@ -141,22 +142,23 @@ void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
 // rd = pc + 1
 // pc = rs1 + imm
 void CPU::jump(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  std::cout << "jump " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  // std::cout << "jump " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = pc + 1;
+  mem.at(ZERO) = 0x0000;
   pc = mem.at(rs1) + imm;
 }
 
 // breq rs1 rs2 imm
 // if(rs1==rs2) pc = imm
 void CPU::breq(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  std::cout << "breq " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
+  // std::cout << "breq " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) == mem.at(rs2)) ? imm : pc + 1;
 }
 
 // brlt rs1 rs2 imm
 // if(rs1<rs2) pc = imm
 void CPU::brlt(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  std::cout << "brlt " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
+  // std::cout << "brlt " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) < mem.at(rs2)) ? imm : pc + 1;
 }
 

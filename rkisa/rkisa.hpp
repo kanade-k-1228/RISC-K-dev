@@ -17,6 +17,7 @@ enum Reg {
   A3 = 0x0F,
   SCR = 0x10,
   IID = 0x11,
+  IRA = 0x12,
   COUT = 0x30,
   SEND = 0x31,
 };

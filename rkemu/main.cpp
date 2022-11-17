@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 
   // 実行
   while(true) {
-    bool is_break_point = !use_bkp || break_points.contain(cpu.pc);
+    bool is_break_point = use_bkp && break_points.contain(cpu.pc);
     cpu.step();
     if(is_break_point) cpu.dump();
     sleep(1);
