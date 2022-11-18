@@ -15,11 +15,10 @@ enum Reg {
   A1 = 0x0D,
   A2 = 0x0E,
   A3 = 0x0F,
-  SCR = 0x10,
+  CSR = 0x10,
   IID = 0x11,
   IRA = 0x12,
   COUT = 0x30,
-  SEND = 0x31,
 };
 
 enum OP {
@@ -42,4 +41,16 @@ enum Func {
   NOT = 0x5,
   LROT = 0x06,
   RROT = 0x07,
+};
+
+enum CSRBit {
+  IEN = 0b0000'0000'0001,
+  INTR = 0b0000'0000'0010,
+  INTR0 = 0b0000'0000'0100,
+  INTR1 = 0b0000'0000'1000,
+  INTR2 = 0b0000'0001'0000,
+  INTR3 = 0b0000'0010'0000,
+  SRCV = 0b0000'0100'0000,
+  SSEND = 0b0000'1000'0000,
+  CSTOP = 0b0001'0000'0000,
 };
