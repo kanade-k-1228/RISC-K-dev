@@ -7,26 +7,43 @@
 #include <unistd.h>
 
 int main(int argc, char* argv[]) {
-  CPU cpu;
-  BreakPoints break_points;
-  bool use_bkp = false;
-
-  if(argc < 2) error("rkasm [.rk.bin] (.bp)");
-  if(argc >= 2) cpu.load_rom(argv[1]);  // バイナリの読み込み
-  if(argc >= 3) {                       // ブレークポイントの読み込み
-    use_bkp = true;
-    break_points.load(argv[2]);
+  // コマンドライン引数の処理
+  opterr = 0;
+  bool debug = false;
+  bool use_bp = false;
+  std::string bp_file = "";
+  std::string bin_file = "";
+  for(int opt; (opt = getopt(argc, argv, "db:")) != -1;) {
+    switch(opt) {
+    case 'd':
+      debug = true;
+      break;
+    case 'b':
+      use_bp = true;
+      bp_file = optarg;
+      break;
+    default:
+      std::cout << "Usage: rkemu [-d] [-b fname] file" << std::endl;
+      break;
+    }
   }
+  bin_file = argv[optind];
 
-  std::cout << "----------------------------------------" << std::endl
-            << "Emulate: " << argv[1] << (use_bkp ? " (Break: " + (std::string)argv[2] + ")" : "") << std::endl
-            << "----------------------------------------" << std::endl;
+  CPU cpu(bin_file);
+  cpu.debug = debug;
+  BreakPoints break_points;
+  if(use_bp) break_points.load(bp_file);
+
+  std::cout
+      << "------------------------------------" << std::endl
+      << "Emulate: " << bin_file << (use_bp ? " (Break: " + bp_file + ")" : "") << std::endl
+      << "------------------------------------" << std::endl;
 
   // 実行
   while(true) {
-    bool is_break_point = use_bkp && break_points.contain(cpu.pc);
+    bool dump = debug || (use_bp && break_points.contain(cpu.pc));
     cpu.step();
-    if(is_break_point) cpu.dump();
+    if(dump) cpu.dump();
     usleep(100000);
   }
   return 0;

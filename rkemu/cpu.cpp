@@ -13,17 +13,17 @@ CPU::CPU() : mem{0}, rom{0} {
   mem.at(FP) = 0xffff;
 }
 
-void CPU::load_rom(std::string fname) {
+CPU::CPU(std::string fname) : mem{0}, rom{0} {
+  mem.at(SP) = 0xffff;
+  mem.at(FP) = 0xffff;
+
   std::string line;
   std::ifstream f(fname);
   if(!f) error("Cant Open File: " + fname);
   uint32_t buf;
-  int op_cnt = 0;
-  while(!f.eof()) {
+  for(int op_cnt = 0; !f.eof(); op_cnt++) {
     f.read((char*)&buf, sizeof(uint32_t));
-    // std::cout << std::bitset<32>(buf) << std::endl;
     rom.at(op_cnt) = buf;
-    op_cnt++;
   }
 }
 
@@ -34,6 +34,7 @@ void CPU::dump() {
             << "RA: " << hex(mem.at(RA)) << " | " << hex(mem.at(S1)) << " | " << hex(mem.at(T1)) << " | " << hex(mem.at(A1)) << std::endl
             << "SP: " << hex(mem.at(SP)) << " | " << hex(mem.at(S2)) << " | " << hex(mem.at(T2)) << " | " << hex(mem.at(A2)) << std::endl
             << "FP: " << hex(mem.at(FP)) << " | " << hex(mem.at(S3)) << " | " << hex(mem.at(T3)) << " | " << hex(mem.at(A3)) << std::endl
+            << "CSR: " << std::bitset<16>(mem.at(CSR)) << std::endl
             << "STACK-------------------------" << std::endl;
   for(uint16_t sp = mem.at(SP); sp < mem.at(FP); sp++)
     std::cout << hex(sp + 1) << " : " << hex(mem.at(sp + 1)) << std::endl;
@@ -43,17 +44,31 @@ void CPU::dump() {
 void CPU::step() {
   uint32_t code = rom.at(pc);
   run(code);
-  // zero register is always 0x0000
+  // zero register must be 0x0000
   mem.at(ZERO) = 0;
   serial();
+  cstop();
 
   return;
 }
 
+void CPU::cstop() {
+  if(mem.at(CSR) & CSTOP) {
+    std::cout << std::endl
+              << "------------------------------" << std::endl
+              << "Terminate" << std::endl
+              << "------------------------------" << std::endl;
+    exit(EXIT_SUCCESS);
+  }
+}
+
 void CPU::serial() {
-  if(mem.at(SEND) == 0x0001) {
-    std::cout << (char)mem.at(COUT);
-    mem.at(SEND) = 0x0000;
+  if((mem.at(CSR) & SSEND) == SSEND) {
+    if(debug)
+      std::cout << "COUT: " << (char)mem.at(COUT) << std::endl;
+    else
+      std::cout << (char)mem.at(COUT);
+    mem.at(CSR) &= ~SSEND;
   }
 }
 
@@ -71,9 +86,9 @@ void CPU::run(uint32_t code) {
     if(func == AND) land(rd, rs1, rs2);
     if(func == OR) lor(rd, rs1, rs2);
     if(func == XOR) lxor(rd, rs1, rs2);
-    if(func == NOT) lnot(rd, rs1, rs2);
-    if(func == LROT) lrot(rd, rs1, rs2);
-    if(func == RROT) rrot(rd, rs1, rs2);
+    if(func == NOT) lnot(rd, rs1);
+    if(func == LROT) lrot(rd, rs1);
+    if(func == RROT) rrot(rd, rs1);
   }
   if(opc == CALCI) {
     if(func == ADD) addi(rd, rs1, imm);
@@ -94,7 +109,7 @@ void CPU::run(uint32_t code) {
 // add rd rs1 rs2
 // rd = rs1 + rs2
 void CPU::add(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "add " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  if(debug) std::cout << "add " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) + mem.at(rs2);
   ++pc;
 }
@@ -102,7 +117,7 @@ void CPU::add(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // addi rd rs1 imm
 // rd = rs1 + imm
 void CPU::addi(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "addi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "addi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) + imm;
   ++pc;
 }
@@ -110,7 +125,7 @@ void CPU::addi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // sub rd rs1 rs2
 // rd = rs1 - rs2
 void CPU::sub(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "sub " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  if(debug) std::cout << "sub " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) - mem.at(rs2);
   ++pc;
 }
@@ -118,7 +133,7 @@ void CPU::sub(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // subi rd rs1 imm
 // rd = rs1 - imm
 void CPU::subi(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "subi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "subi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) - imm;
   ++pc;
 }
@@ -126,7 +141,7 @@ void CPU::subi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // and rd rs1 rs2
 // rd = rs1 & rs2
 void CPU::land(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "and " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  if(debug) std::cout << "and " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) & mem.at(rs2);
   ++pc;
 }
@@ -134,7 +149,7 @@ void CPU::land(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // andi rd rs1 imm
 // rd = rs1 & imm
 void CPU::landi(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "andi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "andi " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) & imm;
   ++pc;
 }
@@ -142,7 +157,7 @@ void CPU::landi(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // or rd rs1 rs2
 // rd = rs1 | rs2
 void CPU::lor(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "or " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+  if(debug) std::cout << "or " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) | mem.at(rs2);
   ++pc;
 }
@@ -150,47 +165,47 @@ void CPU::lor(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // ori rd rs1 imm
 // rd = rs1 | imm
 void CPU::lori(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "ori " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "ori " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) | imm;
   ++pc;
 }
 
 // xor rd rs1 rs2
 // rd = rs1 ^ rs2
-void CPU::lor(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "xor " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
+void CPU::lxor(uint16_t rd, uint16_t rs1, uint16_t rs2) {
+  if(debug) std::cout << "xor " << hex(rd) << " " << hex(rs1) << " " << hex(rs2) << std::endl;
   mem.at(rd) = mem.at(rs1) ^ mem.at(rs2);
   ++pc;
 }
 
 // xori rd rs1 imm
 // rd = rs1 ^ imm
-void CPU::lori(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "xori " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+void CPU::lxori(uint16_t rd, uint16_t rs1, uint16_t imm) {
+  if(debug) std::cout << "xori " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(rs1) ^ imm;
   ++pc;
 }
 
 // not rd rs1
 // rd = ~rs1
-void CPU::lnot(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "not " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+void CPU::lnot(uint16_t rd, uint16_t rs1) {
+  if(debug) std::cout << "not " << hex(rd) << " " << hex(rs1) << std::endl;
   mem.at(rd) = ~mem.at(rs1);
   ++pc;
 }
 
 // lrot rd rs1
 // rd = <rs1<
-void CPU::lnot(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "lrot " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+void CPU::lrot(uint16_t rd, uint16_t rs1) {
+  if(debug) std::cout << "lrot " << hex(rd) << " " << hex(rs1) << std::endl;
   mem.at(rd) = mem.at(rs1) << 1 | mem.at(rs1) >> 15;
   ++pc;
 }
 
 // rrot rd rs1
 // rd = >rs1>
-void CPU::lnot(uint16_t rd, uint16_t rs1, uint16_t rs2) {
-  // std::cout << "xori " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+void CPU::rrot(uint16_t rd, uint16_t rs1) {
+  if(debug) std::cout << "rrot " << hex(rd) << " " << hex(rs1) << std::endl;
   mem.at(rd) = mem.at(rs1) >> 1 | mem.at(rs1) << 15;
   ++pc;
 }
@@ -198,7 +213,7 @@ void CPU::lnot(uint16_t rd, uint16_t rs1, uint16_t rs2) {
 // load rd rs1 imm
 // rd = m[rs1+imm]
 void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "load " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "load " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = mem.at(mem.at(rs1) + imm);
   ++pc;
 }
@@ -206,7 +221,7 @@ void CPU::load(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // loadi rd imm
 // rd = imm
 void CPU::loadi(uint16_t rd, uint16_t imm) {
-  // std::cout << "loadi " << hex(rd) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "loadi " << hex(rd) << " " << hex(imm) << std::endl;
   mem.at(rd) = imm;
   ++pc;
 }
@@ -214,7 +229,7 @@ void CPU::loadi(uint16_t rd, uint16_t imm) {
 // store rs1 rs2 imm
 // m[rs1 + imm] = rs2
 void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  // std::cout << "store " << hex(rs2) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "store " << hex(rs2) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(mem.at(rs1) + imm) = mem.at(rs2);
   ++pc;
 }
@@ -223,7 +238,7 @@ void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
 // rd = pc + 1
 // pc = rs1 + imm
 void CPU::jump(uint16_t rd, uint16_t rs1, uint16_t imm) {
-  // std::cout << "jump " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "jump " << hex(rd) << " " << hex(rs1) << " " << hex(imm) << std::endl;
   mem.at(rd) = pc + 1;
   mem.at(ZERO) = 0x0000;
   pc = mem.at(rs1) + imm;
@@ -232,14 +247,14 @@ void CPU::jump(uint16_t rd, uint16_t rs1, uint16_t imm) {
 // breq rs1 rs2 imm
 // if(rs1==rs2) pc = imm
 void CPU::breq(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  // std::cout << "breq " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "breq " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) == mem.at(rs2)) ? imm : pc + 1;
 }
 
 // brlt rs1 rs2 imm
 // if(rs1<rs2) pc = imm
 void CPU::brlt(uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  // std::cout << "brlt " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
+  if(debug) std::cout << "brlt " << hex(rs1) << " " << hex(rs2) << " " << hex(imm) << std::endl;
   pc = (mem.at(rs1) < mem.at(rs2)) ? imm : pc + 1;
 }
 
