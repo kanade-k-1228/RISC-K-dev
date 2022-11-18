@@ -20,4 +20,16 @@ loadi cout 0x6c ; l
 ori   csr csr 0x080
 loadi cout 0x64 ; d
 ori   csr csr 0x080
+loadi cout 0x20 ; sp
+ori   csr csr 0x080
+loadi cout 0x21 ; !
+ori   csr csr 0x080
+loadi cout 0x20 ; sp
+ori   csr csr 0x080
+loadi cout 0x21 ; !
+ori   csr csr 0x080
+loadi cout 0x20 ; sp
+ori   csr csr 0x080
+loadi cout 0x21 ; !
+ori   csr csr 0x080
 ori  csr csr 0x100

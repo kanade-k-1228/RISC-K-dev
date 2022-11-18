@@ -55,9 +55,7 @@ void CPU::step() {
 void CPU::cstop() {
   if(mem.at(CSR) & CSTOP) {
     std::cout << std::endl
-              << "------------------------------" << std::endl
-              << "Terminate" << std::endl
-              << "------------------------------" << std::endl;
+              << "------------------------------------" << std::endl;
     exit(EXIT_SUCCESS);
   }
 }
