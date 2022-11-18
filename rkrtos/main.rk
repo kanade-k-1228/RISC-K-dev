@@ -5,11 +5,23 @@ _reset:
 _intr:
     ; レジスタ退避
     store sp sp 0
-    subi  sp sp 4
-    store a0 sp 1
-    store a1 sp 2
+    store fp 
+    subi  sp sp 14
+    store s0 sp 13
+    store s1 sp 12
+    store s2 sp 11
+    store s3 sp 10
+    store t0 sp 9
+    store t1 sp 8
+    store t2 sp 7
+    store t3 sp 6
+    store a0 sp 5
+    store a1 sp 4
     store a2 sp 3
-    store a3 sp 4
+    store a3 sp 2
+    store ra sp 1
+    
+    add   fp sp zero
     ; 割り込み先にジャンプ
     loadi t0  0x0001
     breq  iid t0 intr1
@@ -21,6 +33,7 @@ _intr:
     breq  iid t0 intr4
 _iret:
     ; レジスタの復元
+    add   sp fp zero
     load  a3 sp 4
     load  a2 sp 3
     load  a1 sp 2
@@ -42,6 +55,9 @@ _ret:
     jump zero zero _ret
     ; ori scr scr 0b1000'0000'0000'0000 ; クロック停止
 
+; ---------------------------------------------------
+; ハードウェア固有の処理
+
 ; シリアル送信
 ; loadi a0 'a'
 ; jump ra zero _print
@@ -50,6 +66,48 @@ _print:
     loadi a1 0x0001
     store a1 zero 0x0031
     jump zero ra zero
+
+; ---------------------------------------------------
+; OS
+
+; OSの初期化
+os_init:
+    jump zero zero init
+
+os_task_setup:
+    store a1 a0 0 ; Stack Top
+    store a1 a0 1 ; Stack Base
+    jump zero ra zero ; return
+
+os_save_context:
+    subi sp sp 16
+    store t0 sp 0
+    store t1 sp 1
+    store t2 sp 2
+    store t3 sp 3
+    store t1 sp 1
+    store t1 sp 1
+    store t1 sp 1
+    store t1 sp 1
+
+os_restore_context:
+
+os_malloc:
+
+os_free:
+
+os_start_scheduler:
+    ; 優先度順に
+
+os_task_wait:
+    ; コンテキスト保存
+    ; 次のタスクを決定
+    ; running = &next_task_tbc
+    ; コンテキスト復元
+    ; ジャンプ
+    jump zero ra zero
+
+os_task_resume:
 
 ; 各割り込みの処理
 intr1:
@@ -61,51 +119,44 @@ intr3:
 intr4:
     jump zero zero _iret
 
-hello:
-    loadi cout 0x48
+init:
+    ; setup task A
+    loadi a0 0x1000 ; &TBC_A
+    loadi a1 0xffff ; stack_base
+    loadi a2 task_a ; entry address
+    jump ra zero os_task_setup
+    ; setup task B
+    loadi a0 0x2000 ; &TBC_B
+    loadi a1 0xefff ; stack_base
+    loadi a2 task_b ; entry address
+    ; setup task C
+    loadi a0 0x3000 ; &TBC_C
+    loadi a1 0xdfff ; stack_base
+    loadi a2 task_c ; entry address
+    jump zero zero os_start_scheduler
+
+task_a:
+    loadi cout 0x54
     loadi send 1
-    loadi cout 0x65
+    loadi cout 0x61
     loadi send 1
-    loadi cout 0x6C
+    loadi cout 0x73
     loadi send 1
-    loadi cout 0x6C
+    loadi cout 0x6B
     loadi send 1
-    loadi cout 0x6F
-    loadi send 1
-    loadi cout 0x20
-    loadi send 1
-    loadi cout 0x57
-    loadi send 1
-    loadi cout 0x6F
-    loadi send 1
-    loadi cout 0x72
-    loadi send 1
-    loadi cout 0x6C
-    loadi send 1
-    loadi cout 0x64
+    loadi cout 0x41
     loadi send 1
     loadi cout 0x0A
     loadi send 1
-    jump zero zero _ret
+    loadi t0 0
+    loadi t1 10
+loop:
+    brlt  t1 t0 break
 
-os_init:
-    jump zero zero hello
-
-os_task_setup:
-    loadi t0 0xffff
-    store t0 a0 0 ; Stack Top
-    store t0 a0 1 ; Stack Base
-    store a1 a0 2 ; Priorty
-    store a1 a0 3 ; Base Priority
-
-os_save_context:
-
-os_restore_context:
-
-os_malloc:
-
-os_free:
-
-task_a:
+    jump  zero zero loop
+break:
+    jump zero zero os_task_wait
 
 task_b:
+
+task_c:
