@@ -23,5 +23,5 @@ struct Code {
   Code(const uint16_t address, const std::vector<std::string> code_s);
   void set_imm_or_label(const std::string str);
   uint32_t get_bin();
-  std::string print();
+  std::string print(bool binary);
 };

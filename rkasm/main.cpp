@@ -5,20 +5,36 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <unistd.h>
 #include <vector>
 
 int main(int argc, char* argv[]) {
-  if(argc != 2) error("Input one file name");
-  std::string fname = argv[1];             // 入力ファイル
-  std::map<std::string, uint16_t> labels;  // ラベルとアドレスの対応
-  std::vector<Code> codes;                 // コード
-  uint16_t program_cnt = 0;                // 機械語命令カウンタ
-
-  // ファイルの読み取り
+  // コマンドライン引数の処理
+  opterr = 0;
+  bool debug = false;
+  std::string opt_f = "";
+  for(int opt; (opt = getopt(argc, argv, "bf:")) != -1;) {
+    switch(opt) {
+    case 'b':
+      debug = true;
+      break;
+    case 'f':
+      opt_f = optarg;
+      break;
+    default:
+      std::cout << "Usage: rkasm [-b] [-f fname] file" << std::endl;
+      break;
+    }
+  }
+  // ファイル
+  std::string fname = argv[optind];
   std::ifstream fin;
   fin.open(fname, std::ios::in);
   if(!fin) error("Can't open input file");
 
+  std::map<std::string, uint16_t> labels;  // ラベルとアドレスの対応
+  std::vector<Code> codes;                 // コード
+  uint16_t program_cnt = 0;                // 機械語命令カウンタ
   int line_cnt = 0;
   std::string line;
   while(std::getline(fin, line)) {
@@ -27,7 +43,7 @@ int main(int argc, char* argv[]) {
     line = trim_comment(line);
     // 空行削除
     if(is_empty(line)) continue;
-    std::cout << "\r" << line;
+    if(debug) std::cout << "\r" << line;
     // 行を解釈
     const Code code(program_cnt, split(line, ' '));
     codes.push_back(code);
@@ -41,7 +57,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // ラベルをアドレス値に置き換える
+  // ラベルを置き換える
   for(auto& code : codes) {
     if(code.is_label_reference) {
       const auto lab = labels.find(code.label_reference_name);
@@ -69,10 +85,10 @@ int main(int argc, char* argv[]) {
 
   // 表示
   std::cout << std::endl
-            << "------------------------------------------------" << std::endl
-            << "Assembler: " << fname << std::endl
-            << "------------------------------------------------" << std::endl;
+            << "------------------------------------" << std::endl
+            << "Assembly: " << fname << std::endl
+            << "------------------------------------" << std::endl;
   program_cnt = 0;
-  for(auto code : codes) std::cout << code.print() << std::endl;
+  for(auto code : codes) std::cout << code.print(debug) << std::endl;
   return EXIT_SUCCESS;
 }

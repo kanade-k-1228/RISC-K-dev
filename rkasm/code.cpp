@@ -100,11 +100,10 @@ uint16_t get_reg(std::string name) {
   if(name == "a1") return A1;
   if(name == "a2") return A2;
   if(name == "a3") return A3;
-  if(name == "csr") return SCR;
+  if(name == "csr") return CSR;
   if(name == "iid") return IID;
   if(name == "ira") return IRA;
   if(name == "cout") return COUT;
-  if(name == "send") return SEND;
   error("Invalid Registor Name: " + name);
   return 0;
 }
@@ -191,19 +190,21 @@ uint32_t Code::get_bin() {
   return code;
 }
 
-std::string Code::print() {
+std::string Code::print(bool binary) {
   std::ostringstream ss;
   if(is_label_target) {
     ss << cprint(label_target_name + ":" + hex(label_target_value), GREEN, 0);
   } else {
-    ss << hex(address) << " ";
+    ss << hex(address) << " |";
     // Print Binary
-    // ss << "| "
-    //    << std::bitset<6>((code >> 26) & 0x3f) << " "
-    //    << std::bitset<6>((code >> 20) & 0x3f) << " "
-    //    << std::bitset<10>((code >> 10) & 0x3ff) << " "
-    //    << std::bitset<4>((code >> 6) & 0xf) << " "
-    //    << std::bitset<6>(code & 0x3f) << " |";
+    if(binary) {
+      ss << " "
+         << std::bitset<6>((code >> 26) & 0x3f) << " "
+         << std::bitset<6>((code >> 20) & 0x3f) << " "
+         << std::bitset<10>((code >> 10) & 0x3ff) << " "
+         << std::bitset<4>((code >> 6) & 0xf) << " "
+         << std::bitset<6>(code & 0x3f) << " |";
+    }
     // Print Collered asm
     ss << cprint(code_s.at(0), RED, 6);
     if(op == CALC)
