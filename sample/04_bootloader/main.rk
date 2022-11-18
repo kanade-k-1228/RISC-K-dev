@@ -1,0 +1,94 @@
+zero:
+_reset:
+    jump zero zero _main
+
+_intr:
+    ; レジスタ退避
+    store sp sp 0
+    subi  sp sp 4
+    store a0 sp 1
+    store a1 sp 2
+    store a2 sp 3
+    store a3 sp 4
+    ; 割り込み先にジャンプ
+    loadi t0  0x0001
+    breq  iid t0 intr1
+    loadi t0  0x0002
+    breq  iid t0 intr2
+    loadi t0  0x0003
+    breq  iid t0 intr3
+    loadi t0  0x0004
+    breq  iid t0 intr4
+_iret:
+    ; レジスタの復元
+    load  a3 sp 4
+    load  a2 sp 3
+    load  a1 sp 2
+    load  a0 sp 1
+    addi  sp sp 4
+    load  sp sp 0
+    ; 割り込みから復帰
+    jump zero ira zero
+
+; プログラム開始前処理
+_main:
+    loadi sp 0xffff
+    loadi fp 0xffff
+    jump  zero zero main
+
+; プログラム終了後処理
+_ret:
+    ori csr csr 1
+
+; シリアル送信
+; loadi a0 'a'
+; jump ra zero _print
+_print:
+    mov cout a0
+    ori csr csr 0b1000'0000'0000'0000 ; set send flag
+    store a1 zero 0x0031
+    jump zero ra zero
+
+; loadi a0 0x01EF
+; jump ra zero _print_int
+; > 01EF
+_print_int:
+    loadi a3 3
+    breq a3 zero _print_int_break:
+_print_int_for:
+    lrot a0 a0
+    lrot a0 a0
+    lrot a0 a0
+    lrot a0 a0
+    andi a1 a0 0x000F ; a1 = a0 & f
+    ; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
+    brlt a1 a2 _print_int_numeric
+_print_int_alphabet:
+    addi cout a1 0x30
+    jump zero zero _print_int_continue
+_print_int_numeric:
+    addi cout a1 0x37
+_print_int_continue:
+    ori  csr 0x0000'1000'0000'0000 ; set send flag
+    subi a3 1
+    jump zero zero _print_int_for
+_print_int_break:
+    jump zero ra 0
+
+; 各割り込みの処理
+intr1:
+    jump zero zero _iret
+intr2:
+    jump zero zero _iret
+intr3:
+    jump zero zero _iret
+intr4:
+    jump zero zero _iret
+
+; メイン関数
+main:
+    loadi a0 0x12EF
+    jump ra zero _print_int
+    loadi a0 0x12EF
+    jump ra zero _print_int
+    jump zero zero _ret
