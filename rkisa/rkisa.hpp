@@ -16,7 +16,7 @@ enum Reg {
   A2 = 0x0E,
   A3 = 0x0F,
   CSR = 0x10,
-  IID = 0x11,
+  IID = 0x11,  // TODO 廃止
   IRA = 0x12,
   COUT = 0x30,
 };

@@ -1,16 +1,28 @@
-loadi t0 0x1100
-loadi t1 0x0110
-add  t2 t0 t1
-sub  t2 t0 t1
-and  t2 t0 t1
-or   t2 t0 t1
-xor  t2 t0 t1
-not  t2 t0 zero
-rrot t2 t0 zero
-lrot t2 t0 zero
-addi t2 t0 0x0011
-subi t2 t0 0x0100
-andi t2 t0 0x1111
-ori  t2 t0 0x0000
-xori t2 t0 0x0110
-ori  csr csr 1
+    loadi t0 0x1100
+    loadi t1 0x0110
+    add  t2 t0 t1
+    sub  t2 t0 t1
+    and  t2 t0 t1
+    or   t2 t0 t1
+    xor  t2 t0 t1
+    not  t2 t0 zero
+    rrot t2 t0 zero
+    lrot t2 t0 zero
+    addi t2 t0 0x0011
+    subi t2 t0 0x0100
+    andi t2 t0 0x1111
+    ori  t2 t0 0x0000
+    xori t2 t0 0x0110
+    store t2 sp 0
+    loadi t2 0
+    load t2 sp 0
+    breq zero zero here
+    loadi t0 0xffff
+here:
+    brlt zero t2 koko
+    loadi t0 0xffff
+koko:
+    jump ra zero exit
+    loadi t0 0xffff
+exit:
+    ori  csr csr 0x100
