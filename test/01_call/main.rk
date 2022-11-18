@@ -1,4 +1,4 @@
-zero: ; おまじないみたいなもの
+zero:
 ; レジスタにダミーデータをセット
     loadi  s0  0xc000
     loadi  s1  0xc111

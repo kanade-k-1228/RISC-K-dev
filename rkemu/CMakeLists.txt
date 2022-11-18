@@ -4,4 +4,4 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -g -static")
 
 project(rkemu CXX)
 
-add_executable(rkemu main.cpp cpu.cpp utils.cpp)
+add_executable(rkemu main.cpp cpu.cpp breakPoint.cpp utils.cpp)

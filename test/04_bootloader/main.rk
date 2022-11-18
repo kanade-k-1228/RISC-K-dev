@@ -46,10 +46,36 @@ _ret:
 ; loadi a0 'a'
 ; jump ra zero _print
 _print:
-    store a0 zero 0x0030
-    loadi a1 0x0001
+    mov cout a0
+    ori csr 0b0000'1000'0000'0000 ; set send flag
     store a1 zero 0x0031
     jump zero ra zero
+
+; loadi a0 0x01EF
+; jump ra zero _print_int
+; > 01EF
+_print_int:
+    loadi a3 3
+    breq a3 zero _print_int_break:
+_print_int_for:
+    lrot a0 a0
+    lrot a0 a0
+    lrot a0 a0
+    lrot a0 a0
+    andi a1 a0 0x000F ; a1 = a0 & f
+    ; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
+    brlt a1 a2 _print_int_numeric
+_print_int_alphabet:
+    addi cout a1 0x30
+    jump zero zero _print_int_continue
+_print_int_numeric:
+    addi cout a1 0x37
+_print_int_continue:
+    ori  send 0x0000'1000'0000'0000 ; set send flag
+    subi a3 1
+    jump zero zero _print_int_for
+_print_int_break:
+    jump zero ra 0
 
 ; 各割り込みの処理
 intr1:
@@ -63,28 +89,8 @@ intr4:
 
 ; メイン関数
 main:
-    loadi cout 0x48
-    loadi send 1
-    loadi cout 0x65
-    loadi send 1
-    loadi cout 0x6C
-    loadi send 1
-    loadi cout 0x6C
-    loadi send 1
-    loadi cout 0x6F
-    loadi send 1
-    loadi cout 0x20
-    loadi send 1
-    loadi cout 0x57
-    loadi send 1
-    loadi cout 0x6F
-    loadi send 1
-    loadi cout 0x72
-    loadi send 1
-    loadi cout 0x6C
-    loadi send 1
-    loadi cout 0x64
-    loadi send 1
-    loadi cout 0x0A
-    loadi send 1
+    loadi a0 0x12EF
+    jump ra zero _print_int
+    loadi a0 0x12EF
+    jump ra zero _print_int
     jump zero zero _ret

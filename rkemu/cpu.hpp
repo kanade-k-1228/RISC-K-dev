@@ -26,7 +26,12 @@ public:
   void landi(uint16_t, uint16_t, uint16_t);
   void lor(uint16_t, uint16_t, uint16_t);
   void lori(uint16_t, uint16_t, uint16_t);
+  void lxor(uint16_t, uint16_t, uint16_t);
+  void lxori(uint16_t, uint16_t, uint16_t);
   void lnot(uint16_t, uint16_t, uint16_t);
+  void lrot(uint16_t, uint16_t, uint16_t);
+  void rrot(uint16_t, uint16_t, uint16_t);
+
   void load(uint16_t, uint16_t, uint16_t);
   void loadi(uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);

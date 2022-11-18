@@ -69,7 +69,12 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
 }
 
 bool is_op(std::string str) {
-  std::regex op(R"(^((add)|(addi)|(sub)|(subi)|(store)|(load)|(loadi)|(jump)|(breq)|(brlt))$)");
+  std::regex op("^("
+                "add|sub|and|or|xor"
+                "|not|lrot|rrot"
+                "|addi|subi|andi|ori|xori"
+                "|store|load|loadi|jump|breq|brlt"
+                ")$");
   return std::regex_search(str, op);
 }
 
@@ -105,8 +110,8 @@ uint16_t get_reg(std::string name) {
 }
 
 uint16_t get_op(std::string op_s) {
-  if(op_s == "add" || op_s == "sub") return CALC;
-  if(op_s == "addi" || op_s == "subi") return CALCI;
+  if(op_s == "add" || op_s == "sub" || op_s == "and" || op_s == "or" || op_s == "xor" || op_s == "not" || op_s == "lrot" || op_s == "rrot") return CALC;
+  if(op_s == "addi" || op_s == "subi" || op_s == "andi" || op_s == "ori" || op_s == "xori") return CALCI;
   if(op_s == "load") return LOAD;
   if(op_s == "store") return STORE;
   if(op_s == "loadi") return LOADI;
@@ -122,7 +127,10 @@ uint16_t get_func(std::string op_s) {
   if(op_s == "sub" || op_s == "subi") return SUB;
   if(op_s == "and" || op_s == "andi") return AND;
   if(op_s == "or" || op_s == "ori") return OR;
+  if(op_s == "xor" || op_s == "xori") return XOR;
   if(op_s == "not") return NOT;
+  if(op_s == "lrot") return LROT;
+  if(op_s == "rrot") return RROT;
   error("Invalid Operation Name: " + op_s);
   return 0;
 }

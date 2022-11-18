@@ -19,6 +19,8 @@
 - and / andi
 - or / ori
 - not
+- rrot
+- lrot
 
 ## 特殊レジスタ
 
