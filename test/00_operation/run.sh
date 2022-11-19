@@ -1,2 +1,2 @@
-../../rkasm/build/rkasm main.rk
-../../rkemu/build/rkemu -d main.rk.bin
+rkasm main.rk
+rkemu -d main.rk.bin

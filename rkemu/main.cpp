@@ -35,9 +35,9 @@ int main(int argc, char* argv[]) {
   if(use_bp) break_points.load(bp_file);
 
   std::cout
-      << "------------------------------------" << std::endl
+      << "------------------------------" << std::endl
       << "Emulate: " << bin_file << (use_bp ? " (Break: " + bp_file + ")" : "") << std::endl
-      << "------------------------------------" << std::endl;
+      << "------------------------------" << std::endl;
 
   // 実行
   while(true) {

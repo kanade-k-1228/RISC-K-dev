@@ -18,3 +18,9 @@ std::string hex(const uint16_t n) {
   ss.fill(fill_save);
   return ss.str();
 }
+
+std::string cprint(const std::string str, Collor collor, int width) {
+  std::ostringstream ss;
+  ss << "\033[" << collor << "m" << std::setw(width) << str << "\033[m";
+  return ss.str();
+}
