@@ -1,5 +1,5 @@
 ; -----------------------------------------------
-; システム固有
+; システム
 
 zero:
 _reset:
@@ -55,6 +55,10 @@ _print:
     ori csr csr 0x80 ; set send flag
     jump zero ra zero
 
+; ['A','B','C','\0']
+_print_str:
+
+; 16進数として値を出力
 ; loadi a0 0x01EF
 ; jump ra zero _print_hex
 ; > 01EF

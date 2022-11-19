@@ -88,6 +88,9 @@ uint16_t get_reg(std::string name) {
   if(name == "ra") return RA;
   if(name == "sp") return SP;
   if(name == "fp") return FP;
+  if(name == "csr") return CSR;
+  if(name == "ira") return IRA;
+  if(name == "cout") return COUT;
   if(name == "s0") return S0;
   if(name == "s1") return S1;
   if(name == "s2") return S2;
@@ -100,10 +103,6 @@ uint16_t get_reg(std::string name) {
   if(name == "a1") return A1;
   if(name == "a2") return A2;
   if(name == "a3") return A3;
-  if(name == "csr") return CSR;
-  if(name == "iid") return IID;
-  if(name == "ira") return IRA;
-  if(name == "cout") return COUT;
   error("Invalid Registor Name: " + name);
   return 0;
 }

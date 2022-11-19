@@ -1,3 +1,6 @@
+; -----------------------------------------------
+; システム
+
 zero:
 _reset:
     jump zero zero _main
@@ -5,7 +8,7 @@ _reset:
 _intr:
     ; レジスタ退避
     store sp sp 0
-    store fp 
+    store fp sp 15
     subi  sp sp 14
     store s0 sp 13
     store s1 sp 12
@@ -20,17 +23,16 @@ _intr:
     store a2 sp 3
     store a3 sp 2
     store ra sp 1
-    
     add   fp sp zero
     ; 割り込み先にジャンプ
-    loadi t0  0x0001
-    breq  iid t0 intr1
-    loadi t0  0x0002
-    breq  iid t0 intr2
-    loadi t0  0x0003
-    breq  iid t0 intr3
-    loadi t0  0x0004
-    breq  iid t0 intr4
+    andi  t0 csr 0x004
+    brlt  zero t0 intr0
+    andi  t0 csr 0x008
+    brlt  zero t0 intr1
+    andi  t0 csr 0x010
+    brlt  zero t0 intr2
+    andi  t0 csr 0x020
+    brlt  zero t0 intr3
 _iret:
     ; レジスタの復元
     add   sp fp zero
@@ -47,25 +49,54 @@ _iret:
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
-    ori   scr scr 0b0000'1000'0000'0000 ; 割り込み許可
     jump  zero zero os_init
 
 ; プログラム終了後処理
 _ret:
-    jump zero zero _ret
-    ; ori scr scr 0b1000'0000'0000'0000 ; クロック停止
+    ori csr csr 0x100 ; クロック停止
 
 ; ---------------------------------------------------
 ; ハードウェア固有の処理
 
 ; シリアル送信
-; loadi a0 'a'
+; loadi a0 0x41
 ; jump ra zero _print
+; > A
 _print:
-    store a0 zero 0x0030
-    loadi a1 0x0001
-    store a1 zero 0x0031
+    add cout a0 zero
+    ori csr csr 0x80 ; set send flag
     jump zero ra zero
+
+; ['A','B','C','\0']
+_print_str:
+
+; 16進数として値を出力
+; loadi a0 0x01EF
+; jump ra zero _print_hex
+; > 01EF
+_print_hex:
+    loadi a3 4
+    loadi a2 10
+_print_hex_for:
+    breq a3 zero _print_hex_break
+    lrot a0 a0 zero
+    lrot a0 a0 zero
+    lrot a0 a0 zero
+    lrot a0 a0 zero
+    andi a1 a0 0x00F ; a1 = a0 & f
+; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
+    brlt a1 a2 _print_hex_number
+_print_hex_alphabet:
+    addi cout a1 0x37
+    jump zero zero _print_hex_continue
+_print_hex_number:
+    addi cout a1 0x30
+_print_hex_continue:
+    ori  csr csr 0x80 ; set send flag
+    subi a3 a3 1
+    jump zero zero _print_hex_for
+_print_hex_break:
+    jump zero ra 0
 
 ; ---------------------------------------------------
 ; OS
@@ -89,12 +120,13 @@ os_save_context:
     store t1 sp 1
     store t1 sp 1
     store t1 sp 1
-
+os_next_task:
+    ; タスクの優先度と状態から、次に実行するタスクを決定する
 os_restore_context:
+    ; タスクを再開
+    jump zero ra zero
 
-os_malloc:
-
-os_free:
+; ヒープに関する
 
 os_start_scheduler:
     ; 優先度順に
@@ -108,6 +140,9 @@ os_task_wait:
     jump zero ra zero
 
 os_task_resume:
+
+; -----------------------------------------------
+; ユーザプログラム
 
 ; 各割り込みの処理
 intr1:
@@ -133,6 +168,7 @@ init:
     loadi a0 0x3000 ; &TBC_C
     loadi a1 0xdfff ; stack_base
     loadi a2 task_c ; entry address
+    ; os start
     jump zero zero os_start_scheduler
 
 task_a:
