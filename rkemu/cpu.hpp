@@ -13,7 +13,7 @@ public:
   void load_rom(std::string);
 
   void dump();
-  void print_code(uint32_t);
+  void print_code(uint16_t, uint32_t);
 
   void cstop();
   void serial(bool);

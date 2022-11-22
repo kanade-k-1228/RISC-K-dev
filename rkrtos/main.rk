@@ -52,11 +52,11 @@ _main:
     jump  zero zero os_init
 
 ; プログラム終了後処理
-_ret:
+_exit:
     ori csr csr 0x100 ; クロック停止
 
 ; ---------------------------------------------------
-; ハードウェア固有の処理
+; 標準ライブラリ
 
 ; シリアル送信
 ; loadi a0 0x41
@@ -103,33 +103,86 @@ _print_hex_break:
 
 ; OSの初期化
 os_init:
-    jump zero zero init
+    jump ra zero init
+    jump zero zero os_next_task
 
+; タスクの初期化
+; a0 tcb
+; a1 stack_base
+; a2 entry address
+; a3 state
 os_task_setup:
-    store a1 a0 0 ; Stack Top
-    store a1 a0 1 ; Stack Base
+    ; task_end += 3
+    load  t0 zero 0x0041 ; t0 = task_end
+    addi  t0 t0 3
+    store t0 zero 0x0041
+    ; set tcb
+    store a1 a0 1 ; stack_base => tcb.bp
+    subi  a1 a1 14 ; sp -= 14
+    store a1 a0 0 ; stack_pointer => tcb.sp
+    store a3 a0 2 ; state => tcb.state
+    ; init stack
+    store zero a1 14
+    store zero a1 13
+    store zero a1 12
+    store zero a1 11
+    store zero a1 10
+    store zero a1 9
+    store zero a1 8
+    store zero a1 7
+    store zero a1 6
+    store zero a1 5
+    store zero a1 4
+    store zero a1 3
+    store zero a1 2
+    store a2 a1 1 ; ra = entry_address
     jump zero ra zero ; return
 
 os_save_context:
-    subi sp sp 16
-    store t0 sp 0
-    store t1 sp 1
-    store t2 sp 2
-    store t3 sp 3
-    store t1 sp 1
-    store t1 sp 1
-    store t1 sp 1
-    store t1 sp 1
+    subi  sp sp 14 ; スタックを確保
+    store s0 sp 14
+    store s1 sp 13
+    store s2 sp 12
+    store s3 sp 11
+    store t0 sp 10
+    store t1 sp 9
+    store t2 sp 8
+    store t3 sp 7
+    store a0 sp 6
+    store a1 sp 5
+    store a2 sp 4
+    store a3 sp 3
+    store fp sp 2
+    store ra sp 1
+    load t0 zero 0x0040 ; t0 = running
+    store sp t0 0       ; t0.sp = sp
 os_next_task:
-    ; タスクの優先度と状態から、次に実行するタスクを決定する
+    ; 優先度順に State を調べ
+    ; ReadyのTCB => running する
+    loadi t0 0x0042
+    store t0 zero 0x0040
+    ; 全てのタスクがExitしてたら、exitする
+    ; jump zero zero _exit
 os_restore_context:
     ; タスクを再開
+    load t0 zero 0x0040 ; t0 = running
+    load sp t0 0        ; sp = t0.sp
+    load ra sp 1
+    load fp sp 2
+    load a3 sp 3
+    load a2 sp 4
+    load a1 sp 5
+    load a0 sp 6
+    load t3 sp 7
+    load t2 sp 8
+    load t1 sp 9
+    load t0 sp 10
+    load s3 sp 11
+    load s2 sp 12
+    load s1 sp 13
+    load s0 sp 14
+    addi sp sp 14 ; スタックを解放
     jump zero ra zero
-
-; ヒープに関する
-
-os_start_scheduler:
-    ; 優先度順に
 
 os_task_wait:
     ; コンテキスト保存
@@ -137,62 +190,201 @@ os_task_wait:
     ; running = &next_task_tbc
     ; コンテキスト復元
     ; ジャンプ
-    jump zero ra zero
+    jump zero zero os_save_context
+
+os_task_exit:
+    ; タスクを終了する
+    jump zero zero os_next_task
 
 os_task_resume:
+
+; ヒープ
+os_heap_aloc:
+os_heap_free:
 
 ; -----------------------------------------------
 ; ユーザプログラム
 
 ; 各割り込みの処理
+intr0:
+    jump zero zero _iret
 intr1:
     jump zero zero _iret
 intr2:
     jump zero zero _iret
 intr3:
     jump zero zero _iret
-intr4:
-    jump zero zero _iret
 
 init:
+    add  s0 ra zero ; s0 <= ra
     ; setup task A
-    loadi a0 0x1000 ; &TBC_A
-    loadi a1 0xffff ; stack_base
+    loadi a0 0x0042 ; &TBC_A
+    loadi a1 0xefff ; stack_base
     loadi a2 task_a ; entry address
+    loadi a3 1      ; ready
     jump ra zero os_task_setup
     ; setup task B
-    loadi a0 0x2000 ; &TBC_B
-    loadi a1 0xefff ; stack_base
-    loadi a2 task_b ; entry address
-    ; setup task C
-    loadi a0 0x3000 ; &TBC_C
+    loadi a0 0x0045 ; &TBC_B
     loadi a1 0xdfff ; stack_base
+    loadi a2 task_b ; entry address
+    loadi a3 1      ; ready
+    jump ra zero os_task_setup
+    ; setup task C
+    loadi a0 0x0048 ; &TBC_C
+    loadi a1 0xcfff ; stack_base
     loadi a2 task_c ; entry address
+    loadi a3 1      ; ready
+    jump ra zero os_task_setup
     ; os start
-    jump zero zero os_start_scheduler
+    add  ra s0 zero ; ra <= s0 
+    jump zero ra 0
 
 task_a:
-    loadi cout 0x54
-    loadi send 1
+    loadi cout 0x53
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
     loadi cout 0x61
-    loadi send 1
-    loadi cout 0x73
-    loadi send 1
-    loadi cout 0x6B
-    loadi send 1
+    ori   csr csr 0x80
+    loadi cout 0x72
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
     loadi cout 0x41
-    loadi send 1
+    ori   csr csr 0x80
     loadi cout 0x0A
-    loadi send 1
-    loadi t0 0
-    loadi t1 10
-loop:
-    brlt  t1 t0 break
-
-    jump  zero zero loop
-break:
-    jump zero zero os_task_wait
-
+    ori   csr csr 0x80
+    loadi s0 0xAAA0
+    loadi s1 0xAAA1
+    loadi s2 0xAAA2
+    loadi s3 0xAAA3
+    loadi t0 0xAAB0
+    loadi t1 0xAAB1
+    loadi t2 0xAAB2
+    loadi t3 0xAAB3
+    loadi a0 0xAAC0
+    loadi a1 0xAAC1
+    loadi a2 0xAAC2
+    loadi a3 0xAAC3
+    jump  ra zero os_task_wait
+    loadi cout 0x52
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x73
+    ori   csr csr 0x80
+    loadi cout 0x75
+    ori   csr csr 0x80
+    loadi cout 0x6d
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
+    loadi cout 0x41
+    ori   csr csr 0x80
+    loadi cout 0x0A
+    ori   csr csr 0x80
+    jump  ra zero os_task_exit
+    
 task_b:
+    loadi cout 0x53
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
+    loadi cout 0x61
+    ori   csr csr 0x80
+    loadi cout 0x72
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
+    loadi cout 0x42
+    ori   csr csr 0x80
+    loadi cout 0x0A
+    ori   csr csr 0x80
+    loadi s0 0xBBA0
+    loadi s1 0xBBA1
+    loadi s2 0xBBA2
+    loadi s3 0xBBA3
+    loadi t0 0xBBB0
+    loadi t1 0xBBB1
+    loadi t2 0xBBB2
+    loadi t3 0xBBB3
+    loadi a0 0xBBC0
+    loadi a1 0xBBC1
+    loadi a2 0xBBC2
+    loadi a3 0xBBC3
+    jump  ra zero os_task_wait
+    loadi cout 0x52
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x73
+    ori   csr csr 0x80
+    loadi cout 0x75
+    ori   csr csr 0x80
+    loadi cout 0x6d
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
+    loadi cout 0x42
+    ori   csr csr 0x80
+    loadi cout 0x0A
+    ori   csr csr 0x80
+    jump  ra zero os_task_exit
 
 task_c:
+    loadi cout 0x53
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
+    loadi cout 0x61
+    ori   csr csr 0x80
+    loadi cout 0x72
+    ori   csr csr 0x80
+    loadi cout 0x74
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
+    loadi cout 0x43
+    ori   csr csr 0x80
+    loadi cout 0x0A
+    ori   csr csr 0x80
+    loadi s0 0xCCA0
+    loadi s1 0xCCA1
+    loadi s2 0xCCA2
+    loadi s3 0xCCA3
+    loadi t0 0xCCB0
+    loadi t1 0xCCB1
+    loadi t2 0xCCB2
+    loadi t3 0xCCB3
+    loadi a0 0xCCC0
+    loadi a1 0xCCC1
+    loadi a2 0xCCC2
+    loadi a3 0xCCC3
+    jump  ra zero os_task_wait
+    loadi cout 0x52
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x73
+    ori   csr csr 0x80
+    loadi cout 0x75
+    ori   csr csr 0x80
+    loadi cout 0x6d
+    ori   csr csr 0x80
+    loadi cout 0x65
+    ori   csr csr 0x80
+    loadi cout 0x20
+    ori   csr csr 0x80
+    loadi cout 0x43
+    ori   csr csr 0x80
+    loadi cout 0x0A
+    ori   csr csr 0x80
+    jump  ra zero os_task_exit

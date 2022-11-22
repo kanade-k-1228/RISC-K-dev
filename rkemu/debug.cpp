@@ -12,10 +12,9 @@ void DebugPoints::load_dbg(std::string fname) {
     auto tokens = split(line, ' ');
     Debug debug;
     uint16_t pc = std::stoi(tokens.at(0), nullptr, 0);
+    debug.dump = true;  // 必ずダンプを吐く
+    // オプション
     for(auto token : tokens) {
-      if(token.at(0) == 'd') {
-        debug.dump = true;
-      }
       if(token.at(0) == 'i') {
         debug.interrupt = true;
         debug.inter_no = token.at(1) - '0';

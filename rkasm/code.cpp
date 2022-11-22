@@ -91,6 +91,10 @@ uint16_t get_reg(std::string name) {
   if(name == "csr") return CSR;
   if(name == "ira") return IRA;
   if(name == "cout") return COUT;
+  if(name == "os0") return OS0;
+  if(name == "os1") return OS1;
+  if(name == "os2") return OS2;
+  if(name == "os3") return OS3;
   if(name == "s0") return S0;
   if(name == "s1") return S1;
   if(name == "s2") return S2;

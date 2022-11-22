@@ -229,13 +229,15 @@ void CPU::brlt(uint16_t rs1, uint16_t rs2, uint16_t imm) {
   pc = (mem.at(rs1) < mem.at(rs2)) ? imm : pc + 1;
 }
 
-void CPU::print_code(uint32_t code) {
+void CPU::print_code(uint16_t pc, uint32_t code) {
   uint16_t opc = (code >> 6) & 0x000f;
   uint16_t func = decode_func(code, opc);
   uint16_t rs1 = (code >> 0) & 0x003f;
   uint16_t rs2 = (code >> 20) & 0x003f;
   uint16_t rd = (code >> 26) & 0x003f;
   uint16_t imm = decode_imm(code, opc);
+
+  std::cout << hex(true, pc);
 
   if(opc == CALC) {
     if(func == ADD) std::cout << cprint("add", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;

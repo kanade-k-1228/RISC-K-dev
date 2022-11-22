@@ -12,10 +12,11 @@ int main(int argc, char* argv[]) {
   bool print_opc = false;
   bool cout_single_line = false;
   bool dump_all = false;
+  bool interval_time = false;
   bool use_dbg = false;
   std::string dbg_file = "";
   std::string bin_file = "";
-  for(int opt; (opt = getopt(argc, argv, "cndb:")) != -1;) {
+  for(int opt; (opt = getopt(argc, argv, "cndtb:")) != -1;) {
     switch(opt) {
     case 'c':
       print_opc = true;
@@ -26,12 +27,15 @@ int main(int argc, char* argv[]) {
     case 'd':
       dump_all = true;
       break;
+    case 't':
+      interval_time = true;
+      break;
     case 'b':
       use_dbg = true;
       dbg_file = optarg;
       break;
     default:
-      std::cout << "Usage: rkemu [-c] [-d] [-b .dbg] .rk.bin" << std::endl;
+      std::cout << "Usage: rkemu [-c] [-n] [-d] [-t] [-b .dbg] .rk.bin" << std::endl;
       break;
     }
   }
@@ -61,11 +65,13 @@ int main(int argc, char* argv[]) {
 
     // Debug
     if(print_opc)
-      cpu.print_code(cpu.rom.at(pc));
+      cpu.print_code(pc, cpu.rom.at(pc));
     if(dump_all || (break_points.contain(pc) && break_points[pc].dump))
       cpu.dump();
     if(-1 != (intr_no = break_points.interrupt(pc)))
       cpu.interrupt(intr_no);
+    if(interval_time)
+      usleep(10000);
   }
   return 0;
 }
