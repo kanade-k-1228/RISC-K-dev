@@ -1,2 +1,2 @@
 rkasm main.rk
-rkemu -d main.rk.bin
+rkemu -c -d main.rk.bin

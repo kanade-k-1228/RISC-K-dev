@@ -1,5 +1,5 @@
 #include "token.hpp"
-#include "utils.hpp"
+#include "../utils/utils.hpp"
 #include <iostream>
 
 Token::Token(Type type, std::string str, int val)

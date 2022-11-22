@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "../rkisa/rkisa.hpp"
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -13,28 +14,43 @@ void error(std::string message) {
   exit(EXIT_FAILURE);
 }
 
-std::string hex(const uint16_t n) {
-  std::ostringstream ss;
-  ss.setf(std::ios::hex, std::ios::basefield);
-  const char fill_save = ss.fill('0');
-  ss << "0x" << std::setw(4) << n;
-  ss.fill(fill_save);
-  return ss.str();
-}
-
-std::string hex(const uint32_t n) {
-  std::ostringstream ss;
-  ss.setf(std::ios::hex, std::ios::basefield);
-  const char fill_save = ss.fill('0');
-  ss << "0x" << std::setw(8) << n;
-  ss.fill(fill_save);
-  return ss.str();
-}
-
 std::string cprint(const std::string str, Collor collor, int width) {
   std::ostringstream ss;
   ss << "\033[" << collor << "m" << std::setw(width) << str << "\033[m";
   return ss.str();
+}
+
+std::string hex(bool prefix, const uint16_t n) {
+  std::ostringstream ss;
+  ss.setf(std::ios::hex, std::ios::basefield);
+  const char fill_save = ss.fill('0');
+  ss << (prefix ? "0x" : "") << std::setw(4) << n;
+  ss.fill(fill_save);
+  return ss.str();
+}
+
+std::string hex(bool prefix, const uint32_t n) {
+  std::ostringstream ss;
+  ss.setf(std::ios::hex, std::ios::basefield);
+  const char fill_save = ss.fill('0');
+  ss << (prefix ? "0x" : "") << std::setw(8) << n;
+  ss.fill(fill_save);
+  return ss.str();
+}
+
+uint16_t decode_imm(uint32_t code, uint16_t opc) {
+  if(opc == CALC) return 0;
+  if(opc == CALCI) return ((code >> 10) & 0x03ff) | (((code >> 24) & 0x0003) << 10);
+  if(opc == LOAD || opc == LOADI || opc == JUMP) return (code >> 10) & 0xffff;
+  if(opc == STORE || opc == BREQ || opc == BRLT) return ((code >> 10) & 0x03ff) | ((code >> 26) & 0x003f);
+  error("Unknown OPC: " + opc);
+  return 0;
+}
+
+uint16_t decode_func(uint32_t code, uint16_t opc) {
+  if(opc == CALC) return (code >> 10) & 0x000f;
+  if(opc == CALCI) return (code >> 20) & 0x000f;
+  return 0;
 }
 
 // 区切り文字 sep で分割

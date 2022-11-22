@@ -7,19 +7,19 @@ public:
   std::array<uint16_t, 0x10000> mem;
   uint16_t pc = 0;
   std::array<uint32_t, 0x10000> rom;
-  bool debug = false;
 
   CPU();
-  CPU(std::string);
+
+  void load_rom(std::string);
 
   void dump();
-
-  void step();
+  void print_code(uint32_t);
 
   void cstop();
-  void serial();
+  void serial(bool);
+  void interrupt(int);
 
-  void run(uint32_t code);
+  void execute(uint32_t);
   void add(uint16_t, uint16_t, uint16_t);
   void addi(uint16_t, uint16_t, uint16_t);
   void sub(uint16_t, uint16_t, uint16_t);
@@ -33,7 +33,6 @@ public:
   void lnot(uint16_t, uint16_t);
   void lrot(uint16_t, uint16_t);
   void rrot(uint16_t, uint16_t);
-
   void load(uint16_t, uint16_t, uint16_t);
   void loadi(uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);

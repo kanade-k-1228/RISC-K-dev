@@ -57,3 +57,7 @@ enum CSRBit {
   SSEND = 0b0000'1000'0000,
   CSTOP = 0b0001'0000'0000,
 };
+
+enum Addr {
+  PC_INTR = 0x0001,
+};

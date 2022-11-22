@@ -1,5 +1,5 @@
 #include "ast.hpp"
-#include "utils.hpp"
+#include "../utils/utils.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
