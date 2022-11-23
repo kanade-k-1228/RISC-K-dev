@@ -1,16 +1,34 @@
+#pragma once
+#include "cpu.hpp"
+#include <array>
 #include <map>
 #include <string>
+#include <vector>
 
-struct Debug {
-  bool dump = false;
-  bool interrupt = false;
-  int inter_no = 0;
+struct InteruptOption {
+  int ino;
 };
 
-class DebugPoints : public std::map<uint16_t, Debug> {
+class InteruptPoints : public std::map<int, InteruptOption> {
 public:
-  void load_dbg(std::string);
-  bool contain(uint16_t);
-  bool dump(uint16_t);
-  int interrupt(uint16_t);
+  bool use = false;
+  std::string fname;
+  void init(std::string);
+  bool contain(int);
 };
+
+struct DumpOption {
+  std::vector<uint16_t> address;
+};
+
+class DumpPoints : public std::map<uint16_t, DumpOption> {
+public:
+  bool use = false;
+  std::string fname;
+  void init(std::string);
+  bool contain(uint16_t);
+};
+
+std::string dump(CPU&);
+std::string dump(CPU&, DumpOption&);
+std::string print_code(uint32_t);

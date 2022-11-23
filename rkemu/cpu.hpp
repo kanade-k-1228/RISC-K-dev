@@ -1,22 +1,21 @@
+#pragma once
 #include <array>
 #include <fstream>
-#include <iostream>
+#include <string>
 
 class CPU {
 public:
   std::array<uint16_t, 0x10000> mem;
   uint16_t pc = 0;
   std::array<uint32_t, 0x10000> rom;
+  std::string fname;
 
   CPU();
 
   void load_rom(std::string);
 
-  void dump();
-  void print_code(uint16_t, uint32_t);
-
-  void cstop();
-  void serial(bool);
+  bool cstop();
+  int serial();
   void interrupt(int);
 
   void execute(uint32_t);

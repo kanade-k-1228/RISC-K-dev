@@ -14,6 +14,7 @@ CPU::CPU() : mem{0}, rom{0} {
 }
 
 void CPU::load_rom(std::string fname) {
+  this->fname = fname;
   std::ifstream f(fname);
   if(!f) error("Cant Open File: " + fname);
   uint32_t buf;
@@ -23,35 +24,16 @@ void CPU::load_rom(std::string fname) {
   }
 }
 
-void CPU::dump() {
-  std::cout << "------------------------------" << std::endl
-            << "         | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " | " << cprint("Argu", BLUE, 0) << std::endl
-            << cprint("PC: " + hex(false, pc), GREEN, 0) << " | " << hex(false, mem.at(S0)) << " | " << hex(false, mem.at(T0)) << " | " << hex(false, mem.at(A0)) << std::endl
-            << "RA: " << hex(false, mem.at(RA)) << " | " << hex(false, mem.at(S1)) << " | " << hex(false, mem.at(T1)) << " | " << hex(false, mem.at(A1)) << std::endl
-            << "SP: " << hex(false, mem.at(SP)) << " | " << hex(false, mem.at(S2)) << " | " << hex(false, mem.at(T2)) << " | " << hex(false, mem.at(A2)) << std::endl
-            << "FP: " << hex(false, mem.at(FP)) << " | " << hex(false, mem.at(S3)) << " | " << hex(false, mem.at(T3)) << " | " << hex(false, mem.at(A3)) << std::endl
-            << "CSR: " << std::bitset<16>(mem.at(CSR)) << std::endl
-            << "------------------------------" << std::endl;
-  for(uint16_t sp = mem.at(SP); sp < mem.at(FP); sp++)
-    std::cout << hex(false, (uint16_t)(sp + 1)) << " : " << hex(false, mem.at(sp + 1)) << std::endl;
-  std::cout << "------------------------------" << std::endl;
+bool CPU::cstop() {
+  return mem.at(CSR) & CSRBit::CSTOP;
 }
 
-void CPU::cstop() {
-  if(mem.at(CSR) & CSRBit::CSTOP) {
-    std::cout << std::endl
-              << "-----------------------------#" << std::endl;
-    exit(EXIT_SUCCESS);
-  }
-}
-
-void CPU::serial(bool single_line) {
+int CPU::serial() {
   if((mem.at(CSR) & SSEND) == SSEND) {
-    std::cout << (single_line ? "> '" : "")
-              << (char)mem.at(COUT)
-              << (single_line ? "'\n" : "");
     mem.at(CSR) &= ~SSEND;
+    return (char)mem.at(COUT);
   }
+  return -1;
 }
 
 void CPU::interrupt(int intr_no) {
@@ -227,40 +209,4 @@ void CPU::breq(uint16_t rs1, uint16_t rs2, uint16_t imm) {
 // if(rs1<rs2) pc = imm
 void CPU::brlt(uint16_t rs1, uint16_t rs2, uint16_t imm) {
   pc = (mem.at(rs1) < mem.at(rs2)) ? imm : pc + 1;
-}
-
-void CPU::print_code(uint16_t pc, uint32_t code) {
-  uint16_t opc = (code >> 6) & 0x000f;
-  uint16_t func = decode_func(code, opc);
-  uint16_t rs1 = (code >> 0) & 0x003f;
-  uint16_t rs2 = (code >> 20) & 0x003f;
-  uint16_t rd = (code >> 26) & 0x003f;
-  uint16_t imm = decode_imm(code, opc);
-
-  std::cout << hex(true, pc);
-
-  if(opc == CALC) {
-    if(func == ADD) std::cout << cprint("add", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;
-    if(func == SUB) std::cout << cprint("sub", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;
-    if(func == AND) std::cout << cprint("and", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;
-    if(func == OR) std::cout << cprint("or", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;
-    if(func == XOR) std::cout << cprint("xor", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << std::endl;
-    if(func == NOT) std::cout << cprint("not", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << std::endl;
-    if(func == LROT) std::cout << cprint("lrot", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << std::endl;
-    if(func == RROT) std::cout << cprint("rrot", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << std::endl;
-  }
-  if(opc == CALCI) {
-    if(func == ADD) std::cout << cprint("addi", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-    if(func == SUB) std::cout << cprint("subi", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-    if(func == AND) std::cout << cprint("andi", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-    if(func == OR) std::cout << cprint("ori", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-    if(func == XOR) std::cout << cprint("xori", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  }
-  if(opc == LOAD) std::cout << cprint("load", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  if(opc == LOADI) std::cout << cprint("loadi", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  if(opc == STORE) std::cout << cprint("store", RED, 6) << cprint(hex(false, rs2), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  if(opc == JUMP) std::cout << cprint("jump", RED, 6) << cprint(hex(false, rd), BLUE, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  if(opc == BREQ) std::cout << cprint("breq", RED, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  if(opc == BRLT) std::cout << cprint("brlt", RED, 6) << cprint(hex(false, rs1), BLUE, 6) << cprint(hex(false, rs2), BLUE, 6) << cprint(hex(false, imm), YELLOW, 6) << std::endl;
-  return;
 }

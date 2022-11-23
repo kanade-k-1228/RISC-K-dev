@@ -20,3 +20,5 @@ AllowShortEnumsOnASingleLine: true
 
 SpacesBeforeTrailingComments: 2
 CommentPragmas: '[!\*]'
+
+EmptyLineBeforeAccessModifier: Never
