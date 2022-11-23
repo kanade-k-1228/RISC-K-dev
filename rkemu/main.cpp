@@ -25,13 +25,14 @@ int main(int argc, char* argv[]) {
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'n') cout_single_line = true;
     if(opt == 't') interval_time = true;
+    if(opt == '?') std::cout << "rkemu [-a] [-c] [-d .dump] [-i .intp] [-n] [-t] .rk.bin" << std::endl;
   }
   cpu.load_rom(argv[optind]);
 
   std::cout << "------------------------------------" << std::endl
             << "Emulate: " << cpu.fname << std::endl;
   if(dump_points.use) std::cout << "- Dump: " << dump_points.fname << std::endl;
-  if(intr_points.use) std::cout << "- Intr: " << dump_points.fname << std::endl;
+  if(intr_points.use) std::cout << "- Intr: " << intr_points.fname << std::endl;
   std::cout << "------------------------------------" << std::endl;
 
   // Run Emulator

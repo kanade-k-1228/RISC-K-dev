@@ -37,11 +37,14 @@ int CPU::serial() {
 }
 
 void CPU::interrupt(int intr_no) {
-  if(intr_no == 0) mem.at(CSR) |= INTR0;
-  if(intr_no == 1) mem.at(CSR) |= INTR1;
-  if(intr_no == 2) mem.at(CSR) |= INTR2;
-  if(intr_no == 3) mem.at(CSR) |= INTR3;
-  pc = PC_INTR;
+  if(mem.at(CSR) & IEN) {
+    if(intr_no == 0) mem.at(CSR) |= INTR0;
+    if(intr_no == 1) mem.at(CSR) |= INTR1;
+    if(intr_no == 2) mem.at(CSR) |= INTR2;
+    if(intr_no == 3) mem.at(CSR) |= INTR3;
+    mem.at(IRA) = pc;
+    pc = PC_INTR;
+  }
 }
 
 void CPU::execute(uint32_t code) {
