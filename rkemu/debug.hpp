@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-struct InteruptOption {
+struct IntrOption {
   int ino;
 };
 
-class InteruptPoints : public std::map<int, InteruptOption> {
+class IntrPoints : public std::map<int, IntrOption> {
 public:
   bool use = false;
   std::string fname;
@@ -28,7 +28,8 @@ public:
   void init(std::string);
   bool contain(uint16_t);
 };
-
+namespace Debug {
 std::string dump(CPU&);
 std::string dump(CPU&, DumpOption&);
 std::string print_code(uint32_t);
+}  // namespace Debug
