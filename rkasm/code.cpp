@@ -16,7 +16,7 @@ uint16_t get_func(std::string);
 std::string reading_line;
 
 Code::Code(const uint16_t address, const std::vector<std::string> code_s)
-    : address(address), code_s(code_s), is_label_target(false), is_label_reference(false) {
+    : address(address), code_s(code_s), opr_lab_def(false), is_label_reference(false) {
   // ラベル行の場合
   reading_line = code_s.at(0);
   if(is_op(code_s.at(0))) {  // 命令行
@@ -61,7 +61,7 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
       return;
     }
   } else if(is_label(code_s.at(0))) {
-    is_label_target = true;
+    opr_lab_def = true;
     label_target_name = code_s.at(0);
     label_target_name.pop_back();
     return;
@@ -191,42 +191,4 @@ uint32_t Code::get_bin() {
     error("Invalid Code Format");
   }
   return code;
-}
-
-std::string Code::print(bool binary) {
-  std::ostringstream ss;
-  if(is_label_target) {
-    ss << cprint(label_target_name + ":" + hex(true, label_target_value), GREEN, 0);
-  } else {
-    ss << hex(true, address) << " |";
-    // Print Binary
-    if(binary) {
-      ss << " "
-         << std::bitset<6>((code >> 26) & 0x3f) << " "
-         << std::bitset<6>((code >> 20) & 0x3f) << " "
-         << std::bitset<10>((code >> 10) & 0x3ff) << " "
-         << std::bitset<4>((code >> 6) & 0xf) << " "
-         << std::bitset<6>(code & 0x3f) << " |";
-    }
-    // Print Collered asm
-    ss << cprint(code_s.at(0), RED, 6);
-    if(op == CALC)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(code_s.at(3), BLUE, 8);
-    if(op == CALCI)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(true, imm), YELLOW, 8);
-    if(op == LOAD)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(true, imm), YELLOW, 8);
-    if(op == LOADI)
-      ss << cprint(code_s.at(1), BLUE, 6)
-         << (is_label_reference ? cprint(code_s.at(2), GREEN, 8) : cprint(hex(true, imm), YELLOW, 8));
-    if(op == STORE)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8) << cprint(hex(true, imm), YELLOW, 8);
-    if(op == JUMP)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8)
-         << (is_label_reference ? cprint(code_s.at(3), GREEN, 8) : cprint(hex(true, imm), YELLOW, 8));
-    if(op == BREQ || op == BRLT)
-      ss << cprint(code_s.at(1), BLUE, 6) << cprint(code_s.at(2), BLUE, 8)
-         << (is_label_reference ? cprint(code_s.at(3), GREEN, 8) : cprint(hex(true, imm), YELLOW, 8));
-  }
-  return ss.str();
 }

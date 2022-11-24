@@ -6,24 +6,25 @@ _reset:
     jump zero zero _main
 
 _intr:
-    ; レジスタ退避
-    store sp sp 0
-    store fp sp 15
-    subi  sp sp 14
-    store s0 sp 13
-    store s1 sp 12
-    store s2 sp 11
-    store s3 sp 10
-    store t0 sp 9
-    store t1 sp 8
-    store t2 sp 7
-    store t3 sp 6
-    store a0 sp 5
-    store a1 sp 4
-    store a2 sp 3
-    store a3 sp 2
+    ; コンテキストの保存
+    subi  sp sp 14 ; スタックを確保
+    store s0 sp 14
+    store s1 sp 13
+    store s2 sp 12
+    store s3 sp 11
+    store t0 sp 10
+    store t1 sp 9
+    store t2 sp 8
+    store t3 sp 7
+    store a0 sp 6
+    store a1 sp 5
+    store a2 sp 4
+    store a3 sp 3
+    store fp sp 2
     store ra sp 1
-    add   fp sp zero
+    ; スタックポインタの保存
+    load t0 zero 0x0040 ; t0 = running
+    store sp t0 0       ; t0.sp = sp
     ; 割り込み先にジャンプ
     andi  t0 csr 0x004
     brlt  zero t0 intr0
@@ -105,8 +106,9 @@ _print_hex_break:
 os_init:
     loadi t0 0x42 
     store t0 zero 0x41
-    jump ra zero init
-    jump zero zero os_next_task
+    jump  ra zero init
+    ori   csr csr 0x0001 ; 割り込み許可
+    jump  zero zero os_task_next
 
 ; タスクの初期化
 ; a0 tcb
@@ -143,10 +145,10 @@ os_task_setup:
 ; タスクの終了
 os_task_exit:
     ; 状態を exit に変更
-    load t0 zero 0x0040 ; t0 = running
+    load  t0 zero 0x0040 ; t0 = running
     loadi t1 2
     store t1 t0 2       ; t0.state = 2(exit)
-    jump zero zero os_next_task
+    jump  zero zero os_task_next
 
 ; 実行中のタスクを一時停止
 os_task_wait:
@@ -172,7 +174,7 @@ os_task_wait:
     ; 状態を waiting に変更
     loadi t1 1
     store t1 t0 2       ; t0.state = 1(waiting)
-    jump zero zero os_next_task
+    jump zero zero os_task_next
 
 ; 指定した ID のタスクを Ready 状態にする
 ; a0 : task id
@@ -199,7 +201,7 @@ os_task_ready:
     ; 状態を ready に変更
     ; a0 = a0 * 4 + 0x42
     store zero a0 2     ; a0.state = ready
-    jump zero zero os_next_task
+    jump zero zero os_task_next
 
 os_save_context:
     subi  sp sp 14 ; スタックを確保
@@ -220,21 +222,21 @@ os_save_context:
     load t0 zero 0x0040 ; t0 = running
     store sp t0 0       ; t0.sp = sp
 
-os_next_task:
+os_task_next:
     ; 上から順に、tcb.state が running か調べる
     ; ReadyのTCB => running する
     loadi t0 0x0042 ; t0 = taskA
     load  t1 zero 0x0041 ; t1 = task_end
-os_next_task_loop:
-    breq  t0 t1 os_next_task_break
+os_task_next_loop:
+    breq  t0 t1 os_task_next_break
     load  t2 t0 2   ; t2 = t0.state
-    breq  t2 zero os_next_task_update_running ; if ready
+    breq  t2 zero os_task_next_update_running ; if ready
     addi  t0 t0 3   ; t0 += 3
-    jump zero zero os_next_task_loop
-os_next_task_break:
+    jump zero zero os_task_next_loop
+os_task_next_break:
     ; 全てのタスクが exit なら、exitする
     jump zero zero _exit
-os_next_task_update_running:
+os_task_next_update_running:
     store t0 zero 0x0040
 
 os_restore_context:

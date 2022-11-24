@@ -4,4 +4,4 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -g -static")
 
 project(rkasm CXX)
 
-add_executable(rkasm main.cpp code.cpp ../utils/utils.cpp)
+add_executable(rkasm main.cpp label.cpp code.cpp ../utils/utils.cpp)

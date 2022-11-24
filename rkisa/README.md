@@ -4,15 +4,15 @@
 
 ## 命令一覧
 
-| operation | arg1 | arg2    | arg3        |
-| --------- | ---- | ------- | ----------- |
-| calc      | rd   | rs1     | rs2         |
-| calci     | rd   | rs      | imm (12bit) |
-| load      | rd   | rs      | imm         |
-| loadi     | rd   | imm/lab |             |
-| store     | rs   | rs      | imm         |
-| jump      | ra   | rs      | imm/lab     |
-| breq/brlt | rs1  | rs2     | imm/lab     |
+| operation | arg1 | arg2        | arg3        |
+| --------- | ---- | ----------- | ----------- |
+| calc      | rd   | rs1         | rs2         |
+| calci     | rd   | rs          | imm (12bit) |
+| load      | rd   | rs          | imm/var     |
+| loadi     | rd   | imm/lab/var |             |
+| store     | rs   | rs          | imm/var     |
+| jump      | ra   | rs          | imm/lab     |
+| breq/brlt | rs1  | rs2         | imm/lab     |
 
 - add / addi
 - sub / subi

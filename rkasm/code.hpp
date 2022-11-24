@@ -6,7 +6,10 @@ struct Code {
   uint16_t address;
   std::vector<std::string> code_s;
   uint32_t code;
-  bool is_label_target;
+  bool opr_lab_def;
+  bool opr_lab_ref;
+  bool var_lab_def;
+  bool var_lab_ref;
   bool is_label_reference;
   std::string op_s;
   uint16_t op;
@@ -23,5 +26,4 @@ struct Code {
   Code(const uint16_t address, const std::vector<std::string> code_s);
   void set_imm_or_label(const std::string str);
   uint32_t get_bin();
-  std::string print(bool binary);
 };
