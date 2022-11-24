@@ -26,3 +26,8 @@ koko:
     loadi t0 0xffff
 exit:
     ori  csr csr 0x100
+
+@0xaaaa hoge
+@0xaaaa aaa
+@0x1234 awa
+    load t0 zero hoge

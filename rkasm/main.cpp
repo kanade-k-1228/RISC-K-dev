@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
       break;
     }
   }
+
   // ファイル
   std::string fname = argv[optind];
   std::ifstream fin;
@@ -47,24 +48,26 @@ int main(int argc, char* argv[]) {
     Code code(program_cnt, split(line, ' '));  // 行を解釈
     codes.push_back(code);                     // 行を追加
 
-    if(code.opr_lab_def)                                       // ラベル定義の場合
-      pc_lab.define(code.label_target_name, program_cnt);      // ラベルの追加
-    else if(code.var_lab_def)                                  // ラベル定義の場合
-      var_lab.define(code.label_reference_name, program_cnt);  // ラベルの追加
-    else                                                       // 命令の場合
-      program_cnt++;                                           // PCのカウントアップ
+    if(code.opr_lab_def)                         // ラベル定義の場合
+      pc_lab.define(code.lab_str, program_cnt);  // ラベルの追加
+    else if(code.var_lab_def)                    // ラベル定義の場合
+      var_lab.define(code.lab_str, code.imm);    // ラベルの追加
+    else                                         // 命令の場合
+      program_cnt++;                             // PCのカウントアップ
   }
 
   // ラベルの解決
   for(auto& code : codes) {
-    if(code.is_label_reference) {
-      uint16_t address = pc_lab.use(code.label_reference_name);
-      code.label_target_value = address;
-      code.imm = address;
-    }
-    if(code.opr_lab_def) {
-      uint16_t address = pc_lab.use(code.label_target_name);
-      code.label_target_value = address;
+    if(code.lab_ref) {
+      if(pc_lab.contains(code.lab_str)) {
+        code.opr_lab_ref = true;
+        code.imm = pc_lab.use(code.lab_str);
+      } else if(var_lab.contains(code.lab_str)) {
+        code.var_lab_ref = true;
+        code.imm = var_lab.use(code.lab_str);
+      } else {
+        error("Cannot find def of label");
+      }
     }
   }
 
@@ -80,19 +83,19 @@ int main(int argc, char* argv[]) {
   }
 
   // 表示
-  if(debug) std::cout << std::endl;
+  if(debug) std::cout << "\r";
   std::cout << "------------------------------------" << std::endl
             << "Assembly: " << fname << std::endl
             << "------------------------------------" << std::endl;
-  for(auto var : var_lab) {
-    std::cout << cprint(hex(true, var.second) + " " + var.first, YELLOW, 0) << std::endl;
-  }
+  for(auto var : var_lab.sort_by_value())
+    std::cout << cprint(hex(true, var.first) + " : " + var.second, YELLOW, 0) << std::endl;
+  std::cout << "------------------------------------" << std::endl;
   for(auto code : codes) {
     if(code.opr_lab_def) {
-      std::cout << cprint(code.label_target_name + ":" + hex(true, code.label_target_value), GREEN, 0) << std::endl;
+      std::cout << cprint(code.lab_str + ":" + hex(true, code.imm), GREEN, 0) << std::endl;
     } else if(code.var_lab_def) {
     } else {
-      std::cout << hex(true, code.address) << " |";
+      std::cout << hex(true, code.addr) << " |";
       if(debug) std::cout << " " << print_binary(code) << " |";
       std::cout << print_asm(code) << std::endl;
     }
@@ -120,31 +123,35 @@ std::string print_asm(Code& code) {
   if(code.op == CALCI)
     ss << cprint(code.code_s.at(1), BLUE, 6)
        << cprint(code.code_s.at(2), BLUE, 8)
-       << cprint(hex(true, code.imm), YELLOW, 8);
+       << cprint(hex(true, (uint16_t)(code.imm & 0x0fff)), YELLOW, 8);
   if(code.op == LOAD)
     ss << cprint(code.code_s.at(1), BLUE, 6)
        << cprint(code.code_s.at(2), BLUE, 8)
-       << cprint(hex(true, code.imm), YELLOW, 8);
+       << (code.lab_ref
+               ? cprint(code.code_s.at(3), YELLOW, 8)
+               : cprint(hex(true, code.imm), YELLOW, 8));
   if(code.op == LOADI)
     ss << cprint(code.code_s.at(1), BLUE, 6)
-       << (code.is_label_reference
-               ? cprint(code.code_s.at(2), GREEN, 8)
+       << (code.lab_ref
+               ? cprint(code.code_s.at(2), YELLOW, 8)
                : cprint(hex(true, code.imm), YELLOW, 8));
   if(code.op == STORE)
     ss << cprint(code.code_s.at(1), BLUE, 6)
        << cprint(code.code_s.at(2), BLUE, 8)
-       << cprint(hex(true, code.imm), YELLOW, 8);
+       << (code.lab_ref
+               ? cprint(code.code_s.at(3), YELLOW, 8)
+               : cprint(hex(true, code.imm), YELLOW, 8));
   if(code.op == JUMP)
     ss << cprint(code.code_s.at(1), BLUE, 6)
        << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.is_label_reference
+       << (code.lab_ref
                ? cprint(code.code_s.at(3), GREEN, 8)
-               : cprint(hex(true, code.imm), YELLOW, 8));
+               : cprint(hex(true, code.imm), GREEN, 8));
   if(code.op == BREQ || code.op == BRLT)
     ss << cprint(code.code_s.at(1), BLUE, 6)
        << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.is_label_reference
+       << (code.lab_ref
                ? cprint(code.code_s.at(3), GREEN, 8)
-               : cprint(hex(true, code.imm), YELLOW, 8));
+               : cprint(hex(true, code.imm), GREEN, 8));
   return ss.str();
 }

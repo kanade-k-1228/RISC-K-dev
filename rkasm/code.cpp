@@ -7,18 +7,17 @@
 #include <sstream>
 
 bool is_op(std::string);
-bool is_label(std::string);
+bool is_opr_lab(std::string);
+bool is_var_lab(std::string);
+
 uint16_t get_reg(std::string);
 uint16_t get_imm(std::string);
 uint16_t get_op(std::string);
 uint16_t get_func(std::string);
 
-std::string reading_line;
-
 Code::Code(const uint16_t address, const std::vector<std::string> code_s)
-    : address(address), code_s(code_s), opr_lab_def(false), is_label_reference(false) {
+    : addr(address), code_s(code_s) {
   // ラベル行の場合
-  reading_line = code_s.at(0);
   if(is_op(code_s.at(0))) {  // 命令行
     op_s = code_s.at(0);
     op = get_op(op_s);
@@ -37,7 +36,7 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     if(op == LOAD) {
       rd = get_reg(code_s.at(1));
       rs1 = get_reg(code_s.at(2));
-      imm = get_imm(code_s.at(3));
+      set_imm_or_label(code_s.at(3));
     }
     if(op == LOADI) {
       rd = get_reg(code_s.at(1));
@@ -46,7 +45,7 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     if(op == STORE) {
       rs2 = get_reg(code_s.at(1));
       rs1 = get_reg(code_s.at(2));
-      imm = get_imm(code_s.at(3));
+      set_imm_or_label(code_s.at(3));
     }
     if(op == JUMP) {
       rd = get_reg(code_s.at(1));
@@ -60,10 +59,17 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
       set_imm_or_label(code_s.at(3));
       return;
     }
-  } else if(is_label(code_s.at(0))) {
+  } else if(is_opr_lab(code_s.at(0))) {  // ラベル行
     opr_lab_def = true;
-    label_target_name = code_s.at(0);
-    label_target_name.pop_back();
+    lab_str = code_s.at(0);
+    lab_str.pop_back();
+    return;
+  } else if(is_var_lab(code_s.at(0))) {  // ラベル行
+    var_lab_def = true;
+    std::string addr = code_s.at(0);
+    addr.erase(addr.begin());
+    imm = std::stoi(addr, nullptr, 0);
+    lab_str = code_s.at(1);
     return;
   }
 }
@@ -78,9 +84,12 @@ bool is_op(std::string str) {
   return std::regex_search(str, op);
 }
 
-bool is_label(std::string str) {
-  std::regex labt(R"(:$)");
-  return std::regex_search(str, labt);
+bool is_opr_lab(std::string str) {
+  return std::regex_search(str, std::regex(":$"));
+}
+
+bool is_var_lab(std::string str) {
+  return std::regex_search(str, std::regex("^@"));
 }
 
 uint16_t get_reg(std::string name) {
@@ -155,8 +164,8 @@ void Code::set_imm_or_label(const std::string str) {
   } catch(std::out_of_range& e) {
     error("Immidiate Out of Range: " + str);
   } catch(std::invalid_argument& e) {
-    label_reference_name = str;
-    is_label_reference = true;
+    lab_str = str;
+    lab_ref = true;
   }
   return;
 }
