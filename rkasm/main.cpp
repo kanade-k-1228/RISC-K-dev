@@ -37,11 +37,14 @@ int main(int argc, char* argv[]) {
   fin.open(fname, std::ios::in);
   if(!fin) error("Can't open input file");
 
-  LabelTable pc_lab;         // プログラムラベル
-  LabelTable var_lab;        // 変数ラベル
-  std::vector<Code> codes;   // コード
-  uint16_t program_cnt = 0;  // 機械語命令カウンタ
+  std::cout << "------------------------------------" << std::endl
+            << "Assembly: " << fname << std::endl
+            << "------------------------------------" << std::endl;
 
+  LabelTable opr_lab;        // 命令ラベルテーブル
+  LabelTable var_lab;        // 変数ラベルテーブル
+  std::vector<Code> codes;   // コードリスト
+  uint16_t program_cnt = 0;  // 機械語命令カウンタ
   for(std::string line; std::getline(fin, line);) {
     line = trim_comment(line);                 // コメント削除
     if(is_empty(line)) continue;               // 空行削除
@@ -49,27 +52,29 @@ int main(int argc, char* argv[]) {
     Code code(program_cnt, split(line, ' '));  // 行を解釈
     codes.push_back(code);                     // 行を追加
 
-    if(code.opr_lab_def)                         // ラベル定義の場合
-      pc_lab.define(code.lab_str, program_cnt);  // ラベルの追加
-    else if(code.var_lab_def)                    // ラベル定義の場合
-      var_lab.define(code.lab_str, code.imm);    // ラベルの追加
-    else                                         // 命令の場合
-      program_cnt++;                             // PCのカウントアップ
+    if(code.opr_lab_def)                       // ラベル定義の場合
+      opr_lab.define(code.lab_str, code.imm);  // ラベルの追加
+    else if(code.var_lab_def)                  // ラベル定義の場合
+      var_lab.define(code.lab_str, code.imm);  // ラベルの追加
+    else                                       // 命令の場合
+      program_cnt++;                           // PCのカウントアップ
   }
 
   // ラベルの解決
   for(auto& code : codes) {
     if(code.lab_ref) {
-      code.opr_lab_ref = pc_lab.contains(code.lab_str);
+      code.opr_lab_ref = opr_lab.contains(code.lab_str);
       code.var_lab_ref = var_lab.contains(code.lab_str);
+
       if(code.opr_lab_ref && code.var_lab_ref)
         error("Multiple defines of label: " + code.lab_str);
       else if(code.opr_lab_ref)
-        code.imm = pc_lab.get_value(code.lab_str);
+        code.imm = opr_lab.get_value(code.lab_str);
       else if(code.var_lab_ref)
         code.imm = var_lab.get_value(code.lab_str);
       else
         error("Cannot find def of label: " + code.lab_str);
+
       if(code.opr_lab_ref && (code.op == LOAD || code.op == STORE))
         warn("Label type is " + cprint("OPR", GREEN, 0) + " @ " + hex(true, code.addr));
       if(code.var_lab_ref && (code.op == JUMP || code.op == BREQ || code.op == BRLT))
@@ -90,9 +95,6 @@ int main(int argc, char* argv[]) {
 
   // 表示
   if(debug) std::cout << "\r";
-  std::cout << "------------------------------------" << std::endl
-            << "Assembly: " << fname << std::endl
-            << "------------------------------------" << std::endl;
   for(auto var : var_lab.sort_by_value())
     std::cout << cprint(hex(true, var.first) + " : " + var.second, YELLOW, 0) << std::endl;
   std::cout << "------------------------------------" << std::endl;

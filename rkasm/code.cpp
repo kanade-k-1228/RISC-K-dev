@@ -59,12 +59,13 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
       set_imm_or_label(code_s.at(3));
       return;
     }
-  } else if(is_opr_lab(code_s.at(0))) {  // ラベル行
+  } else if(is_opr_lab(code_s.at(0))) {  // 命令ラベル行
     opr_lab_def = true;
     lab_str = code_s.at(0);
     lab_str.pop_back();
+    imm = address;
     return;
-  } else if(is_var_lab(code_s.at(0))) {  // ラベル行
+  } else if(is_var_lab(code_s.at(0))) {  // 変数ラベル行
     var_lab_def = true;
     std::string addr = code_s.at(0);
     addr.erase(addr.begin());
