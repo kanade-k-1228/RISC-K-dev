@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
   // ラベルの解決
   for(auto& code : codes) {
     if(code.type == Code::OPERATION) {
+      if(print_debug) std::cout << "\r" << print_asm(code.opr);  // デバッグ用出力
       if(code.opr.imm.type == Imm::LAB_REF) {
         std::string lab = code.opr.imm.label;
         bool lab_is_opr = opr_lab.contains(lab);
@@ -154,9 +155,9 @@ std::string print_asm(Operation& code) {
   std::stringstream ss;
   ss << cprint(code.str.at(0), RED, 6);
   if(code.op == CALC) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << cprint(code.str.at(3), BLUE, 8);
-  if(code.op == CALCI) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << cprint(hex(true, (uint16_t)(code.imm.value & 0x0fff)), YELLOW, 8);
+  if(code.op == CALCI) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
   if(code.op == LOAD) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  if(code.op == LOADI) ss << cprint(code.str.at(1), BLUE, 6) << print_imm(code.imm);
+  if(code.op == LOADI) ss << cprint(code.str.at(1), BLUE, 6) << cprint("", BLUE, 8) << print_imm(code.imm);
   if(code.op == STORE) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
   if(code.op == JUMP) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
   if(code.op == BREQ || code.op == BRLT) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
@@ -165,8 +166,8 @@ std::string print_asm(Operation& code) {
 
 std::string print_imm(Imm& imm) {
   if(imm.type == Imm::LITERAL) return cprint(hex(true, imm.value), YELLOW, 8);
-  if(imm.type == Imm::OPR_LAB_REF) return cprint(imm.label, GREEN, 8);
-  if(imm.type == Imm::VAR_LAB_REF) return cprint(imm.label, YELLOW, 8);
-  if(imm.type == Imm::CONST_LAB_REF) return cprint(imm.label, YELLOW, 8);
+  if(imm.type == Imm::OPR_LAB_REF) return cprint(hex(true, imm.value), GREEN, 8) + cprint(" = " + imm.label, GREEN, 0);
+  if(imm.type == Imm::VAR_LAB_REF) return cprint(hex(true, imm.value), YELLOW, 8) + cprint(" = " + imm.label, YELLOW, 0);
+  if(imm.type == Imm::CONST_LAB_REF) return cprint(hex(true, imm.value), YELLOW, 8) + cprint(" = " + imm.label, YELLOW, 0);
   return "";
 }

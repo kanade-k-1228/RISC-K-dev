@@ -11,7 +11,7 @@ struct Imm {
     CONST_LAB_REF
   };
   uint16_t value;
-  Type type;
+  Type type = LITERAL;
   std::string label;
   void set(std::string);
 };
