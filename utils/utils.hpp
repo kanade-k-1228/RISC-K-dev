@@ -3,6 +3,7 @@
 #include <vector>
 
 void error(std::string message);
+void warn(std::string message);
 
 enum Collor {
   RED = 31,

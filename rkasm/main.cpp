@@ -13,6 +13,7 @@
 
 std::string print_binary(Code&);
 std::string print_asm(Code&);
+std::string print_imm_or_lab(Code&);
 
 int main(int argc, char* argv[]) {
   bool debug = false;
@@ -59,15 +60,20 @@ int main(int argc, char* argv[]) {
   // ラベルの解決
   for(auto& code : codes) {
     if(code.lab_ref) {
-      if(pc_lab.contains(code.lab_str)) {
-        code.opr_lab_ref = true;
-        code.imm = pc_lab.use(code.lab_str);
-      } else if(var_lab.contains(code.lab_str)) {
-        code.var_lab_ref = true;
-        code.imm = var_lab.use(code.lab_str);
-      } else {
-        error("Cannot find def of label");
-      }
+      code.opr_lab_ref = pc_lab.contains(code.lab_str);
+      code.var_lab_ref = var_lab.contains(code.lab_str);
+      if(code.opr_lab_ref && code.var_lab_ref)
+        error("Multiple defines of label: " + code.lab_str);
+      else if(code.opr_lab_ref)
+        code.imm = pc_lab.get_value(code.lab_str);
+      else if(code.var_lab_ref)
+        code.imm = var_lab.get_value(code.lab_str);
+      else
+        error("Cannot find def of label: " + code.lab_str);
+      if(code.opr_lab_ref && (code.op == LOAD || code.op == STORE))
+        warn("Label type is " + cprint("OPR", GREEN, 0) + " @ " + hex(true, code.addr));
+      if(code.var_lab_ref && (code.op == JUMP || code.op == BREQ || code.op == BRLT))
+        warn("Label type is " + cprint("VAR", YELLOW, 0) + " @ " + hex(true, code.addr));
     }
   }
 
@@ -116,42 +122,23 @@ std::string print_binary(Code& code) {
 std::string print_asm(Code& code) {
   std::stringstream ss;
   ss << cprint(code.code_s.at(0), RED, 6);
-  if(code.op == CALC)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << cprint(code.code_s.at(3), BLUE, 8);
-  if(code.op == CALCI)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << cprint(hex(true, (uint16_t)(code.imm & 0x0fff)), YELLOW, 8);
-  if(code.op == LOAD)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.lab_ref
-               ? cprint(code.code_s.at(3), YELLOW, 8)
-               : cprint(hex(true, code.imm), YELLOW, 8));
-  if(code.op == LOADI)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << (code.lab_ref
-               ? cprint(code.code_s.at(2), YELLOW, 8)
-               : cprint(hex(true, code.imm), YELLOW, 8));
-  if(code.op == STORE)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.lab_ref
-               ? cprint(code.code_s.at(3), YELLOW, 8)
-               : cprint(hex(true, code.imm), YELLOW, 8));
-  if(code.op == JUMP)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.lab_ref
-               ? cprint(code.code_s.at(3), GREEN, 8)
-               : cprint(hex(true, code.imm), GREEN, 8));
-  if(code.op == BREQ || code.op == BRLT)
-    ss << cprint(code.code_s.at(1), BLUE, 6)
-       << cprint(code.code_s.at(2), BLUE, 8)
-       << (code.lab_ref
-               ? cprint(code.code_s.at(3), GREEN, 8)
-               : cprint(hex(true, code.imm), GREEN, 8));
+  if(code.op == CALC) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << cprint(code.code_s.at(3), BLUE, 8);
+  if(code.op == CALCI) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << cprint(hex(true, (uint16_t)(code.imm & 0x0fff)), YELLOW, 8);
+  if(code.op == LOAD) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << print_imm_or_lab(code);
+  if(code.op == LOADI) ss << cprint(code.code_s.at(1), BLUE, 6) << print_imm_or_lab(code);
+  if(code.op == STORE) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << print_imm_or_lab(code);
+  if(code.op == JUMP) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << print_imm_or_lab(code);
+  if(code.op == BREQ || code.op == BRLT) ss << cprint(code.code_s.at(1), BLUE, 6) << cprint(code.code_s.at(2), BLUE, 8) << print_imm_or_lab(code);
+  return ss.str();
+}
+
+std::string print_imm_or_lab(Code& code) {
+  std::stringstream ss;
+  if(code.var_lab_ref)
+    ss << cprint(code.lab_str, YELLOW, 8);
+  else if(code.opr_lab_ref)
+    ss << cprint(code.lab_str, GREEN, 8);
+  else
+    ss << cprint(hex(true, code.imm), YELLOW, 8);
   return ss.str();
 }

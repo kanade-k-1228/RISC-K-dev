@@ -55,6 +55,8 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "typeinfo": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   }
 }

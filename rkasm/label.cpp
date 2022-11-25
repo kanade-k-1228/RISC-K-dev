@@ -8,7 +8,7 @@ void LabelTable::define(std::string label, uint16_t address) {
   this->insert(std::map<std::string, uint16_t>::value_type(label, address));
 }
 
-uint16_t LabelTable::use(std::string label) {
+uint16_t LabelTable::get_value(std::string label) {
   const auto lab = this->find(label);
   if(lab == this->end())
     error("Cannot find def of label \"" + label + "\"");

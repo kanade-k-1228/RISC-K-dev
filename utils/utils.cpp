@@ -7,11 +7,17 @@
 
 void error(std::string message) {
   std::cout << std::endl
-            << "------------------------------------------------" << std::endl;
-  std::cout << "\033[31m ERROR! \033[m " << message << std::endl;
-  // std::cout << std::setw(6) << line_cnt << ":" << line << std::endl;
-  std::cout << "------------------------------------------------" << std::endl;
+            << "------------------------------------" << std::endl
+            << "\033[31m ERROR! \033[m " << message << std::endl
+            << "------------------------------------" << std::endl;
   exit(EXIT_FAILURE);
+}
+
+void warn(std::string message) {
+  std::cout << std::endl
+            << "------------------------------------" << std::endl
+            << "\033[33m WARN \033[m " << message << std::endl
+            << "------------------------------------" << std::endl;
 }
 
 std::string cprint(const std::string str, Collor collor, int width) {
