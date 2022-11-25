@@ -167,7 +167,7 @@ std::string print_asm(Operation& code) {
 std::string print_imm(Imm& imm) {
   if(imm.type == Imm::LITERAL) return cprint(hex(true, imm.value), YELLOW, 8);
   if(imm.type == Imm::OPR_LAB_REF) return cprint(hex(true, imm.value), GREEN, 8) + cprint(" = " + imm.label, GREEN, 0);
-  if(imm.type == Imm::VAR_LAB_REF) return cprint(hex(true, imm.value), YELLOW, 8) + cprint(" = " + imm.label, YELLOW, 0);
+  if(imm.type == Imm::VAR_LAB_REF) return cprint(hex(true, imm.value), BLUE, 8) + cprint(" = " + imm.label, BLUE, 0);
   if(imm.type == Imm::CONST_LAB_REF) return cprint(hex(true, imm.value), YELLOW, 8) + cprint(" = " + imm.label, YELLOW, 0);
   return "";
 }
