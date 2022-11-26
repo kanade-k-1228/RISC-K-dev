@@ -7,25 +7,29 @@
 #include <set>
 #include <unistd.h>
 
+std::string esc_char(char);
+
 int main(int argc, char* argv[]) {
   CPU cpu;
   DumpPoints dump_points;
   IntrPoints intr_points;
   bool dump_all = false;
-  bool print_code = false;
-  bool cout_single_line = false;
+  bool print_opr = false;
   bool interval_time = false;
 
   // Init Emulator with Comandline options
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "acd:i:nt")) != -1;) {
-    if(opt == 'a') dump_all = true;
-    if(opt == 'c') print_code = true;
-    if(opt == 'd') dump_points.init(optarg);
+  for(int opt; (opt = getopt(argc, argv, "d:i:ot")) != -1;) {
+    if(opt == 'd') {
+      if((std::string)optarg == "all")
+        dump_all = true;
+      else
+        dump_points.init(optarg);
+    }
     if(opt == 'i') intr_points.init(optarg);
-    if(opt == 'n') cout_single_line = true;
+    if(opt == 'o') print_opr = true;
     if(opt == 't') interval_time = true;
-    if(opt == '?') std::cout << "rkemu [-a] [-c] [-d .dump] [-i .intp] [-n] [-t] .rk.bin" << std::endl;
+    if(opt == '?') std::cout << "rkemu [-o] [-t] [-d .dump] [-i .intr] .rk.bin" << std::endl;
   }
   cpu.load_rom(argv[optind]);
 
@@ -46,15 +50,22 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
-    // Print Serial Out
-    if(sout != -1) std::cout << (cout_single_line ? "> " : "") << (char)sout << (cout_single_line ? "\n" : "");
+    // Print Operation and Serial Out
+    if(print_opr) {
+      std::cout << "[" << hex(false, (uint16_t)t) << "]  "
+                << cprint(hex(false, pc), GREEN, 0)
+                << Debug::print_code(code)
+                << ((sout != -1) ? " > " + esc_char((char)sout) : "")
+                << std::endl;
+    } else {
+      std::cout << (char)sout;
+    }
 
     // Interrupt
     if(intr_points.contain(t)) cpu.external_interrupt(intr_points.at(t).ino);
     cpu.catch_interrupt();
 
     // Debug
-    if(print_code) std::cout << "[" << hex(false, (uint16_t)t) << "]  " << cprint(hex(false, pc), GREEN, 0) << Debug::print_code(code) << std::endl;
     if(dump_all) std::cout << Debug::dump(cpu);
     if(dump_points.contain(pc)) std::cout << Debug::dump(cpu, dump_points.at(pc));
     if(interval_time) usleep(100000);
@@ -65,4 +76,10 @@ int main(int argc, char* argv[]) {
   std::cout << std::endl
             << "-----------------------------------#" << std::endl;
   return 0;
+}
+
+std::string esc_char(char c) {
+  if(c == '\n') return "\\n";
+  if(c == '\0') return "\\0";
+  return std::string({c});
 }

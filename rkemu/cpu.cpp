@@ -46,13 +46,12 @@ void CPU::external_interrupt(int intr_no) {
 }
 
 void CPU::catch_interrupt() {
-  if(mem.at(CSR) & IEN) {                                // 割り込み許可か
-    if(mem.at(CSR) & (INTR0 | INTR1 | INTR2 | INTR3)) {  // 割り込みフラグが立ってるか
-      mem.at(IRA) = pc;
-      pc = PC_INTR;
-    }
+  if(mem.at(CSR) & (IEN | INTR0 | INTR1 | INTR2 | INTR3)) {  // 割り込み許可かつ割り込みフラグが立ってるか
+    mem.at(IRA) = pc;
+    pc = PC_INTR;
   }
 }
+
 
 void CPU::execute(uint32_t code) {
   uint16_t opc = (code >> 6) & 0x000f;

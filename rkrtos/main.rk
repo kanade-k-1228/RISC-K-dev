@@ -5,6 +5,13 @@ zero:
 _reset:
     jump zero zero _main
 
+; CSR Bits
+
+#0x0100 clock_stop
+
+#0xfffe intr_disable
+#0x0001 intr_enable
+
 #0x0004 intr0_flag
 #0x0008 intr1_flag
 #0x0010 intr2_flag
@@ -16,7 +23,7 @@ _reset:
 #0xffdf intr3_flag_clear
 
 _intr:
-    andi  csr csr 0xfffe ; 二重割り込み禁止
+    andi  csr csr intr_disable ; 二重割り込み禁止
     ; コンテキストの保存
     subi  sp sp 14 ; スタックを確保
     store s0 sp 14
@@ -36,7 +43,9 @@ _intr:
     ; スタックポインタの保存
     load t0 zero task_running
     store sp t0 .sp
-    ; 割り込み先にジャンプ
+_iret:
+    ; 割り込みフラグが立っている場合
+    ; 割り込み番号の処理にジャンプ
     andi  t0 csr intr0_flag
     brlt  zero t0 intr0
     andi  t0 csr intr1_flag
@@ -45,7 +54,7 @@ _intr:
     brlt  zero t0 intr2
     andi  t0 csr intr3_flag
     brlt  zero t0 intr3
-_iret:
+    ; 割り込みが全て処理された
     ; コンテキストの復元
     load t0 zero task_running
     load sp t0 .sp
@@ -64,7 +73,7 @@ _iret:
     load s1 sp 13
     load s0 sp 14
     addi sp sp 14 ; スタックを解放
-    ori  csr csr 0x0001 ; 割り込み許可
+    ori  csr csr intr_enable
     ; 割り込みから復帰
     jump zero ira zero
 
@@ -77,7 +86,7 @@ _main:
 
 ; プログラム終了後処理
 _exit:
-    ori csr csr 0x100 ; クロック停止
+    ori csr csr clock_stop
 
 ; ---------------------------------------------------
 ; 標準ライブラリ
