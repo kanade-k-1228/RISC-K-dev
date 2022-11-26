@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
                 << ((sout != -1) ? " > " + esc_char((char)sout) : "")
                 << std::endl;
     } else {
-      std::cout << (char)sout;
+      if(sout != -1) std::cout << (char)sout;
     }
 
     // Interrupt
