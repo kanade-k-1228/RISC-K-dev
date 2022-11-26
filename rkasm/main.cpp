@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
   std::string fname = argv[optind];
   std::ifstream fin;
   fin.open(fname, std::ios::in);
-  if(!fin) error("Can't open input file");
+  if(!fin) error("Can't open input file: " + fname);
 
   std::cout << "------------------------------------" << std::endl
             << "Assembly: " << fname << std::endl

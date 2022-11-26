@@ -97,32 +97,39 @@ _print_str:
 
 ; 16進数出力
 ; a0 > uint16
-_print_hex:
+print_hex:
     loadi a3 4
     loadi a2 10
-_print_hex_for:
-    breq a3 zero _print_hex_break
+print_hex_for:
+    breq a3 zero print_hex_break
     lrot a0 a0 zero
     lrot a0 a0 zero
     lrot a0 a0 zero
     lrot a0 a0 zero
     andi a1 a0 0x00F ; a1 = a0 & f
 ; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
-    brlt a1 a2 _print_hex_number
-_print_hex_alphabet:
+    brlt a1 a2 print_hex_number
+print_hex_alphabet:
     addi cout a1 0x37 ; A - 10
-    jump zero zero _print_hex_continue
-_print_hex_number:
+    jump zero zero print_hex_continue
+print_hex_number:
     addi cout a1 '0'
-_print_hex_continue:
+print_hex_continue:
     subi a3 a3 1
-    jump zero zero _print_hex_for
-_print_hex_break:
+    jump zero zero print_hex_for
+print_hex_break:
     jump zero ra 0
 
+#0x0A '\n'
 #0x20 ''
 #0x21 '!'
-#0x0A '\n'
+#0x22 '"'
+#0x23 '#'
+#0x3A ':'
+#0x3B ';'
+#0x3C '<'
+#0x3D '='
+#0x3E '>'
 
 #0x30 '0'
 #0x31 '1'
@@ -192,11 +199,11 @@ _print_hex_break:
 ; ---------------------------------------------------
 ; OS - グローバル変数
 
+#4 os_global_size
 @0x0040 heap_top     ; ヒープメモリの先頭
 @0x0041 heap_bottom  ; ヒープメモリの末尾
 @0x0042 task_running ; 実行中のタスク(TCB)のアドレス
 @0x0043 task_list    ; タスク(TCB)連結リストの先頭のアドレス
-#4 os_global_size
 #0x0040 ram_top
 #0xdfff ram_bottom
 
@@ -414,70 +421,70 @@ os_heap_free:
 os_lock_init:
 os_lock_aloc:
 os_lock_free:
-
 ; -----------------------------------------------
 ; ユーザプログラム
+
+#3 user_global_size
 
 @0x0044 task_id_a
 @0x0045 task_id_b
 @0x0046 task_id_c
 
-#3 user_global_size
 
 ; 各割り込みの処理
 intr0:
-    loadi cout '\n'
-    loadi cout '!'
     loadi cout ''
+    loadi cout '<'
     loadi cout 'I'
     loadi cout 'n'
     loadi cout 't'
     loadi cout 'r'
-    loadi cout ''
+    loadi cout ':'
     loadi cout '0'
-    loadi cout '\n'
+    loadi cout '>'
+    loadi cout ''
     andi  csr csr intr0_flag_clear
     jump zero zero _iret
 
 intr1:
-    loadi cout '\n'
-    loadi cout '!'
     loadi cout ''
+    loadi cout '<'
     loadi cout 'I'
     loadi cout 'n'
     loadi cout 't'
     loadi cout 'r'
-    loadi cout ''
+    loadi cout ':'
     loadi cout '1'
-    loadi cout '\n'
+    loadi cout '>'
+    loadi cout ''
     andi  csr csr intr1_flag_clear
     jump zero zero _iret
 
 intr2:
-    loadi cout '\n'
-    loadi cout '!'
     loadi cout ''
+    loadi cout '<'
     loadi cout 'I'
     loadi cout 'n'
     loadi cout 't'
     loadi cout 'r'
-    loadi cout ''
+    loadi cout ':'
     loadi cout '2'
-    loadi cout '\n'
+    loadi cout '>'
+    loadi cout ''
     andi  csr csr intr2_flag_clear
     jump zero zero _iret
 
 intr3:
-    loadi cout '\n'
-    loadi cout '!'
     loadi cout ''
+    loadi cout '<'
     loadi cout 'I'
     loadi cout 'n'
     loadi cout 't'
     loadi cout 'r'
-    loadi cout ''
+    loadi cout ':'
     loadi cout '3'
-    loadi cout '\n'
+    loadi cout '>'
+    loadi cout ''
     andi  csr csr intr3_flag_clear
     jump zero zero _iret
 
@@ -608,3 +615,30 @@ task_c:
     loadi cout 'C'
     loadi cout '\n'
     jump  ra zero os_task_exit
+
+task_x:
+    add  a0 zero zero
+task_x_loop:
+    addi a0 a0 1
+    loadi cout 'X'
+    jump ra zero print_hex
+    loadi cout '\n'
+    jump zero zero task_x_loop
+
+task_y:
+    add  a0 zero zero
+task_y_loop:
+    addi a0 a0 1
+    loadi cout 'Y'
+    jump ra zero print_hex
+    loadi cout '\n'
+    jump zero zero task_y_loop
+
+task_z:
+    add  a0 zero zero
+task_z_loop:
+    addi a0 a0 1
+    loadi cout 'Z'
+    jump ra zero print_hex
+    loadi cout '\n'
+    jump zero zero task_z_loop
