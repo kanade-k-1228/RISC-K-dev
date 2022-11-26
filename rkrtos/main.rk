@@ -73,21 +73,12 @@ _exit:
 ; 標準ライブラリ
 
 ; シリアル送信
-; loadi a0 0x41
-; jump ra zero _print
-; > A
-_print:
-    add  cout a0 zero
-    ori  csr csr send
-    jump zero ra zero
-
+; a0 > string_address
 ; ['A','B','C','\0']
 _print_str:
 
-; 16進数として値を出力
-; loadi a0 0x01EF
-; jump ra zero _print_hex
-; > 01EF
+; 16進数出力
+; a0 > uint16
 _print_hex:
     loadi a3 4
     loadi a2 10
@@ -106,7 +97,6 @@ _print_hex_alphabet:
 _print_hex_number:
     addi cout a1 '0'
 _print_hex_continue:
-    ori  csr csr send
     subi a3 a3 1
     jump zero zero _print_hex_for
 _print_hex_break:
@@ -180,8 +170,6 @@ _print_hex_break:
 #0x78 'x'
 #0x79 'y'
 #0x7A 'z'
-
-#0x80 send
 
 ; ---------------------------------------------------
 ; OS - グローバル変数
@@ -421,94 +409,54 @@ os_lock_free:
 ; 各割り込みの処理
 intr0:
     loadi cout '\n'
-    ori   csr csr send
     loadi cout '!'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'I'
-    ori   csr csr send
     loadi cout 'n'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout '0'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump zero zero _iret
 
 intr1:
     loadi cout '\n'
-    ori   csr csr send
     loadi cout '!'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'I'
-    ori   csr csr send
     loadi cout 'n'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout '1'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump zero zero _iret
 
 intr2:
     loadi cout '\n'
-    ori   csr csr send
     loadi cout '!'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'I'
-    ori   csr csr send
     loadi cout 'n'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout '2'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump zero zero _iret
 
 intr3:
     loadi cout '\n'
-    ori   csr csr send
     loadi cout '!'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'I'
-    ori   csr csr send
     loadi cout 'n'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout '3'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump zero zero _iret
 
 init_tasks:
@@ -537,21 +485,13 @@ init_tasks:
 
 task_a:
     loadi cout 'S'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'a'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'A'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     loadi s0 0xAAA0
     loadi s1 0xAAA1
     loadi s2 0xAAA2
@@ -566,23 +506,14 @@ task_a:
     loadi a3 0xAAC3
     jump  ra zero os_task_wait
     loadi cout 'R'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
     loadi cout 's'
-    ori   csr csr send
     loadi cout 'u'
-    ori   csr csr send
     loadi cout 'm'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'A'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     ; ready B
     load  a0 zero task_id_b
     jump  ra zero os_task_ready
@@ -590,21 +521,13 @@ task_a:
     
 task_b:
     loadi cout 'S'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'a'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'B'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     loadi s0 0xBBA0
     loadi s1 0xBBA1
     loadi s2 0xBBA2
@@ -619,42 +542,25 @@ task_b:
     loadi a3 0xBBC3
     jump  ra zero os_task_wait
     loadi cout 'R'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
     loadi cout 's'
-    ori   csr csr send
     loadi cout 'u'
-    ori   csr csr send
     loadi cout 'm'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'B'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump  ra zero os_task_exit
 
 task_c:
-    loadi cout 'S'
-    ori   csr csr send
+    loadi cout 'S'   
     loadi cout 't'
-    ori   csr csr send
     loadi cout 'a'
-    ori   csr csr send
     loadi cout 'r'
-    ori   csr csr send
     loadi cout 't'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'C'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     loadi s0 0xCCA0
     loadi s1 0xCCA1
     loadi s2 0xCCA2
@@ -671,21 +577,12 @@ task_c:
     load  a0 zero task_id_a
     jump  ra zero os_task_ready
     loadi cout 'R'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
-    loadi cout 's'
-    ori   csr csr send
+    loadi cout 's'    
     loadi cout 'u'
-    ori   csr csr send
     loadi cout 'm'
-    ori   csr csr send
     loadi cout 'e'
-    ori   csr csr send
     loadi cout ''
-    ori   csr csr send
     loadi cout 'C'
-    ori   csr csr send
     loadi cout '\n'
-    ori   csr csr send
     jump  ra zero os_task_exit

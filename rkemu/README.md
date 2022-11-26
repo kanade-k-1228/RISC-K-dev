@@ -15,7 +15,7 @@ int main() {
 }
 ```
 
-## デバッグ設定ファイル（.dbg）
+## デバッグ設定ファイル（.dump）
 
 ```
 0x0000 d i0
@@ -28,14 +28,13 @@ int main() {
 
 デバッグ用に、シリアル出力みたいな出力装置があります。
 
-- COUT : 送信する文字コード
-- SEND : 送信指令、送信完了すると 0 になる
+`COUT` : シリアル出力制御レジスタ
+
+0でない値が入ると、出力します。
 
 ```C:
 mem.at(COUT) = 'h';
-mem.at(SEND) = 1;
 mem.at(COUT) = 'i';
-mem.at(SEND) = 1;
 // > hi
 ```
 
@@ -45,11 +44,9 @@ mem.at(SEND) = 1;
 void print(char *buf){
   while(*buf != 0){
     mem.at(COUT) = *buf;
-    mem.at(SEND) = 1;
   }
   return;
 }
 ```
-
 
 https://catalog.lib.kyushu-u.ac.jp/opac_download_md/1441262/isee530.pdf

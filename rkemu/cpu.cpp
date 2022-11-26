@@ -29,11 +29,13 @@ bool CPU::cstop() {
 }
 
 int CPU::serial() {
-  if((mem.at(CSR) & SSEND) == SSEND) {
-    mem.at(CSR) &= ~SSEND;
-    return (char)mem.at(COUT);
+  char cout = mem.at(COUT);
+  if(cout) {
+    mem.at(COUT) = 0;
+    return cout;
+  } else {
+    return -1;
   }
-  return -1;
 }
 
 void CPU::interrupt(int intr_no) {
