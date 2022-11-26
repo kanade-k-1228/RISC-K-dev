@@ -50,7 +50,8 @@ int main(int argc, char* argv[]) {
     if(sout != -1) std::cout << (cout_single_line ? "> " : "") << (char)sout << (cout_single_line ? "\n" : "");
 
     // Interrupt
-    if(intr_points.contain(t)) cpu.interrupt(intr_points.at(t).ino);
+    if(intr_points.contain(t)) cpu.external_interrupt(intr_points.at(t).ino);
+    cpu.catch_interrupt();
 
     // Debug
     if(print_code) std::cout << "[" << hex(false, (uint16_t)t) << "]  " << cprint(hex(false, pc), GREEN, 0) << Debug::print_code(code) << std::endl;

@@ -38,14 +38,19 @@ int CPU::serial() {
   }
 }
 
-void CPU::interrupt(int intr_no) {
-  if(mem.at(CSR) & IEN) {
-    if(intr_no == 0) mem.at(CSR) |= INTR0;
-    if(intr_no == 1) mem.at(CSR) |= INTR1;
-    if(intr_no == 2) mem.at(CSR) |= INTR2;
-    if(intr_no == 3) mem.at(CSR) |= INTR3;
-    mem.at(IRA) = pc;
-    pc = PC_INTR;
+void CPU::external_interrupt(int intr_no) {
+  if(intr_no == 0) mem.at(CSR) |= INTR0;
+  if(intr_no == 1) mem.at(CSR) |= INTR1;
+  if(intr_no == 2) mem.at(CSR) |= INTR2;
+  if(intr_no == 3) mem.at(CSR) |= INTR3;
+}
+
+void CPU::catch_interrupt() {
+  if(mem.at(CSR) & IEN) {                                // 割り込み許可か
+    if(mem.at(CSR) & (INTR0 | INTR1 | INTR2 | INTR3)) {  // 割り込みフラグが立ってるか
+      mem.at(IRA) = pc;
+      pc = PC_INTR;
+    }
   }
 }
 

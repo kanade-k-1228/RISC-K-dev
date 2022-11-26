@@ -16,7 +16,9 @@ public:
 
   bool cstop();
   int serial();
-  void interrupt(int);
+  void catch_interrupt();
+
+  void external_interrupt(int);
 
   void execute(uint32_t);
   void add(uint16_t, uint16_t, uint16_t);

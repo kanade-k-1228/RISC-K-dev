@@ -5,6 +5,16 @@ zero:
 _reset:
     jump zero zero _main
 
+#0x0004 intr0_flag
+#0x0008 intr1_flag
+#0x0010 intr2_flag
+#0x0020 intr3_flag
+
+#0xfffb intr0_flag_clear
+#0xfff7 intr1_flag_clear
+#0xffef intr2_flag_clear
+#0xffdf intr3_flag_clear
+
 _intr:
     andi  csr csr 0xfffe ; 二重割り込み禁止
     ; コンテキストの保存
@@ -27,13 +37,13 @@ _intr:
     load t0 zero task_running
     store sp t0 .sp
     ; 割り込み先にジャンプ
-    andi  t0 csr 0x004
+    andi  t0 csr intr0_flag
     brlt  zero t0 intr0
-    andi  t0 csr 0x008
+    andi  t0 csr intr1_flag
     brlt  zero t0 intr1
-    andi  t0 csr 0x010
+    andi  t0 csr intr2_flag
     brlt  zero t0 intr2
-    andi  t0 csr 0x020
+    andi  t0 csr intr3_flag
     brlt  zero t0 intr3
 _iret:
     ; コンテキストの復元
@@ -418,6 +428,7 @@ intr0:
     loadi cout ''
     loadi cout '0'
     loadi cout '\n'
+    andi  csr csr intr0_flag_clear
     jump zero zero _iret
 
 intr1:
@@ -431,6 +442,7 @@ intr1:
     loadi cout ''
     loadi cout '1'
     loadi cout '\n'
+    andi  csr csr intr1_flag_clear
     jump zero zero _iret
 
 intr2:
@@ -444,6 +456,7 @@ intr2:
     loadi cout ''
     loadi cout '2'
     loadi cout '\n'
+    andi  csr csr intr2_flag_clear
     jump zero zero _iret
 
 intr3:
@@ -457,6 +470,7 @@ intr3:
     loadi cout ''
     loadi cout '3'
     loadi cout '\n'
+    andi  csr csr intr3_flag_clear
     jump zero zero _iret
 
 init_tasks:
