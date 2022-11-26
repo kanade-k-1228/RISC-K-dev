@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
   // アセンブラを表示
   for(auto code : codes) {
     if(code.type == Code::LABEL_DEF && code.label.type == Label::OPR) {
-      std::cout << cprint(code.label.name + ":" + hex(true, code.label.value), GREEN, 0) << std::endl;
+      std::cout << cprint(hex(true, code.label.value), GREEN, 0) << cprint(": " + code.label.name, GREEN, 0) << std::endl;
     }
     if(code.type == Code::OPERATION) {
       std::cout << hex(true, code.opr.addr) << " |";

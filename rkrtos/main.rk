@@ -23,7 +23,7 @@ _intr:
     store fp sp 2
     store ra sp 1
     ; スタックポインタの保存
-    load t0 zero running
+    load t0 zero task_running
     store sp t0 .sp
     ; 割り込み先にジャンプ
     andi  t0 csr 0x004
@@ -171,73 +171,103 @@ _print_hex_break:
 #0x80 send
 
 ; ---------------------------------------------------
-; OS
+; OS - グローバル変数
 
-; OSの初期化
-os_init:
-    loadi t0 0x42 
-    store t0 zero 0x41
-    jump  ra zero init
-    ori   csr csr 0x0001 ; 割り込み許可
-    jump  zero zero os_task_next
+@0x0040 heap_top     ; ヒープメモリの先頭
+@0x0041 heap_bottom  ; ヒープメモリの末尾
+@0x0042 task_running ; 実行中のタスク(TCB)のアドレス
+@0x0043 task_list    ; タスク(TCB)連結リストの先頭のアドレス
+#4 os_global_size
+#0x0040 ram_top
+#0xdfff ram_bottom
 
 ; ---------------------------------------------------
-; タスク管理機能
+; OS - 初期化
 
-@0x0040 running
-@0x0041 task_end
+os_init:
+    ; グローバル変数の初期化
+    loadi t0 ram_top
+    addi  t0 t0 os_global_size
+    addi  t0 t0 user_global_size
+    store t0 zero heap_top
+    loadi t0 ram_bottom
+    store t0 zero heap_bottom
+    store zero zero task_running
+    store zero zero task_list
+    ; 各種オブジェクトの初期化
+    jump  ra zero init_tasks
+    ; jump  ra zero os_heap_init
+    ori   csr csr 0x0001 ; 割り込み許可
+    jump  zero zero os_task_switch
+
+; ---------------------------------------------------
+; OS - タスク管理機能
 
 ; struct tcb
-@0x0000 .sp
-@0x0001 .bp
-@0x0002 .state
-
-#3 tcb_size
-
+@0x0000 .next
+@0x0001 .sp
+@0x0002 .bp
+@0x0003 .state
+#4 tcb_size
 ; enum task_state
 #0 task_state_ready
 #1 task_state_waiting
 #2 task_state_exit
 
 ; タスクの初期化
-; a0 tcb
-; a1 stack_base
-; a2 entry address
-; a3 state
+; a0 > initial_state
+; a1 > stack_size
+; a2 > entry_address
+; a0 < task_pointer
 os_task_setup:
-    ; task_end += 3
-    load  t0 zero task_end
-    addi  t0 t0 3
-    store t0 zero task_end
-    ; set tcb
-    store a1 a0 .bp    ; stack_base => tcb.bp
-    subi  a1 a1 14     ; sp -= 14
-    store a1 a0 .sp    ; stack_pointer => tcb.sp
-    store a3 a0 .state ; state => tcb.state
-    ; init stack
-    store zero a1 14
-    store zero a1 13
-    store zero a1 12
-    store zero a1 11
-    store zero a1 10
-    store zero a1 9
-    store zero a1 8
-    store zero a1 7
-    store zero a1 6
-    store zero a1 5
-    store zero a1 4
-    store zero a1 3
-    store zero a1 2
-    store a2 a1 1 ; ra = entry_address
+    loadi t1 task_list
+os_task_setup_next:
+    add   t0 t1 zero  ; t0 <= t1 
+    load  t1 t0 .next ; t0 の次のアイテムのアドレスを、t1に格納する
+    brlt  zero t1 os_task_setup_next
+    ; t0 が、リストの末尾のアドレスを指している
+    ; [task_list] -> A[next=B] -> B[next=null] -> x
+    ; 新たに追加するTCBのアドレスを、リストの末尾に連結する
+    load  t1 zero heap_top
+    store t1 t0 .next
+    ; t0 は新たに追加されたTCBのアドレスを指す
+    add   t0 t1 zero
+    ; メモリを確保する
+    addi  t1 t1 tcb_size
+    store t1 zero heap_top
+    ; タスクの初期状態
+    store a0 t0 .state
+    ; スタックの確保
+    load  t1 zero heap_bottom
+    store t1 t0 .bp ; ベースポインタを登録
+    sub   t2 t1 a1  ; スタックサイズ (a1) メモリを確保
+    store t2 zero heap_bottom
+    subi  t1 t1 14  ; 初期コンテキスト分だけスタックポインタを進める
+    store t1 t0 .sp
+    ; スタックの初期化
+    store zero t1 14
+    store zero t1 13
+    store zero t1 12
+    store zero t1 11
+    store zero t1 10
+    store zero t1 9
+    store zero t1 8
+    store zero t1 7
+    store zero t1 6
+    store zero t1 5
+    store zero t1 4
+    store zero t1 3
+    store zero t1 2
+    store a2 t1 1 ; entry_address をスタックの一番上にセット
     jump zero ra zero ; return
 
 ; タスクの終了
 os_task_exit:
     ; 状態を exit に変更
-    load  t0 zero running
+    load  t0 zero task_running
     loadi t1 task_state_exit
     store t1 t0 .state
-    jump  zero zero os_task_next
+    jump  zero zero os_task_switch
 
 ; 実行中のタスクを一時停止
 os_task_wait:
@@ -258,15 +288,15 @@ os_task_wait:
     store fp sp 2
     store ra sp 1
     ; スタックポインタの保存
-    load t0 zero running
+    load t0 zero task_running
     store sp t0 .sp
     ; 状態を waiting に変更
     loadi t1 task_state_waiting
     store t1 t0 .state
-    jump zero zero os_task_next
+    jump zero zero os_task_switch
 
 ; 指定した ID のタスクを Ready 状態にする
-; a0 : task id
+; a0 > task id
 os_task_ready:
     ; コンテキストの保存
     subi  sp sp 14 ; スタックを確保
@@ -285,13 +315,12 @@ os_task_ready:
     store fp sp 2
     store ra sp 1
     ; スタックポインタの保存
-    load t0 zero running
+    load t0 zero task_running
     store sp t0 .sp
     ; 状態を ready に変更
-    ; a0 = a0 * 4 + 0x42
     loadi t1 task_state_ready
     store t1 a0 .state
-    jump zero zero os_task_next
+    jump zero zero os_task_switch
 
 os_save_context:
     subi  sp sp 14 ; スタックを確保
@@ -309,29 +338,29 @@ os_save_context:
     store a3 sp 3
     store fp sp 2
     store ra sp 1
-    load  t0 zero running
+    load  t0 zero task_running
     store sp t0 .sp
 
-os_task_next:
-    ; 上から順に、tcb.state が running か調べる
-    ; ReadyのTCB => running する
-    loadi t0 0x0042 ; t0 = taskA
-    load  t1 zero task_end
-os_task_next_loop:
-    breq  t0 t1 os_task_next_break
+os_task_switch:
+    ; タスクリストから、Ready のタスクを探す
+    loadi t3 task_state_ready
+    loadi t1 task_list
+os_task_switch_next:
+    add   t0 t1 zero  ; t0 <= t1 
     load  t2 t0 .state
-    breq  t2 zero os_task_next_update_running ; if ready
-    addi  t0 t0 tcb_size
-    jump zero zero os_task_next_loop
-os_task_next_break:
+    breq  t2 t3 os_task_switch_found_running
+    load  t1 t0 .next ; t0 の次のアイテムのアドレスを、t1に格納する
+    brlt  zero t1 os_task_switch_next
+    ; 末尾に到達 =  Ready が見つからなかった
     ; 全てのタスクが exit なら、exitする
     jump zero zero _exit
-os_task_next_update_running:
-    store t0 zero 0x0040
+
+os_task_switch_found_running:
+    store t0 zero task_running
 
 os_restore_context:
     ; タスクを再開
-    load t0 zero running
+    load t0 zero task_running
     load sp t0 .sp
     load ra sp 1
     load fp sp 2
@@ -349,13 +378,22 @@ os_restore_context:
     load s0 sp 14
     addi sp sp 14 ; スタックを解放
     jump zero ra zero
+; -----------------------------------------------
+; メモリ管理機能
 
-; ヒープ
+os_heap_init:
 os_heap_aloc:
 os_heap_free:
 
 ; -----------------------------------------------
 ; ユーザプログラム
+
+@0x0044 task_id_a
+@0x0045 task_id_b
+@0x0046 task_id_c
+
+#3 user_global_size
+
 
 ; 各割り込みの処理
 intr0:
@@ -367,26 +405,31 @@ intr2:
 intr3:
     jump zero zero _iret
 
-init:
+; a0 > initial_state
+; a1 > stack_size
+; a2 > entry_address
+; a0 < task_pointer
+
+init_tasks:
     add  s0 ra zero ; s0 <= ra
     ; setup task A
-    loadi a0 0x0042 ; &TBC_A
-    loadi a1 0xefff ; stack_base
+    loadi a0 task_state_ready
+    loadi a1 0x1000 ; stack_size
     loadi a2 task_a ; entry address
-    loadi a3 task_state_ready
     jump ra zero os_task_setup
+    store a0 zero task_id_a
     ; setup task B
-    loadi a0 0x0045 ; &TBC_B
-    loadi a1 0xdfff ; stack_base
+    loadi a0 task_state_ready
+    loadi a1 0x1000 ; stack_size
     loadi a2 task_b ; entry address
-    loadi a3 task_state_ready
     jump ra zero os_task_setup
+    store a0 zero task_id_b
     ; setup task C
-    loadi a0 0x0048 ; &TBC_C
-    loadi a1 0xcfff ; stack_base
+    loadi a0 task_state_ready
+    loadi a1 0x1000 ; stack_size
     loadi a2 task_c ; entry address
-    loadi a3 task_state_ready
     jump ra zero os_task_setup
+    store a0 zero task_id_c
     ; os start
     add  ra s0 zero ; ra <= s0 
     jump zero ra 0
@@ -440,7 +483,7 @@ task_a:
     loadi cout '\n'
     ori   csr csr send
     ; ready B
-    loadi a0 0x0045
+    load  a0 zero task_id_b
     jump  ra zero os_task_ready
     jump  ra zero os_task_exit
     
@@ -524,7 +567,7 @@ task_c:
     loadi a2 0xCCC2
     loadi a3 0xCCC3
     ; ready A
-    loadi a0 0x0042
+    load  a0 zero task_id_a
     jump  ra zero os_task_ready
     loadi cout 'R'
     ori   csr csr send
