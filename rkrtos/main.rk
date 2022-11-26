@@ -6,6 +6,7 @@ _reset:
     jump zero zero _main
 
 _intr:
+    andi  csr csr 0xfffe ; 二重割り込み禁止
     ; コンテキストの保存
     subi  sp sp 14 ; スタックを確保
     store s0 sp 14
@@ -35,16 +36,28 @@ _intr:
     andi  t0 csr 0x020
     brlt  zero t0 intr3
 _iret:
-    ; レジスタの復元
-    add   sp fp zero
-    load  a3 sp 4
-    load  a2 sp 3
-    load  a1 sp 2
-    load  a0 sp 1
-    addi  sp sp 4
-    load  sp sp 0
+    ; コンテキストの復元
+    load t0 zero task_running
+    load sp t0 .sp
+    load ra sp 1
+    load fp sp 2
+    load a3 sp 3
+    load a2 sp 4
+    load a1 sp 5
+    load a0 sp 6
+    load t3 sp 7
+    load t2 sp 8
+    load t1 sp 9
+    load t0 sp 10
+    load s3 sp 11
+    load s2 sp 12
+    load s1 sp 13
+    load s0 sp 14
+    addi sp sp 14 ; スタックを解放
+    ori  csr csr 0x0001 ; 割り込み許可
     ; 割り込みから復帰
     jump zero ira zero
+
 
 ; プログラム開始前処理
 _main:
@@ -197,7 +210,6 @@ os_init:
     ; 各種オブジェクトの初期化
     jump  ra zero init_tasks
     ; jump  ra zero os_heap_init
-    ori   csr csr 0x0001 ; 割り込み許可
     jump  zero zero os_task_switch
 
 ; ---------------------------------------------------
@@ -264,6 +276,7 @@ os_task_setup_next:
 
 ; タスクの終了
 os_task_exit:
+    andi  csr csr 0xfffe ; 割り込み禁止
     ; 状態を exit に変更
     load  t0 zero task_running
     loadi t1 task_state_exit
@@ -272,6 +285,7 @@ os_task_exit:
 
 ; 実行中のタスクを一時停止
 os_task_wait:
+    andi  csr csr 0xfffe ; 割り込み禁止
     ; コンテキストの保存
     subi  sp sp 14 ; スタックを確保
     store s0 sp 14
@@ -299,6 +313,7 @@ os_task_wait:
 ; 指定した ID のタスクを Ready 状態にする
 ; a0 > task id
 os_task_ready:
+    andi  csr csr 0xfffe ; 割り込み禁止
     ; コンテキストの保存
     subi  sp sp 14 ; スタックを確保
     store s0 sp 14
@@ -349,14 +364,13 @@ os_task_switch:
 os_task_switch_next:
     add   t0 t1 zero  ; t0 <= t1 
     load  t2 t0 .state
-    breq  t2 t3 os_task_switch_found_running
+    breq  t2 t3 os_task_switch_found_ready
     load  t1 t0 .next ; t0 の次のアイテムのアドレスを、t1に格納する
     brlt  zero t1 os_task_switch_next
     ; 末尾に到達 =  Ready が見つからなかった
     ; 全てのタスクが exit なら、exitする
     jump zero zero _exit
-
-os_task_switch_found_running:
+os_task_switch_found_ready:
     store t0 zero task_running
 
 os_restore_context:
@@ -378,13 +392,22 @@ os_restore_context:
     load s1 sp 13
     load s0 sp 14
     addi sp sp 14 ; スタックを解放
+    ori  csr csr 0x0001 ; 割り込み許可
     jump zero ra zero
+
 ; -----------------------------------------------
 ; メモリ管理機能
 
 os_heap_init:
 os_heap_aloc:
 os_heap_free:
+
+; -----------------------------------------------
+; 排他制御
+
+os_lock_init:
+os_lock_aloc:
+os_lock_free:
 
 ; -----------------------------------------------
 ; ユーザプログラム
@@ -395,21 +418,98 @@ os_heap_free:
 
 #3 user_global_size
 
-
 ; 各割り込みの処理
 intr0:
-    jump zero zero _iret
-intr1:
-    jump zero zero _iret
-intr2:
-    jump zero zero _iret
-intr3:
+    loadi cout '\n'
+    ori   csr csr send
+    loadi cout '!'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout 'I'
+    ori   csr csr send
+    loadi cout 'n'
+    ori   csr csr send
+    loadi cout 't'
+    ori   csr csr send
+    loadi cout 'r'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout '0'
+    ori   csr csr send
+    loadi cout '\n'
+    ori   csr csr send
     jump zero zero _iret
 
-; a0 > initial_state
-; a1 > stack_size
-; a2 > entry_address
-; a0 < task_pointer
+intr1:
+    loadi cout '\n'
+    ori   csr csr send
+    loadi cout '!'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout 'I'
+    ori   csr csr send
+    loadi cout 'n'
+    ori   csr csr send
+    loadi cout 't'
+    ori   csr csr send
+    loadi cout 'r'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout '1'
+    ori   csr csr send
+    loadi cout '\n'
+    ori   csr csr send
+    jump zero zero _iret
+
+intr2:
+    loadi cout '\n'
+    ori   csr csr send
+    loadi cout '!'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout 'I'
+    ori   csr csr send
+    loadi cout 'n'
+    ori   csr csr send
+    loadi cout 't'
+    ori   csr csr send
+    loadi cout 'r'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout '2'
+    ori   csr csr send
+    loadi cout '\n'
+    ori   csr csr send
+    jump zero zero _iret
+
+intr3:
+    loadi cout '\n'
+    ori   csr csr send
+    loadi cout '!'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout 'I'
+    ori   csr csr send
+    loadi cout 'n'
+    ori   csr csr send
+    loadi cout 't'
+    ori   csr csr send
+    loadi cout 'r'
+    ori   csr csr send
+    loadi cout ''
+    ori   csr csr send
+    loadi cout '3'
+    ori   csr csr send
+    loadi cout '\n'
+    ori   csr csr send
+    jump zero zero _iret
 
 init_tasks:
     add  s0 ra zero ; s0 <= ra

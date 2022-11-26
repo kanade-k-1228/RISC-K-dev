@@ -1,2 +1,2 @@
 rkasm main.rk
-rkemu -cnt -d main.dump main.rk.bin
+rkemu -cn -d main.dump -i main.intr main.rk.bin
