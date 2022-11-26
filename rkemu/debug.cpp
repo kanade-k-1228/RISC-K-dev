@@ -30,10 +30,21 @@ void DumpPoints::init(std::string fname) {
   if(!fin) error("Cant Open File: " + fname);
   for(std::string line; std::getline(fin, line);) {
     auto tokens = split(line, ' ');
+    if(tokens.size() == 0) continue;
     DumpOption dump;
     uint16_t pc = std::stoi(tokens.at(0), nullptr, 0);
     tokens.erase(tokens.begin());
-    for(auto token : tokens) dump.address.push_back(std::stoi(token, nullptr, 0));
+    for(int i = 1; i < tokens.size(); ++i) {
+      std::string token = tokens.at(i);
+      if(token == "-") {
+        uint16_t begin = std::stoi(tokens.at(i - 1), nullptr, 0);
+        uint16_t end = std::stoi(tokens.at(i + 1), nullptr, 0);
+        for(uint16_t j = begin + 1; j <= end; ++j) dump.address.push_back(j);
+        ++i;
+      } else {
+        dump.address.push_back(std::stoi(token, nullptr, 0));
+      }
+    }
     this->insert(std::make_pair(pc, dump));
   }
 }

@@ -259,6 +259,7 @@ os_task_setup_next:
     store zero t1 3
     store zero t1 2
     store a2 t1 1 ; entry_address をスタックの一番上にセット
+    add  a0 t0 zero   ; return task_pointer
     jump zero ra zero ; return
 
 ; タスクの終了
