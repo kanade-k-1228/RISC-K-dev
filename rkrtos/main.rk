@@ -77,7 +77,6 @@ _iret:
     ; 割り込みから復帰
     jump zero ira zero
 
-
 ; プログラム開始前処理
 _main:
     loadi sp 0xffff
