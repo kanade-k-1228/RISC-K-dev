@@ -40,10 +40,12 @@ _intr:
     store a3 sp 3
     store fp sp 2
     store ra sp 1
+    ; 戻りアドレスの保存
+    load  t0 zero task_running
+    store ira t0 .ra
     ; スタックポインタの保存
     load t0 zero task_running
     store sp t0 .sp
-_iret:
     ; 割り込みフラグが立っている場合
     ; 割り込み番号の処理にジャンプ
     andi  t0 csr intr0_flag
@@ -54,28 +56,9 @@ _iret:
     brlt  zero t0 intr2
     andi  t0 csr intr3_flag
     brlt  zero t0 intr3
+_iret:
     ; 割り込みが全て処理された
-    ; コンテキストの復元
-    load t0 zero task_running
-    load sp t0 .sp
-    load ra sp 1
-    load fp sp 2
-    load a3 sp 3
-    load a2 sp 4
-    load a1 sp 5
-    load a0 sp 6
-    load t3 sp 7
-    load t2 sp 8
-    load t1 sp 9
-    load t0 sp 10
-    load s3 sp 11
-    load s2 sp 12
-    load s1 sp 13
-    load s0 sp 14
-    addi sp sp 14 ; スタックを解放
-    ori  csr csr intr_enable
-    ; 割り込みから復帰
-    jump zero ira zero
+    jump zero zero os_restore_context
 
 ; プログラム開始前処理
 _main:
@@ -232,8 +215,9 @@ os_init:
 @0x0000 .next
 @0x0001 .sp
 @0x0002 .bp
-@0x0003 .state
-#4 tcb_size
+@0x0003 .ra
+@0x0004 .state
+#5 tcb_size
 ; enum task_state
 #0 task_state_ready
 #1 task_state_waiting
@@ -260,30 +244,33 @@ os_task_setup_next:
     ; メモリを確保する
     addi  t1 t1 tcb_size
     store t1 zero heap_top
-    ; タスクの初期状態
+    ; タスクの初期化
     store a0 t0 .state
+    store a2 t0 .ra
     ; スタックの確保
     load  t1 zero heap_bottom
     store t1 t0 .bp ; ベースポインタを登録
     sub   t2 t1 a1  ; スタックサイズ (a1) メモリを確保
     store t2 zero heap_bottom
+    add   t2 t1 zero ; t2 = fp
     subi  t1 t1 14  ; 初期コンテキスト分だけスタックポインタを進める
     store t1 t0 .sp
-    ; スタックの初期化
-    store zero t1 14
-    store zero t1 13
-    store zero t1 12
-    store zero t1 11
-    store zero t1 10
-    store zero t1 9
-    store zero t1 8
-    store zero t1 7
-    store zero t1 6
-    store zero t1 5
-    store zero t1 4
-    store zero t1 3
-    store zero t1 2
-    store a2 t1 1 ; entry_address をスタックの一番上にセット
+    ; 初期コンテキストをスタックに追加
+    store zero t1 14 ; s0
+    store zero t1 13 ; s1
+    store zero t1 12 ; s2
+    store zero t1 11 ; s3
+    store zero t1 10 ; t0
+    store zero t1 9  ; t1
+    store zero t1 8  ; t2
+    store zero t1 7  ; t3
+    store zero t1 6  ; a0
+    store zero t1 5  ; a1
+    store zero t1 4  ; a2
+    store zero t1 3  ; a3
+    store t2 t1 2  ; fp
+    loadi t2 os_task_exit
+    store t2 t1 1  ; ra = exit
     add  a0 t0 zero   ; return task_pointer
     jump zero ra zero ; return
 
@@ -315,9 +302,10 @@ os_task_wait:
     store a3 sp 3
     store fp sp 2
     store ra sp 1
-    ; スタックポインタの保存
+    ; TCB の更新
     load t0 zero task_running
     store sp t0 .sp
+    store ra t0 .ra
     ; 状態を waiting に変更
     loadi t1 task_state_waiting
     store t1 t0 .state
@@ -343,37 +331,19 @@ os_task_ready:
     store a3 sp 3
     store fp sp 2
     store ra sp 1
-    ; スタックポインタの保存
+    ; TCB の更新
     load t0 zero task_running
     store sp t0 .sp
+    store ra t0 .ra
     ; 状態を ready に変更
     loadi t1 task_state_ready
     store t1 a0 .state
     jump zero zero os_task_switch
 
-os_save_context:
-    subi  sp sp 14 ; スタックを確保
-    store s0 sp 14
-    store s1 sp 13
-    store s2 sp 12
-    store s3 sp 11
-    store t0 sp 10
-    store t1 sp 9
-    store t2 sp 8
-    store t3 sp 7
-    store a0 sp 6
-    store a1 sp 5
-    store a2 sp 4
-    store a3 sp 3
-    store fp sp 2
-    store ra sp 1
-    load  t0 zero task_running
-    store sp t0 .sp
-
 os_task_switch:
     ; タスクリストから、Ready のタスクを探す
-    loadi t3 task_state_ready
     loadi t1 task_list
+    loadi t3 task_state_ready
 os_task_switch_next:
     add   t0 t1 zero  ; t0 <= t1 
     load  t2 t0 .state
@@ -389,7 +359,8 @@ os_task_switch_found_ready:
 os_restore_context:
     ; タスクを再開
     load t0 zero task_running
-    load sp t0 .sp
+    load sp t0 .sp  ; スタックポインタを復元
+    load ira t0 .ra ; 戻りアドレスを 「IRA」に復元
     load ra sp 1
     load fp sp 2
     load a3 sp 3
@@ -406,7 +377,7 @@ os_restore_context:
     load s0 sp 14
     addi sp sp 14 ; スタックを解放
     ori  csr csr 0x0001 ; 割り込み許可
-    jump zero ra zero
+    jump zero ira zero ; 中断地点に戻る
 
 ; -----------------------------------------------
 ; メモリ管理機能
@@ -615,30 +586,3 @@ task_c:
     loadi cout 'C'
     loadi cout '\n'
     jump  ra zero os_task_exit
-
-task_x:
-    add  a0 zero zero
-task_x_loop:
-    addi a0 a0 1
-    loadi cout 'X'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_x_loop
-
-task_y:
-    add  a0 zero zero
-task_y_loop:
-    addi a0 a0 1
-    loadi cout 'Y'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_y_loop
-
-task_z:
-    add  a0 zero zero
-task_z_loop:
-    addi a0 a0 1
-    loadi cout 'Z'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_z_loop

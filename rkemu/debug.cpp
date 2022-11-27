@@ -39,7 +39,7 @@ void DumpPoints::init(std::string fname) {
       if(token == "-") {
         uint16_t begin = std::stoi(tokens.at(i - 1), nullptr, 0);
         uint16_t end = std::stoi(tokens.at(i + 1), nullptr, 0);
-        for(uint16_t j = begin + 1; j <= end; ++j) dump.address.push_back(j);
+        for(uint16_t j = begin; j < end; ++j) dump.address.push_back(j);
         ++i;
       } else {
         dump.address.push_back(std::stoi(token, nullptr, 0));

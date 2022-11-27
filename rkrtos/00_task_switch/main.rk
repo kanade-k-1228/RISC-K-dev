@@ -192,30 +192,3 @@ task_c:
     loadi cout 'C'
     loadi cout '\n'
     jump  ra zero os_task_exit
-
-task_x:
-    add  a0 zero zero
-task_x_loop:
-    addi a0 a0 1
-    loadi cout 'X'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_x_loop
-
-task_y:
-    add  a0 zero zero
-task_y_loop:
-    addi a0 a0 1
-    loadi cout 'Y'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_y_loop
-
-task_z:
-    add  a0 zero zero
-task_z_loop:
-    addi a0 a0 1
-    loadi cout 'Z'
-    jump ra zero print_hex
-    loadi cout '\n'
-    jump zero zero task_z_loop
