@@ -232,8 +232,9 @@ os_init:
 @0x0000 .next
 @0x0001 .sp
 @0x0002 .bp
-@0x0003 .state
-#4 tcb_size
+@0x0004 .ra
+@0x0005 .state
+#5 tcb_size
 ; enum task_state
 #0 task_state_ready
 #1 task_state_waiting
@@ -260,8 +261,9 @@ os_task_setup_next:
     ; メモリを確保する
     addi  t1 t1 tcb_size
     store t1 zero heap_top
-    ; タスクの初期状態
+    ; タスクの初期化
     store a0 t0 .state
+    store a2 t0 .ra
     ; スタックの確保
     load  t1 zero heap_bottom
     store t1 t0 .bp ; ベースポインタを登録
@@ -271,8 +273,8 @@ os_task_setup_next:
     subi  t1 t1 14  ; 初期コンテキスト分だけスタックポインタを進める
     store t1 t0 .sp
     ; スタックの初期化
-    store zero t1 14
-    store zero t1 13
+    store zero t1 14 ; s0
+    store zero t1 13 ; s1
     store zero t1 12
     store zero t1 11
     store zero t1 10
