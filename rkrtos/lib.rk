@@ -179,7 +179,7 @@ print_hex_break:
 ; ---------------------------------------------------
 ; OS - グローバル変数
 
-#4 os_global_size
+#8 os_global_size
 @0x0040 heap_top     ; ヒープメモリの先頭
 @0x0041 heap_bottom  ; ヒープメモリの末尾
 @0x0042 task_running ; 実行中のタスク(TCB)のアドレス
@@ -214,7 +214,7 @@ os_init:
 @0x0002 .bp
 @0x0003 .ra
 @0x0004 .state
-#5 tcb_size
+#0x10 tcb_size
 ; enum task_state
 #0 task_state_ready
 #1 task_state_waiting
@@ -339,7 +339,7 @@ os_task_ready:
 
 os_task_switch:
     ; タスクリストから、Ready のタスクを探す
-    loadi t1 task_list
+    load t1 zero task_list
     loadi t3 task_state_ready
 os_task_switch_next:
     add   t0 t1 zero  ; t0 <= t1 
