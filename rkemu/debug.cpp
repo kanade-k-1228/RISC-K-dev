@@ -90,22 +90,22 @@ std::string Debug::print_code(uint32_t code) {
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-  ss << "┌───────────┬──────┬──────┬──────┐" << std::endl
-     << "│  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " │ " << cprint("Save", BLUE, 0) << " │ " << cprint("Temp", BLUE, 0) << " │ " << cprint("Arg", BLUE, 0) << "  │" << std::endl
-     << "│  RA: " << hex(false, cpu.mem.at(RA)) << " │ " << hex(false, cpu.mem.at(S0)) << " │ " << hex(false, cpu.mem.at(T0)) << " │ " << hex(false, cpu.mem.at(A0)) << " │" << std::endl
-     << "│ IRA: " << hex(false, cpu.mem.at(IRA)) << " │ " << hex(false, cpu.mem.at(S1)) << " │ " << hex(false, cpu.mem.at(T1)) << " │ " << hex(false, cpu.mem.at(A1)) << " │" << std::endl
-     << "│  SP: " << hex(false, cpu.mem.at(SP)) << " │ " << hex(false, cpu.mem.at(S2)) << " │ " << hex(false, cpu.mem.at(T2)) << " │ " << hex(false, cpu.mem.at(A2)) << " │" << std::endl
-     << "│  FP: " << hex(false, cpu.mem.at(FP)) << " │ " << hex(false, cpu.mem.at(S3)) << " │ " << hex(false, cpu.mem.at(T3)) << " │ " << hex(false, cpu.mem.at(A3)) << " │" << std::endl
-     << "├───────────┴──────┴──────┴──────┤" << std::endl
-     << "│ CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          │" << std::endl;
-  if(opt.address.size() != 0) ss << "├────────────────────────────────┤" << std::endl;
+  ss << " +-----------+------+------+------+" << std::endl
+     << " |  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " | " << cprint("Arg", BLUE, 0) << "  |" << std::endl
+     << " |  RA: " << hex(false, cpu.mem.at(RA)) << " | " << hex(false, cpu.mem.at(S0)) << " | " << hex(false, cpu.mem.at(T0)) << " | " << hex(false, cpu.mem.at(A0)) << " |" << std::endl
+     << " | IRA: " << hex(false, cpu.mem.at(IRA)) << " | " << hex(false, cpu.mem.at(S1)) << " | " << hex(false, cpu.mem.at(T1)) << " | " << hex(false, cpu.mem.at(A1)) << " |" << std::endl
+     << " |  SP: " << hex(false, cpu.mem.at(SP)) << " | " << hex(false, cpu.mem.at(S2)) << " | " << hex(false, cpu.mem.at(T2)) << " | " << hex(false, cpu.mem.at(A2)) << " |" << std::endl
+     << " |  FP: " << hex(false, cpu.mem.at(FP)) << " | " << hex(false, cpu.mem.at(S3)) << " | " << hex(false, cpu.mem.at(T3)) << " | " << hex(false, cpu.mem.at(A3)) << " |" << std::endl
+     << " +-----------+------+------+------+" << std::endl
+     << " | CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          |" << std::endl;
+  if(opt.address.size() != 0) ss << " +--------------------------------+" << std::endl;
   for(uint16_t addr : opt.address)
-    ss << "│ " << hex(true, addr) << " : " << hex(false, cpu.mem.at(addr)) << "                  │" << std::endl;
+    ss << " | " << hex(true, addr) << " : " << hex(false, cpu.mem.at(addr)) << "                  |" << std::endl;
   if(opt.stack) {
-    if(cpu.mem.at(SP) < cpu.mem.at(FP)) ss << "├────────────────────────────────┤" << std::endl;
+    if(cpu.mem.at(SP) < cpu.mem.at(FP)) ss << " +--------------------------------+" << std::endl;
     for(uint16_t sp = cpu.mem.at(SP); sp < cpu.mem.at(FP); sp++)
-      ss << "│ " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << "                  │" << std::endl;
+      ss << " | " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << "                  |" << std::endl;
   }
-  ss << "└────────────────────────────────┘" << std::endl;
+  ss << " +--------------------------------+" << std::endl;
   return ss.str();
 }
