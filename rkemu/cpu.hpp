@@ -10,15 +10,18 @@ public:
   std::array<uint32_t, 0x10000> rom;
   std::string fname;
 
+  bool intr_latch[4] = {false};
+
   CPU();
 
   void load_rom(std::string);
 
   bool cstop();
   int serial();
-  void catch_interrupt();
 
   void external_interrupt(int);
+  void catch_interrupt();
+  void jump_interrupt();
 
   void execute(uint32_t);
   void add(uint16_t, uint16_t, uint16_t);

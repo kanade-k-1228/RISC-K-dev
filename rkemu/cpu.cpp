@@ -39,15 +39,37 @@ int CPU::serial() {
 }
 
 void CPU::external_interrupt(int intr_no) {
-  if(intr_no == 0) mem.at(CSR) |= INTR0;
-  if(intr_no == 1) mem.at(CSR) |= INTR1;
-  if(intr_no == 2) mem.at(CSR) |= INTR2;
-  if(intr_no == 3) mem.at(CSR) |= INTR3;
+  intr_latch[intr_no] = true;
 }
 
 void CPU::catch_interrupt() {
-  if(mem.at(CSR) & IEN) {                                // 割り込み許可か
-    if(mem.at(CSR) & (INTR0 | INTR1 | INTR2 | INTR3)) {  // 割り込みフラグが立ってるか
+  if(mem.at(CSR) & IEN) {  // 割り込み許可か
+    if(intr_latch[0]) mem.at(CSR) |= INTR0;
+    if(intr_latch[1]) mem.at(CSR) |= INTR1;
+    if(intr_latch[2]) mem.at(CSR) |= INTR2;
+    if(intr_latch[3]) mem.at(CSR) |= INTR3;
+  }
+}
+
+void CPU::jump_interrupt() {
+  if(mem.at(CSR) & IEN) {  // 割り込み許可か
+    if(mem.at(CSR) & INTR0) {
+      intr_latch[0] = false;
+      mem.at(IRA) = pc;
+      pc = PC_INTR;
+    }
+    if(mem.at(CSR) & INTR1) {
+      intr_latch[1] = false;
+      mem.at(IRA) = pc;
+      pc = PC_INTR;
+    }
+    if(mem.at(CSR) & INTR2) {
+      intr_latch[2] = false;
+      mem.at(IRA) = pc;
+      pc = PC_INTR;
+    }
+    if(mem.at(CSR) & INTR3) {
+      intr_latch[3] = false;
       mem.at(IRA) = pc;
       pc = PC_INTR;
     }

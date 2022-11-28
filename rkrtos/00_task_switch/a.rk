@@ -40,12 +40,9 @@ _intr:
     store a3 sp 3
     store fp sp 2
     store ra sp 1
-    ; 戻りアドレスの保存
     load  t0 zero task_running
-    store ira t0 .ra
-    ; スタックポインタの保存
-    load t0 zero task_running
-    store sp t0 .sp
+    store ira t0 .ra ; 戻りアドレスの保存
+    store sp t0 .sp  ; スタックポインタの保存
     ; 割り込みフラグが立っている場合
     ; 割り込み番号の処理にジャンプ
     andi  t0 csr intr0_flag

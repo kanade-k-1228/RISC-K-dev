@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
 
   std::cout << "------------------------------------" << std::endl
             << "Emulate: " << cpu.fname << std::endl;
-  if(dump_points.use) std::cout << "- Dump: " << dump_points.fname << std::endl;
-  if(intr_points.use) std::cout << "- Intr: " << intr_points.fname << std::endl;
+  if(dump_points.use) std::cout << " - Dump: " << dump_points.fname << std::endl;
+  if(intr_points.use) std::cout << " - Intr: " << intr_points.fname << std::endl;
   std::cout << "------------------------------------" << std::endl;
 
   // Run Emulator
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
-    // Print Operation and Serial Out
+    // Print Debug Info
     if(print_opr) {
       std::cout << "[" << hex(false, (uint16_t)t) << "]  "
                 << cprint(hex(false, pc), GREEN, 0)
@@ -60,18 +60,18 @@ int main(int argc, char* argv[]) {
     } else {
       if(sout != -1) std::cout << (char)sout;
     }
-
-    // Interrupt
-    if(intr_points.contain(t)) cpu.external_interrupt(intr_points.at(t).ino);
-    cpu.catch_interrupt();
-
-    // Debug
     if(dump_all) std::cout << Debug::dump(cpu);
     if(dump_points.contain(pc)) std::cout << Debug::dump(cpu, dump_points.at(pc));
-    if(interval_time) usleep(100000);
+
+    // Interrupt
+    cpu.jump_interrupt();
+    cpu.catch_interrupt();
+    if(intr_points.contain(t)) cpu.external_interrupt(intr_points.at(t).ino);
 
     // Exit
     if(exit) break;
+
+    if(interval_time) usleep(100000);
   }
   std::cout << std::endl
             << "-----------------------------------#" << std::endl;
