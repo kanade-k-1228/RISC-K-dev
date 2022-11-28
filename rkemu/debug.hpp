@@ -2,6 +2,7 @@
 #include "cpu.hpp"
 #include <array>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -18,7 +19,8 @@ public:
 };
 
 struct DumpOption {
-  std::vector<uint16_t> address;
+  std::set<uint16_t> address;
+  bool stack = false;
 };
 
 class DumpPoints : public std::map<uint16_t, DumpOption> {
@@ -29,7 +31,6 @@ public:
   bool contain(uint16_t);
 };
 namespace Debug {
-std::string dump(CPU&);
-std::string dump(CPU&, DumpOption&);
+std::string dump(int, CPU&, DumpOption&);
 std::string print_code(uint32_t);
 }  // namespace Debug

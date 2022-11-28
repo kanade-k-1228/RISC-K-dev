@@ -13,23 +13,17 @@ int main(int argc, char* argv[]) {
   CPU cpu;
   DumpPoints dump_points;
   IntrPoints intr_points;
-  bool dump_all = false;
   bool print_opr = false;
   bool interval_time = false;
 
   // Init Emulator with Comandline options
   opterr = 0;
   for(int opt; (opt = getopt(argc, argv, "d:i:ot")) != -1;) {
-    if(opt == 'd') {
-      if((std::string)optarg == "all")
-        dump_all = true;
-      else
-        dump_points.init(optarg);
-    }
+    if(opt == 'd') dump_points.init(optarg);
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'o') print_opr = true;
     if(opt == 't') interval_time = true;
-    if(opt == '?') std::cout << "rkemu [-o] [-t] [-d .dump] [-i .intr] .rk.bin" << std::endl;
+    if(opt == '?') std::cout << "rkemu [-o] [-t] [-s] [-d .dump] [-i .intr] .rk.bin" << std::endl;
   }
   cpu.load_rom(argv[optind]);
 
@@ -60,8 +54,7 @@ int main(int argc, char* argv[]) {
     } else {
       if(sout != -1) std::cout << (char)sout;
     }
-    if(dump_all) std::cout << Debug::dump(cpu);
-    if(dump_points.contain(pc)) std::cout << Debug::dump(cpu, dump_points.at(pc));
+    if(dump_points.contain(pc)) std::cout << Debug::dump(t, cpu, dump_points.at(pc));
 
     // Interrupt
     cpu.jump_interrupt();
@@ -71,7 +64,7 @@ int main(int argc, char* argv[]) {
     // Exit
     if(exit) break;
 
-    if(interval_time) usleep(100000);
+    if(interval_time) usleep(10000);
   }
   std::cout << std::endl
             << "-----------------------------------#" << std::endl;
