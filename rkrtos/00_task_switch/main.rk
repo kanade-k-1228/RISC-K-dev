@@ -21,7 +21,7 @@ intr0:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr0_flag_clear
-    jump zero zero _iret
+    jump zero zero os_task_scheduler
 
 intr1:
     loadi cout ''
@@ -35,7 +35,7 @@ intr1:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr1_flag_clear
-    jump zero zero _iret
+    jump zero zero os_task_scheduler
 
 intr2:
     loadi cout ''
@@ -49,7 +49,7 @@ intr2:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr2_flag_clear
-    jump zero zero _iret
+    jump zero zero os_task_scheduler
 
 intr3:
     loadi cout ''
@@ -63,7 +63,7 @@ intr3:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr3_flag_clear
-    jump zero zero _iret
+    jump zero zero os_task_scheduler
 
 init_tasks:
     add  s0 ra zero ; s0 <= ra

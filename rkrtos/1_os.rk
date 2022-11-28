@@ -1,181 +1,3 @@
-; -----------------------------------------------
-; システム
-
-zero:
-_reset:
-    jump zero zero _main
-
-; CSR Bits
-
-#0x0100 clock_stop
-
-#0xfffe intr_disable
-#0x0001 intr_enable
-
-#0x0004 intr0_flag
-#0x0008 intr1_flag
-#0x0010 intr2_flag
-#0x0020 intr3_flag
-
-#0xfffb intr0_flag_clear
-#0xfff7 intr1_flag_clear
-#0xffef intr2_flag_clear
-#0xffdf intr3_flag_clear
-
-_intr:
-    andi  csr csr intr_disable ; 二重割り込み禁止
-    ; コンテキストの保存
-    subi  sp sp 14 ; スタックを確保
-    store s0 sp 14
-    store s1 sp 13
-    store s2 sp 12
-    store s3 sp 11
-    store t0 sp 10
-    store t1 sp 9
-    store t2 sp 8
-    store t3 sp 7
-    store a0 sp 6
-    store a1 sp 5
-    store a2 sp 4
-    store a3 sp 3
-    store fp sp 2
-    store ra sp 1
-    load  t0 zero task_running
-    store ira t0 .ra ; 戻りアドレスの保存
-    store sp t0 .sp  ; スタックポインタの保存
-    ; 割り込みフラグが立っている場合
-    ; 割り込み番号の処理にジャンプ
-    andi  t0 csr intr0_flag
-    brlt  zero t0 intr0
-    andi  t0 csr intr1_flag
-    brlt  zero t0 intr1
-    andi  t0 csr intr2_flag
-    brlt  zero t0 intr2
-    andi  t0 csr intr3_flag
-    brlt  zero t0 intr3
-_iret:
-    ; 割り込みが全て処理された
-    jump zero zero os_restore_context
-
-; プログラム開始前処理
-_main:
-    loadi sp 0xffff
-    loadi fp 0xffff
-    jump  zero zero os_init
-
-; プログラム終了後処理
-_exit:
-    ori csr csr clock_stop
-
-; ---------------------------------------------------
-; 標準ライブラリ
-
-; シリアル送信
-; a0 > string_address
-; ['A','B','C','\0']
-_print_str:
-
-; 16進数出力
-; a0 > uint16
-print_hex:
-    loadi a3 4
-    loadi a2 10
-print_hex_for:
-    breq a3 zero print_hex_break
-    lrot a0 a0 zero
-    lrot a0 a0 zero
-    lrot a0 a0 zero
-    lrot a0 a0 zero
-    andi a1 a0 0x00F ; a1 = a0 & f
-; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
-    brlt a1 a2 print_hex_number
-print_hex_alphabet:
-    addi cout a1 0x37 ; A - 10
-    jump zero zero print_hex_continue
-print_hex_number:
-    addi cout a1 '0'
-print_hex_continue:
-    subi a3 a3 1
-    jump zero zero print_hex_for
-print_hex_break:
-    jump zero ra 0
-
-#0x0A '\n'
-#0x20 ''
-#0x21 '!'
-#0x22 '"'
-#0x23 '#'
-#0x3A ':'
-#0x3B ';'
-#0x3C '<'
-#0x3D '='
-#0x3E '>'
-
-#0x30 '0'
-#0x31 '1'
-#0x32 '2'
-#0x33 '3'
-#0x34 '4'
-#0x35 '5'
-#0x36 '6'
-#0x37 '7'
-#0x38 '8'
-#0x39 '9'
-
-#0x41 'A'
-#0x42 'B'
-#0x43 'C'
-#0x44 'D'
-#0x45 'E'
-#0x46 'F'
-#0x47 'G'
-#0x48 'H'
-#0x49 'I'
-#0x4A 'J'
-#0x4B 'K'
-#0x4C 'L'
-#0x4D 'M'
-#0x4E 'N'
-#0x4F 'O'
-#0x50 'P'
-#0x51 'Q'
-#0x52 'R'
-#0x53 'S'
-#0x54 'T'
-#0x55 'U'
-#0x56 'V'
-#0x57 'W'
-#0x58 'X'
-#0x59 'Y'
-#0x5A 'Z'
-
-#0x61 'a'
-#0x62 'b'
-#0x63 'c'
-#0x64 'd'
-#0x65 'e'
-#0x66 'f'
-#0x67 'g'
-#0x68 'h'
-#0x69 'i'
-#0x6A 'j'
-#0x6B 'k'
-#0x6C 'l'
-#0x6D 'm'
-#0x6E 'n'
-#0x6F 'o'
-#0x70 'p'
-#0x71 'q'
-#0x72 'r'
-#0x73 's'
-#0x74 't'
-#0x75 'u'
-#0x76 'v'
-#0x77 'w'
-#0x78 'x'
-#0x79 'y'
-#0x7A 'z'
-
 ; ---------------------------------------------------
 ; OS - グローバル変数
 
@@ -184,26 +6,26 @@ print_hex_break:
 @0x0041 heap_bottom  ; ヒープメモリの末尾
 @0x0042 task_running ; 実行中のタスク(TCB)のアドレス
 @0x0043 task_list    ; タスク(TCB)連結リストの先頭のアドレス
-#0x0040 ram_top
-#0xdfff ram_bottom
+#0x0040 mem_top
+#0xdfff mem_bottom
 
 ; ---------------------------------------------------
 ; OS - 初期化
 
 os_init:
     ; グローバル変数の初期化
-    loadi t0 ram_top
+    loadi t0 mem_top
     addi  t0 t0 os_global_size
     addi  t0 t0 user_global_size
     store t0 zero heap_top
-    loadi t0 ram_bottom
+    loadi t0 mem_bottom
     store t0 zero heap_bottom
     store zero zero task_running
     store zero zero task_list
     ; 各種オブジェクトの初期化
     jump  ra zero init_tasks
     ; jump  ra zero os_heap_init
-    jump  zero zero os_task_switch
+    jump  zero zero os_task_scheduler
 
 ; ---------------------------------------------------
 ; OS - タスク管理機能
@@ -278,7 +100,7 @@ os_task_exit:
     load  t0 zero task_running
     loadi t1 task_state_exit
     store t1 t0 .state
-    jump  zero zero os_task_switch
+    jump  zero zero os_task_scheduler
 
 ; 実行中のタスクを一時停止
 os_task_wait:
@@ -306,7 +128,7 @@ os_task_wait:
     ; 状態を waiting に変更
     loadi t1 task_state_waiting
     store t1 t0 .state
-    jump zero zero os_task_switch
+    jump zero zero os_task_scheduler
 
 ; 指定した ID のタスクを Ready 状態にする
 ; a0 > task id
@@ -335,22 +157,22 @@ os_task_ready:
     ; 状態を ready に変更
     loadi t1 task_state_ready
     store t1 a0 .state
-    jump zero zero os_task_switch
+    jump zero zero os_task_scheduler
 
-os_task_switch:
+os_task_scheduler:
     ; タスクリストから、Ready のタスクを探す
     load t1 zero task_list
     loadi t3 task_state_ready
-os_task_switch_next:
+os_task_scheduler_next:
     add   t0 t1 zero  ; t0 <= t1 
     load  t2 t0 .state
-    breq  t2 t3 os_task_switch_found_ready
+    breq  t2 t3 os_task_scheduler_found_ready
     load  t1 t0 .next ; t0 の次のアイテムのアドレスを、t1に格納する
-    brlt  zero t1 os_task_switch_next
+    brlt  zero t1 os_task_scheduler_next
     ; 末尾に到達 =  Ready が見つからなかった
     ; 全てのタスクが exit なら、exitする
     jump zero zero _exit
-os_task_switch_found_ready:
+os_task_scheduler_found_ready:
     store t0 zero task_running
 
 os_restore_context:
