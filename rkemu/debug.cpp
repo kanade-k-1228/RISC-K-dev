@@ -37,8 +37,7 @@ void DumpPoints::init(std::string fname) {
       std::string token = tokens.at(i);
       if(token == "-s") {
         dump.stack = true;
-      }
-      if(token == "-") {
+      } else if(token == "-") {
         uint16_t begin = std::stoi(tokens.at(i - 1), nullptr, 0);
         uint16_t end = std::stoi(tokens.at(i + 1), nullptr, 0);
         for(uint16_t j = begin; j < end; ++j) dump.address.insert(j);
@@ -89,25 +88,24 @@ std::string Debug::print_code(uint32_t code) {
   return "Unknown Opecode" + hex(true, opc);
 }
 
-std::string Debug::dump(int time, CPU& cpu, DumpOption& opt) {
+std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-  ss << "------------------------------------" << std::endl
-     << "[" << hex(false, (uint16_t)time) << "]   |  "
-     << cprint("Save", BLUE, 0) << "  |  " << cprint("Temp", BLUE, 0) << "  |  " << cprint("Arg", BLUE, 0) << "  " << std::endl
-     << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " |0: " << hex(false, cpu.mem.at(S0)) << " |0: " << hex(false, cpu.mem.at(T0)) << " |0: " << hex(false, cpu.mem.at(A0)) << std::endl
-     << "RA: " << hex(false, cpu.mem.at(RA)) << " |1: " << hex(false, cpu.mem.at(S1)) << " |1: " << hex(false, cpu.mem.at(T1)) << " |1: " << hex(false, cpu.mem.at(A1)) << std::endl
-     << "SP: " << hex(false, cpu.mem.at(SP)) << " |2: " << hex(false, cpu.mem.at(S2)) << " |2: " << hex(false, cpu.mem.at(T2)) << " |2: " << hex(false, cpu.mem.at(A2)) << std::endl
-     << "FP: " << hex(false, cpu.mem.at(FP)) << " |3: " << hex(false, cpu.mem.at(S3)) << " |3: " << hex(false, cpu.mem.at(T3)) << " |3: " << hex(false, cpu.mem.at(A3)) << std::endl
-     << "IRA: " << hex(false, cpu.mem.at(IRA)) << std::endl
-     << "CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << std::endl
-     << "------------------------------------" << std::endl;
-  if(opt.stack) {
-    for(uint16_t sp = cpu.mem.at(SP); sp < cpu.mem.at(FP); sp++)
-      ss << hex(false, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << std::endl;
-    if(cpu.mem.at(SP) < cpu.mem.at(FP)) ss << "------------------------------------" << std::endl;
-  }
+  ss << "┌───────────┬──────┬──────┬──────┐" << std::endl
+     << "│  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " │ " << cprint("Save", BLUE, 0) << " │ " << cprint("Temp", BLUE, 0) << " │ " << cprint("Arg", BLUE, 0) << "  │" << std::endl
+     << "│  RA: " << hex(false, cpu.mem.at(RA)) << " │ " << hex(false, cpu.mem.at(S0)) << " │ " << hex(false, cpu.mem.at(T0)) << " │ " << hex(false, cpu.mem.at(A0)) << " │" << std::endl
+     << "│ IRA: " << hex(false, cpu.mem.at(IRA)) << " │ " << hex(false, cpu.mem.at(S1)) << " │ " << hex(false, cpu.mem.at(T1)) << " │ " << hex(false, cpu.mem.at(A1)) << " │" << std::endl
+     << "│  SP: " << hex(false, cpu.mem.at(SP)) << " │ " << hex(false, cpu.mem.at(S2)) << " │ " << hex(false, cpu.mem.at(T2)) << " │ " << hex(false, cpu.mem.at(A2)) << " │" << std::endl
+     << "│  FP: " << hex(false, cpu.mem.at(FP)) << " │ " << hex(false, cpu.mem.at(S3)) << " │ " << hex(false, cpu.mem.at(T3)) << " │ " << hex(false, cpu.mem.at(A3)) << " │" << std::endl
+     << "├───────────┴──────┴──────┴──────┤" << std::endl
+     << "│ CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          │" << std::endl;
+  if(opt.address.size() != 0) ss << "├────────────────────────────────┤" << std::endl;
   for(uint16_t addr : opt.address)
-    ss << hex(false, addr) << " : " << hex(false, cpu.mem.at(addr)) << std::endl;
-  if(opt.address.size() != 0) ss << "------------------------------------" << std::endl;
+    ss << "│ " << hex(true, addr) << " : " << hex(false, cpu.mem.at(addr)) << "                  │" << std::endl;
+  if(opt.stack) {
+    if(cpu.mem.at(SP) < cpu.mem.at(FP)) ss << "├────────────────────────────────┤" << std::endl;
+    for(uint16_t sp = cpu.mem.at(SP); sp < cpu.mem.at(FP); sp++)
+      ss << "│ " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << "                  │" << std::endl;
+  }
+  ss << "└────────────────────────────────┘" << std::endl;
   return ss.str();
 }

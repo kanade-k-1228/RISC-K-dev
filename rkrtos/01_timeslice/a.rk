@@ -393,7 +393,6 @@ os_lock_free:
 ; ユーザプログラム
 
 #3 user_global_size
-
 @0x0044 task_id_x
 @0x0045 task_id_y
 @0x0046 task_id_z
@@ -401,33 +400,31 @@ os_lock_free:
 ; 各割り込みの処理
 intr0:
     loadi cout '\n'
+    loadi cout '<'
     loadi cout 'S'
     loadi cout 'w'
     loadi cout 'i'
     loadi cout 't'
     loadi cout 'c'
     loadi cout 'h'
-    loadi cout ''
     loadi cout 'T'
     loadi cout 'a'
     loadi cout 's'
     loadi cout 'k'
+    loadi cout '>'
     loadi cout '\n'
     ; Rotate Task Queue
     loadi t1 task_list
 task_rot_next:
     add   t0 t1 zero
     load  t1 t0 .next
-    brlt  zero t1 task_rot_next
-    ; t0 : 末尾を指す
-    load  s0 zero task_list ; s0 : 先頭を指す
-    ; 末尾の次に現在の先頭を追加
-    store s0 t0 .next
-    ; 先頭をひとつ進める
-    load  t1 s0 .next
+    brlt  zero t1 task_rot_next ; t0 が末尾のTCBを指すまで
+    load  t2 zero task_list     ; t2 は先頭のTCBを指す
+    store t2 t0 .next ; 末尾の次に現在の先頭を追加
+    load  t1 t2 .next ; 先頭をひとつ進める
     store t1 zero task_list
-    ; s0 が新たな末尾になる
-    store zero s0 .next
+    ; t2 が新たな末尾になる
+    store zero t2 .next
     ; これで、リストが回転した
     ; タスクスケジューラに渡す
     andi  csr csr intr0_flag_clear

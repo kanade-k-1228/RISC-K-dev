@@ -27,11 +27,16 @@ int main(int argc, char* argv[]) {
   }
   cpu.load_rom(argv[optind]);
 
-  std::cout << "------------------------------------" << std::endl
-            << "Emulate: " << cpu.fname << std::endl;
-  if(dump_points.use) std::cout << " - Dump: " << dump_points.fname << std::endl;
-  if(intr_points.use) std::cout << " - Intr: " << intr_points.fname << std::endl;
-  std::cout << "------------------------------------" << std::endl;
+  std::cout << "┌──────────────────────────────────┐" << std::endl
+            << "│                                  │\r"
+            << "│ Emulate: " << cpu.fname << std::endl;
+  if(dump_points.use)
+    std::cout << "│                                  │\r"
+              << "│  - Dump: " << dump_points.fname << std::endl;
+  if(intr_points.use)
+    std::cout << "│                                  │\r"
+              << "│  - Intr: " << intr_points.fname << std::endl;
+  std::cout << "└──────────────────────────────────┘" << std::endl;
 
   // Run Emulator
   for(int t = 0;; ++t) {
@@ -44,17 +49,19 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
+    bool dump = dump_points.contain(pc);
+
     // Print Debug Info
-    if(print_opr) {
+    if(print_opr || dump)
       std::cout << "[" << hex(false, (uint16_t)t) << "]  "
                 << cprint(hex(false, pc), GREEN, 0)
                 << Debug::print_code(code)
                 << ((sout != -1) ? " > " + esc_char((char)sout) : "")
                 << std::endl;
-    } else {
-      if(sout != -1) std::cout << (char)sout;
-    }
-    if(dump_points.contain(pc)) std::cout << Debug::dump(t, cpu, dump_points.at(pc));
+    else if(sout != -1)
+      std::cout << (char)sout;
+
+    if(dump) std::cout << Debug::dump(cpu, dump_points.at(pc));
 
     // Interrupt
     cpu.jump_interrupt();
@@ -67,7 +74,7 @@ int main(int argc, char* argv[]) {
     if(interval_time) usleep(10000);
   }
   std::cout << std::endl
-            << "-----------------------------------#" << std::endl;
+            << "════════════════════════════════════" << std::endl;
   return 0;
 }
 

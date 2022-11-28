@@ -31,6 +31,6 @@ public:
   bool contain(uint16_t);
 };
 namespace Debug {
-std::string dump(int, CPU&, DumpOption&);
+std::string dump(CPU&, DumpOption&);
 std::string print_code(uint32_t);
 }  // namespace Debug
