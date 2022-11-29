@@ -109,11 +109,11 @@ task_x:
     loadi a0 0
     loadi s0 10
 task_x_loop:
-    addi  a0 a0 1
     loadi cout 'X'
     loadi cout ':'
     jump  ra zero print_hex
     loadi cout '\n'
+    addi  a0 a0 1
     brlt  a0 s0 task_x_loop
     jump zero zero os_task_exit
 
@@ -121,11 +121,11 @@ task_y:
     loadi a0 0
     loadi s0 10
 task_y_loop:
-    addi  a0 a0 1
     loadi cout 'Y'
     loadi cout ':'
     jump  ra zero print_hex
     loadi cout '\n'
+    addi  a0 a0 1
     brlt  a0 s0 task_y_loop
     jump zero zero os_task_exit
 
@@ -133,10 +133,10 @@ task_z:
     loadi a0 0
     loadi s0 10
 task_z_loop:
-    addi  a0 a0 1
     loadi cout 'Z'
     loadi cout ':'
     jump  ra zero print_hex
     loadi cout '\n'
+    addi  a0 a0 1
     brlt  a0 s0 task_z_loop
     jump zero zero os_task_exit
