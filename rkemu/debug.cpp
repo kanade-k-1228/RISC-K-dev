@@ -19,10 +19,6 @@ void IntrPoints::init(std::string fname) {
   }
 }
 
-bool IntrPoints::contain(int t) {
-  return this->find(t) != this->end();
-}
-
 void DumpPoints::init(std::string fname) {
   this->fname = fname;
   this->use = true;
@@ -33,7 +29,7 @@ void DumpPoints::init(std::string fname) {
     if(tokens.size() == 0) continue;
     DumpOption dump;
     uint16_t pc = std::stoi(tokens.at(0), nullptr, 0);
-    for(int i = 1; i < tokens.size(); ++i) {
+    for(unsigned int i = 1; i < tokens.size(); ++i) {
       std::string token = tokens.at(i);
       if(token == "-s") {
         dump.stack = true;
@@ -48,10 +44,6 @@ void DumpPoints::init(std::string fname) {
     }
     this->insert(std::make_pair(pc, dump));
   }
-}
-
-bool DumpPoints::contain(uint16_t pc) {
-  return this->find(pc) != this->end();
 }
 
 std::string Debug::print_code(uint32_t code) {

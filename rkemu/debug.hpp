@@ -15,7 +15,6 @@ public:
   bool use = false;
   std::string fname;
   void init(std::string);
-  bool contain(int);
 };
 
 struct DumpOption {
@@ -28,7 +27,6 @@ public:
   bool use = false;
   std::string fname;
   void init(std::string);
-  bool contain(uint16_t);
 };
 namespace Debug {
 std::string dump(CPU&, DumpOption&);

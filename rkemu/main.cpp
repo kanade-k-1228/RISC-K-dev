@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
-    bool dump = dump_points.contain(pc);
+    bool dump = dump_points.contains(pc);
 
     // Print Debug Info
     if(print_opr || dump)
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     // Interrupt
     cpu.jump_interrupt();
     cpu.catch_interrupt();
-    if(intr_points.contain(t)) cpu.external_interrupt(intr_points.at(t).ino);
+    if(intr_points.contains(t)) cpu.external_interrupt(intr_points.at(t).ino);
 
     // Exit
     if(exit) break;
