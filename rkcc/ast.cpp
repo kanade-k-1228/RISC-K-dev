@@ -27,7 +27,6 @@ std::string print(Node* node) {
   if(node->type == Node::Type::Assignment) return "( " + print(node->lhs) + " = " + print(node->rhs) + " )";
   if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LogicalXor) return "( " + print(node->lhs) + " ^^ " + print(node->rhs) + " )";
   if(node->type == Node::Type::LogicalAnd) return "( " + print(node->lhs) + " && " + print(node->rhs) + " )";
   if(node->type == Node::Type::BitOr) return "( " + print(node->lhs) + " | " + print(node->rhs) + " )";
   if(node->type == Node::Type::BitXor) return "( " + print(node->lhs) + " ^ " + print(node->rhs) + " )";
@@ -63,7 +62,6 @@ std::string print(Node* node) {
 int evaluate(Node* node) {
   if(node->type == Node::Type::Cond) return evaluate(node->cond) ? evaluate(node->lhs) : evaluate(node->rhs);
   if(node->type == Node::Type::LogicalOr) return evaluate(node->lhs) | evaluate(node->rhs);
-  if(node->type == Node::Type::LogicalXor) return evaluate(node->lhs) ^ evaluate(node->rhs);
   if(node->type == Node::Type::LogicalAnd) return evaluate(node->lhs) & evaluate(node->rhs);
   if(node->type == Node::Type::BitOr) return evaluate(node->lhs) | evaluate(node->rhs);
   if(node->type == Node::Type::BitXor) return evaluate(node->lhs) ^ evaluate(node->rhs);

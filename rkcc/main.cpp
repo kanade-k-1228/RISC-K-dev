@@ -1,3 +1,4 @@
+#include "asmgen.hpp"
 #include "ast.hpp"
 #include "token.hpp"
 #include <fstream>
@@ -6,7 +7,6 @@
 #include <regex>
 #include <string>
 #include <vector>
-
 
 int main(int argc, char* argv[]) {
   // ファイルの読み取り
@@ -28,5 +28,7 @@ int main(int argc, char* argv[]) {
 
   // 構文木
   Node* root = program(tokens);
-  std::cout << print(root) << std::endl;
+  // std::cout << print(root) << std::endl;
+  asembly(root);
+  std::cout << Asm::print() << std::endl;
 }

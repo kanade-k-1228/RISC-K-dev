@@ -1,14 +1,17 @@
 a = 2;
 b = 3;
 c = a + b;
-if(a||1){
-    hoge;
-    fuga;
+c = a - b;
+c = a & b;
+c = a | b;
+
+if(a==1){
+  d=6;
 }
 if(hoge){
-a;
+  a;
 }else{
-b;
+  b;
 }
 while (i == 0){
     a=a*i;
@@ -18,6 +21,6 @@ do{
     dodo = 0;
 }while(a);
 
-for(i=0;i<10;i++){
+for(i=0;i<10;++i){
     out = i;
 }

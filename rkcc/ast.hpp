@@ -7,7 +7,6 @@ public:
   enum class Type {
     Cond,
     LogicalOr,
-    LogicalXor,
     LogicalAnd,
     BitOr,
     BitXor,
@@ -42,6 +41,7 @@ public:
     Assignment,  // =
   };
   Type type;
+  std::vector<Node*> childs;            // 子ノード
   Node *lhs = nullptr, *rhs = nullptr;  // 演算子の左辺・右辺
   Node* cond = nullptr;                 // cond, for, while, if の条件文
   Node* init = nullptr;                 // for の前処理
@@ -51,18 +51,15 @@ public:
   Node* false_stmt = nullptr;           // else の本体
   int val;
   std::string str;
-  // 三項演算子
-  Node(Type type, Node* cond, Node* lhs, Node* rhs);
-  // 二項演算子
-  Node(Type type, Node* lhs, Node* rhs);
-  // 単項演算子
-  Node(Type type, Node* lhs);
-  // 末端
-  Node(Type type);
-  // 数値
-  Node(int val);
-  // 識別子
-  Node(std::string ident);
+  uint16_t addr;  // 評価値のアドレス
+  uint16_t reg;   // レジスタ
+
+  Node(Type type, Node* cond, Node* lhs, Node* rhs);  // 三項演算子
+  Node(Type type, Node* lhs, Node* rhs);              // 二項演算子
+  Node(Type type, Node* lhs);                         // 単項演算子
+  Node(Type type);                                    // 末端
+  Node(int val);                                      // 定数値
+  Node(std::string ident);                            // 識別子
 };
 
 std::string print(Node* node);

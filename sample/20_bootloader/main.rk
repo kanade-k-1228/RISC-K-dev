@@ -37,6 +37,7 @@ _iret:
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
+    loadi ra _ret
     jump  zero zero main
 
 ; プログラム終了後処理

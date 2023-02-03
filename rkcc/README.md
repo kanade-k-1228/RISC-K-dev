@@ -27,7 +27,7 @@ primary = num | "(" expr ")"
 ### 11/13
 
 - 演算子の拡張
-  - ? :, ||, &&, |, ^, &, ==, !=, <, <=, >, >=, <<, >>, *, /, %, ++, --
+  - ? :, ||, &&, |, ^, &, ==, !=, <, <=, >, >=, <<, >>, \*, /, %, ++, --
 
 ### 11/15
 
@@ -70,16 +70,107 @@ post  = prim ("++"|"--")?
 prim  = num | ident | "(" expr ")"
 ```
 
+### 変数リスト
+
+### 型の実装
+
+C 言語の型は記法が複雑なので，ここでは簡単な記法を使う．
+
+| C           | C--                   |
+| ----------- | --------------------- |
+| `int a`     | `int a`               |
+| `int* a`    | `ptr<Int> a`          |
+| `int* a`    | `ptr<ptr<int>> a`     |
+| `int a[N]`  | `array<int,N> a`      |
+| `int* a[N]` | `array<ptr<int>,N> a` |
+
+```
+type = "int"
+     | "ptr" "<" type ">"
+     | "array" "<" type "," num ">"
+```
+
+### 関数定義の実装
+
+```
+program = func*
+func = type ident "(" (type ident) % "," ")" "{" stmt* "}"
+```
+
+### 関数呼出の実装
+
+```
+prim = ("(" expr ")" | num | ident)("(" expr % "," ")")?
+```
+
+### アセンブリの生成
+
+関数が実装できたので，次のようなコードが生成できる
+
+```
+int main(){
+  int a = 42;
+  return 0;
+}
+```
+
+変数は fp からの相対アドレスとして
+
+```
+main:
+  loadi t0 42
+  loadi a0 0
+  jump zero ra zero
+```
+
+### 構造体の実装
+
+C++スタイル
+
+```
+struct = "struct" ident "{" (type ident ";")* "}" ";"
+```
+
+### 型チェックとキャスト
+
+### ?/?
+
+- グローバル変数の実装
+
+```
+program  = extrnal*
+external = func_def | glob_var
+func_def = type ident "(" (type ident) % "," ")" "{" stmt* "}"
+glob_var = type ident ("=" expr) ";"
+stmt = ...
+```
+
+### トップレベル
+
+```
+プログラム
+ = 外部宣言*
+  = 変数宣言   = 型修飾子* 型名 変数名 ("=" (初期化子 | 代入子))? ";"
+  | 関数宣言   = 型名 関数名 "("  型名        % "," ")" ";"
+  | 構造体定義 = "struct" 構造体名 "{" (型名 メンバ名)        % ";" "}" ";"
+  | 列挙体定義 = "enum"   列挙体名 "{" ラベル名 ("=" 定整数)? % "," "}" ";"
+  | 関数定義   = 型名 関数名 "(" (型名 変数名) % "," ")" 文
+```
+
 ### 今後
 
 - 関数定義の実装
 
 ```
-program = funct_def
+プログラム = 外部宣言*
+外部宣言 = 変数宣言 | 関数宣言 | 型宣言
+program = external_declaration*
+external_declaration = type_qualifier // 変数定義
+                     |
 function_definition = declaration_specifier* declarator declaration* compound_stmt
 ```
 
-## c言語の文法
+## c 言語の文法
 
 ### 用語
 
@@ -104,7 +195,6 @@ external_declaration = function_definition | declaration
 external declaration は、関数ブロックの外での宣言のこと。
 
 プログラムは、トップレベルで見ると、関数定義か宣言の列になっている。
-
 
 ### 宣言
 
@@ -231,7 +321,7 @@ stmt = expr? ";"                             // expr : 式文
      | "{" decl* stmt* "}"                   // compound :複文
      | "if" "(" expr ")" stmt ("else" stmt)? // selection : 選択文
      | ident ":" stmt                        // labeled : ラベル文
-     | "case" const_expr : stmt 
+     | "case" const_expr : stmt
      | "default" ":" stmt
      | "while" "(" expr ")" stmt            // iteration : 反復文
      | "do" stmt "while" ( expr ) ";"
