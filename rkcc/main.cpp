@@ -28,7 +28,9 @@ int main(int argc, char* argv[]) {
 
   // 構文木
   Node* root = program(tokens);
-  // std::cout << print(root) << std::endl;
-  asembly(root);
-  std::cout << Asm::print() << std::endl;
+  std::cout << print(root) << std::endl;
+  // シンボルテーブル生成
+  // アセンブラ生成
+  // asembly(root);
+  // std::cout << Asm::print() << std::endl;
 }

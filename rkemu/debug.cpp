@@ -19,6 +19,13 @@ void IntrPoints::init(std::string fname) {
   }
 }
 
+bool IntrPoints::is_intr(uint16_t time) {
+  if(use)
+    return this->contains(time);
+  else
+    return false;
+}
+
 void DumpPoints::init(std::string fname) {
   this->fname = fname;
   this->use = true;
@@ -44,6 +51,12 @@ void DumpPoints::init(std::string fname) {
     }
     this->insert(std::make_pair(pc, dump));
   }
+}
+
+bool DumpPoints::is_dump(uint16_t pc) {
+  if(all) return all;
+  if(use) return this->contains(pc);
+  return false;
 }
 
 std::string Debug::print_code(uint32_t code) {

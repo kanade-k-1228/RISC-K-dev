@@ -16,10 +16,10 @@ void loadi(std::string rd, int imm) { code.push_back("  loadi " + rd + " " + std
 void loadi(std::string rd, std::string label) { code.push_back("  loadi " + rd + " " + label); }
 void store(std::string src, std::string addr_base, int addr_imm) { code.push_back("  store " + addr_base + " " + src + " " + std::to_string(addr_imm)); }
 void store(std::string src, std::string addr_base, std::string label) { code.push_back("  store " + addr_base + " " + src + " " + label); }
-void jump(std::string rd, std::string rs, int addr) { code.push_back("  jump " + rd + " " + rs + " " + std::to_string(addr)); }
-void jump(std::string rd, std::string rs, std::string label) { code.push_back("  jump " + rd + " " + rs + " " + label); }
-void breq(std::string rs1, std::string rs2, int addr) { code.push_back("  breq " + rs1 + " " + rs2 + " " + std::to_string(addr)); }
-void breq(std::string rs1, std::string rs2, std::string label) { code.push_back("  breq " + rs1 + " " + rs2 + " " + label); }
+void jump(std::string rd, std::string rs, int addr) { code.push_back("  jump  " + rd + " " + rs + " " + std::to_string(addr)); }
+void jump(std::string rd, std::string rs, std::string label) { code.push_back("  jump  " + rd + " " + rs + " " + label); }
+void breq(std::string rs1, std::string rs2, int addr) { code.push_back("  breq  " + rs1 + " " + rs2 + " " + std::to_string(addr)); }
+void breq(std::string rs1, std::string rs2, std::string label) { code.push_back("  breq  " + rs1 + " " + rs2 + " " + label); }
 // 拡張命令
 void push(std::string reg) {
   store(reg, "sp", 0);
@@ -56,9 +56,19 @@ void asembly(Node* node) {
 
   // 三項演算
   if(node->type == Node::Type::Cond) {
+    std::string cond = "cond_id";
     // 条件式を評価
     asembly(node->cond);
     // 条件値はt0に入っている
+    Asm::breq("t0", "zero", cond + "_false");
+    // True
+    asembly(node->true_stmt);
+    Asm::jump("zero", "zero", cond + "_end");
+    // False
+    Asm::label(cond + "_false");
+    asembly(node->false_stmt);
+    // End
+    Asm::label(cond + "_end");
     return;
   }
 

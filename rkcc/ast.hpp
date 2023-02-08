@@ -5,6 +5,21 @@
 class Node {
 public:
   enum class Type {
+    Program,
+    Func,
+    Compound,
+    Statement,
+    // Program Flow
+    If,
+    IfElse,
+    While,
+    DoWhile,
+    For,
+    Continue,
+    Break,
+    Return,
+    // Statement
+    Assignment,  // =
     Cond,
     LogicalOr,
     LogicalAnd,
@@ -30,16 +45,8 @@ public:
     PostSub,
     Num,
     Ident,
-    Statement,
-    CompoundStmt,
-    If,
-    IfElse,
-    While,
-    DoWhile,
-    For,
-    Program,
-    Assignment,  // =
   };
+
   Type type;
   std::vector<Node*> childs;            // 子ノード
   Node *lhs = nullptr, *rhs = nullptr;  // 演算子の左辺・右辺
@@ -54,6 +61,7 @@ public:
   uint16_t addr;  // 評価値のアドレス
   uint16_t reg;   // レジスタ
 
+  // ノードのコンストラクタ
   Node(Type type, Node* cond, Node* lhs, Node* rhs);  // 三項演算子
   Node(Type type, Node* lhs, Node* rhs);              // 二項演算子
   Node(Type type, Node* lhs);                         // 単項演算子
@@ -63,9 +71,11 @@ public:
 };
 
 std::string print(Node* node);
-int evaluate(Node* node);
 
 Node* program(Tokens&);
+Node* func(Tokens&);
+Node* compound(Tokens&);
+
 Node* stmt(Tokens&);
 Node* expr(Tokens&);
 Node* assign(Tokens&);
@@ -84,3 +94,4 @@ Node* mul(Tokens&);
 Node* unary(Tokens&);
 Node* post(Tokens&);
 Node* prim(Tokens&);
+Node* ident(Tokens&);

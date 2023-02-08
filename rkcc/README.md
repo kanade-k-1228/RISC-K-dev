@@ -70,6 +70,44 @@ post  = prim ("++"|"--")?
 prim  = num | ident | "(" expr ")"
 ```
 
+### 2/8
+
+- 関数
+
+```
+program = func*
+func = ident "(" ident % "," ")" compound
+compound = "{" stmt* "}"
+stmt = ";" | expr ";" | compound
+     | if | while | do_while | for 
+     | continue | break 
+     | return
+if       = "if" "(" expr ")" stmt ("else" stmt)?
+while    = "while" "(" expr ")" stmt
+do_while = "do" stmt "while" ( expr ) ";"
+for      = "for" "(" expr? ";" expr? ";" expr? ")" stmt
+continue = "continue" ";"
+break    = "break" ";"
+return   = "return" expr ";"
+
+expr = assign
+assign = cond ("=" assign)?
+cond = logical_or ("?" expr ":" cond)?
+logical_or  = logical_and ("||" logical_and)*
+logical_and = bit_or  ("&&" bit_or)*
+bit_or  = bit_xor ("|" bit_xor)*
+bit_xor = bit_and ("^" bit_and)*
+bit_and = equal ("&" equal)*
+equal = relat ("==" relat | "!=" relat)*
+relat = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)*
+shift = (shift "<<" | shift ">>")? add
+add   = mul ("+" mul | "-" mul)*
+mul   = unary ("*" unary | "/" unary | "%" unary)*
+unary = ("++"|"--")? post
+post  = prim ("++"|"--")?
+prim  = num | ident | "(" expr ")"
+```
+
 ### 変数リスト
 
 ### 型の実装
@@ -93,8 +131,8 @@ type = "int"
 ### 関数定義の実装
 
 ```
-program = func*
-func = type ident "(" (type ident) % "," ")" "{" stmt* "}"
+program = func_def*
+func_def = type ident "(" (type ident) % "," ")" "{" stmt* "}"
 ```
 
 ### 関数呼出の実装
@@ -122,6 +160,16 @@ main:
   loadi a0 0
   jump zero ra zero
 ```
+
+環境メモを更新しながら、抽象構文木を深さ優先探索する
+- 実行場所（スコープ
+  - main 関数内の
+  - id:for_1 の内
+- 有効なローカル変数一覧
+  - アドレス
+    - レジスタ
+    - スタックポインタに対する相対アドレス
+- グローバル変数一覧
 
 ### 構造体の実装
 

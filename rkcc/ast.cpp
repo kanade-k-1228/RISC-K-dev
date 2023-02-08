@@ -23,87 +23,114 @@ Node::Node(std::string ident)
     : type(Type::Ident), lhs(nullptr), rhs(nullptr), cond(nullptr), str(ident) {}
 
 std::string print(Node* node) {
-  if(node->type == Node::Type::Program) return print(node->lhs) + "\n" + print(node->rhs);
-  if(node->type == Node::Type::Assignment) return "( " + print(node->lhs) + " = " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Cond) return "( " + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LogicalOr) return "( " + print(node->lhs) + " || " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LogicalAnd) return "( " + print(node->lhs) + " && " + print(node->rhs) + " )";
-  if(node->type == Node::Type::BitOr) return "( " + print(node->lhs) + " | " + print(node->rhs) + " )";
-  if(node->type == Node::Type::BitXor) return "( " + print(node->lhs) + " ^ " + print(node->rhs) + " )";
-  if(node->type == Node::Type::BitAnd) return "( " + print(node->lhs) + " & " + print(node->rhs) + " )";
-  if(node->type == Node::Type::EQ) return "( " + print(node->lhs) + " == " + print(node->rhs) + " )";
-  if(node->type == Node::Type::NEQ) return "( " + print(node->lhs) + " != " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LT) return "( " + print(node->lhs) + " < " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LEQ) return "( " + print(node->lhs) + " <= " + print(node->rhs) + " )";
-  if(node->type == Node::Type::GT) return "( " + print(node->lhs) + " > " + print(node->rhs) + " )";
-  if(node->type == Node::Type::GEQ) return "( " + print(node->lhs) + " >= " + print(node->rhs) + " )";
-  if(node->type == Node::Type::RShift) return "( " + print(node->lhs) + " >> " + print(node->rhs) + " )";
-  if(node->type == Node::Type::LShift) return "( " + print(node->lhs) + " << " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Add) return "( " + print(node->lhs) + " + " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Sub) return "( " + print(node->lhs) + " - " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Mul) return "( " + print(node->lhs) + " * " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Div) return "( " + print(node->lhs) + " / " + print(node->rhs) + " )";
-  if(node->type == Node::Type::Mod) return "( " + print(node->lhs) + " % " + print(node->rhs) + " )";
-  if(node->type == Node::Type::UnaryAdd) return "( ++ " + print(node->lhs) + " )";
-  if(node->type == Node::Type::UnarySub) return "( -- " + print(node->lhs) + " )";
-  if(node->type == Node::Type::PostAdd) return "( " + print(node->lhs) + " ++ )";
-  if(node->type == Node::Type::PostSub) return "( " + print(node->lhs) + " -- )";
+  std::stringstream ss;
+  if(node->type == Node::Type::Program) {
+    for(auto n : node->childs) ss << print(n);
+    return ss.str();
+  }
+
+  if(node->type == Node::Type::Func) {
+    ss << node->str << "(";
+    for(auto n : node->childs) ss << n->str << ",";
+    ss << ")" << print(node->stmt);
+    return ss.str();
+  }
+
+  if(node->type == Node::Type::Compound) {
+    ss << "{" << std::endl;
+    for(auto n : node->childs) ss << print(n) << std::endl;
+    ss << "}";
+    return ss.str();
+  }
+
+  if(node->type == Node::Type::If) return "if " + print(node->cond) + print(node->true_stmt);
+  if(node->type == Node::Type::IfElse) return "if " + print(node->cond) + print(node->true_stmt) + "else" + print(node->false_stmt);
+  if(node->type == Node::Type::While) return "while " + print(node->cond) + print(node->stmt);
+  if(node->type == Node::Type::DoWhile) return "do " + print(node->stmt) + "while " + print(node->cond);
+  if(node->type == Node::Type::For) return "for " + print(node->init) + print(node->cond) + print(node->iterate) + print(node->stmt);
+
+  if(node->type == Node::Type::Continue) return "continue;";
+  if(node->type == Node::Type::Break) return "break;";
+  if(node->type == Node::Type::Return) return "return " + print(node->stmt) + ";";
+
+  if(node->type == Node::Type::Statement) {
+    if(node->stmt == nullptr)
+      return ";";
+    else
+      return print(node->stmt) + ";";
+  }
+
+  if(node->type == Node::Type::Assignment) return "(" + print(node->lhs) + " = " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Cond) return "(" + print(node->cond) + " ? " + print(node->lhs) + " : " + print(node->rhs) + ")";
+  if(node->type == Node::Type::LogicalOr) return "(" + print(node->lhs) + " || " + print(node->rhs) + ")";
+  if(node->type == Node::Type::LogicalAnd) return "(" + print(node->lhs) + " && " + print(node->rhs) + ")";
+  if(node->type == Node::Type::BitOr) return "(" + print(node->lhs) + " | " + print(node->rhs) + ")";
+  if(node->type == Node::Type::BitXor) return "(" + print(node->lhs) + " ^ " + print(node->rhs) + ")";
+  if(node->type == Node::Type::BitAnd) return "(" + print(node->lhs) + " & " + print(node->rhs) + ")";
+  if(node->type == Node::Type::EQ) return "(" + print(node->lhs) + " == " + print(node->rhs) + ")";
+  if(node->type == Node::Type::NEQ) return "(" + print(node->lhs) + " != " + print(node->rhs) + ")";
+  if(node->type == Node::Type::LT) return "(" + print(node->lhs) + " < " + print(node->rhs) + ")";
+  if(node->type == Node::Type::LEQ) return "(" + print(node->lhs) + " <= " + print(node->rhs) + ")";
+  if(node->type == Node::Type::GT) return "(" + print(node->lhs) + " > " + print(node->rhs) + ")";
+  if(node->type == Node::Type::GEQ) return "(" + print(node->lhs) + " >= " + print(node->rhs) + ")";
+  if(node->type == Node::Type::RShift) return "(" + print(node->lhs) + " >> " + print(node->rhs) + ")";
+  if(node->type == Node::Type::LShift) return "(" + print(node->lhs) + " << " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Add) return "(" + print(node->lhs) + " + " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Sub) return "(" + print(node->lhs) + " - " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Mul) return "(" + print(node->lhs) + " * " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Div) return "(" + print(node->lhs) + " / " + print(node->rhs) + ")";
+  if(node->type == Node::Type::Mod) return "(" + print(node->lhs) + " % " + print(node->rhs) + ")";
+  if(node->type == Node::Type::UnaryAdd) return "(++ " + print(node->lhs) + ")";
+  if(node->type == Node::Type::UnarySub) return "(-- " + print(node->lhs) + ")";
+  if(node->type == Node::Type::PostAdd) return "(" + print(node->lhs) + " ++)";
+  if(node->type == Node::Type::PostSub) return "(" + print(node->lhs) + " --)";
   if(node->type == Node::Type::Num) return std::to_string(node->val);
   if(node->type == Node::Type::Ident) return node->str;
-  if(node->type == Node::Type::CompoundStmt) return print(node->lhs) + "\n" + print(node->rhs);
-  if(node->type == Node::Type::If) return "if:" + print(node->cond) + " {\n" + print(node->true_stmt) + "\n}";
-  if(node->type == Node::Type::IfElse) return "if:" + print(node->cond) + " {\n" + print(node->true_stmt) + "\n} else {\n" + print(node->false_stmt) + "\n}";
-  if(node->type == Node::Type::While) return "while:" + print(node->cond) + " {\n" + print(node->stmt) + "\n}";
-  if(node->type == Node::Type::DoWhile) return "do{\n" + print(node->stmt) + "\n} while:" + print(node->cond) + ";";
-  if(node->type == Node::Type::For) return "for:" + print(node->init) + ":" + print(node->cond) + ":" + print(node->iterate) + "{\n" + print(node->stmt) + "\n}";
   return "NO PRINT FORMAT";
 }
 
-int evaluate(Node* node) {
-  if(node->type == Node::Type::Cond) return evaluate(node->cond) ? evaluate(node->lhs) : evaluate(node->rhs);
-  if(node->type == Node::Type::LogicalOr) return evaluate(node->lhs) | evaluate(node->rhs);
-  if(node->type == Node::Type::LogicalAnd) return evaluate(node->lhs) & evaluate(node->rhs);
-  if(node->type == Node::Type::BitOr) return evaluate(node->lhs) | evaluate(node->rhs);
-  if(node->type == Node::Type::BitXor) return evaluate(node->lhs) ^ evaluate(node->rhs);
-  if(node->type == Node::Type::BitAnd) return evaluate(node->lhs) & evaluate(node->rhs);
-  if(node->type == Node::Type::EQ) return evaluate(node->lhs) == evaluate(node->rhs);
-  if(node->type == Node::Type::NEQ) return evaluate(node->lhs) != evaluate(node->rhs);
-  if(node->type == Node::Type::LT) return evaluate(node->lhs) < evaluate(node->rhs);
-  if(node->type == Node::Type::LEQ) return evaluate(node->lhs) <= evaluate(node->rhs);
-  if(node->type == Node::Type::GT) return evaluate(node->lhs) > evaluate(node->rhs);
-  if(node->type == Node::Type::GEQ) return evaluate(node->lhs) >= evaluate(node->rhs);
-  if(node->type == Node::Type::RShift) return evaluate(node->lhs) >> evaluate(node->rhs);
-  if(node->type == Node::Type::LShift) return evaluate(node->lhs) << evaluate(node->rhs);
-  if(node->type == Node::Type::Add) return evaluate(node->lhs) + evaluate(node->rhs);
-  if(node->type == Node::Type::Sub) return evaluate(node->lhs) - evaluate(node->rhs);
-  if(node->type == Node::Type::Mul) return evaluate(node->lhs) * evaluate(node->rhs);
-  if(node->type == Node::Type::Div) return evaluate(node->lhs) / evaluate(node->rhs);
-  if(node->type == Node::Type::Mod) return evaluate(node->lhs) % evaluate(node->rhs);
-  if(node->type == Node::Type::UnaryAdd) return evaluate(node->lhs) + 1;
-  if(node->type == Node::Type::UnarySub) return evaluate(node->lhs) - 1;
-  if(node->type == Node::Type::PostAdd) return evaluate(node->lhs) + 1;
-  if(node->type == Node::Type::PostSub) return evaluate(node->lhs) - 1;
-  if(node->type == Node::Type::Num) return node->val;
-  return 0;
+Node* program(Tokens& tokens) {
+  Node* root = new Node(Node::Type::Program);
+  while(!tokens.empty()) {
+    root->childs.push_back(func(tokens));
+  }
+  return root;
 }
 
-Node* program(Tokens& tokens) {
-  Node* node = stmt(tokens);
-  if(!tokens.empty())
-    node = new Node(Node::Type::Program, node, program(tokens));
+Node* func(Tokens& tokens) {
+  Node* node = new Node(Node::Type::Func);
+  if(!tokens.type_is(Token::Type::Identifier))
+    error("Function start with Ident: " + tokens.head());
+
+  node->str = tokens.head();
+  tokens.pop();
+  tokens.expect("(");
+  for(; tokens.head() != ")"; tokens.pop()) {
+    node->childs.push_back(ident(tokens));
+    if(tokens.head() == ")") break;
+  }
+  tokens.expect(")");
+
+  node->stmt = compound(tokens);
+
+  return node;
+}
+
+Node* compound(Tokens& tokens) {
+  Node* node = new Node(Node::Type::Compound);
+  tokens.expect("{");
+  while(tokens.head() != "}") {
+    node->childs.push_back(stmt(tokens));
+  }
+  tokens.expect("}");
   return node;
 }
 
 Node* stmt(Tokens& tokens) {
   if(tokens.consume(";")) {
     return new Node(Node::Type::Statement);
-  } else if(tokens.consume("{")) {
-    Node* node = stmt(tokens);
-    while(tokens.head() != "}") {
-      node = new Node(Node::Type::CompoundStmt, node, stmt(tokens));
-    }
-    tokens.expect("}");
-    return node;
+  } else if(tokens.head() == "{") {
+    return compound(tokens);
   } else if(tokens.consume("if")) {
     Node* if_node = new Node(Node::Type::If);
     tokens.expect("(");
@@ -142,8 +169,22 @@ Node* stmt(Tokens& tokens) {
     tokens.expect(")");
     for_node->stmt = stmt(tokens);
     return for_node;
+  } else if(tokens.consume("continue")) {
+    Node* continue_node = new Node(Node::Type::Continue);
+    tokens.expect(";");
+    return continue_node;
+  } else if(tokens.consume("break")) {
+    Node* break_node = new Node(Node::Type::Break);
+    tokens.expect(";");
+    return break_node;
+  } else if(tokens.consume("return")) {
+    Node* return_node = new Node(Node::Type::Return);
+    return_node->stmt = expr(tokens);
+    tokens.expect(";");
+    return return_node;
   } else {
-    Node* node = expr(tokens);
+    Node* node = new Node(Node::Type::Statement);
+    node->stmt = expr(tokens);
     tokens.expect(";");
     return node;
   }
@@ -297,6 +338,7 @@ Node* prim(Tokens& tokens) {
     tokens.pop();
     return node;
   } else if(tokens.type_is(Token::Type::Identifier)) {
+    return ident(tokens);
     Node* node = new Node(tokens.at(0).str);
     tokens.pop();
     return node;
@@ -304,4 +346,10 @@ Node* prim(Tokens& tokens) {
     error("Expected Primitive: " + tokens.head());
     return nullptr;
   }
+}
+
+Node* ident(Tokens& tokens) {
+  Node* node = new Node(tokens.head());
+  tokens.pop();
+  return node;
 }

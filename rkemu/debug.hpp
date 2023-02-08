@@ -15,6 +15,7 @@ public:
   bool use = false;
   std::string fname;
   void init(std::string);
+  bool is_intr(uint16_t);
 };
 
 struct DumpOption {
@@ -25,8 +26,10 @@ struct DumpOption {
 class DumpPoints : public std::map<uint16_t, DumpOption> {
 public:
   bool use = false;
+  bool all = false;
   std::string fname;
   void init(std::string);
+  bool is_dump(uint16_t);
 };
 namespace Debug {
 std::string dump(CPU&, DumpOption&);

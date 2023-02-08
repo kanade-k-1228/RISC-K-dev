@@ -1,0 +1,29 @@
+main(a,b,c){
+  a = 2;
+  b = 3;
+  c = a + b;
+  c = a - b;
+  c = a & b;
+  c = a | b;
+
+  if(a==1);
+
+  if(hoge){
+    a;
+  }else{
+    b;
+  }
+  while (i == 0){
+      a=a*i;
+      b=a*b;
+  }
+  do{
+      dodo = 0;
+  }while(a);
+
+  for(i=0;i<10;++i){
+      out = i;
+  }
+  
+  return c;
+}

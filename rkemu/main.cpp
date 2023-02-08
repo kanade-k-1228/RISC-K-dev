@@ -18,12 +18,22 @@ int main(int argc, char* argv[]) {
 
   // Init Emulator with Comandline options
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "d:i:ot")) != -1;) {
+  for(int opt; (opt = getopt(argc, argv, "d:i:ota")) != -1;) {
     if(opt == 'd') dump_points.init(optarg);
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'o') print_opr = true;
     if(opt == 't') interval_time = true;
-    if(opt == '?') std::cout << "rkemu [-o] [-t] [-s] [-d .dump] [-i .intr] .rk.bin" << std::endl;
+    if(opt == 'a') dump_points.all = true;
+    // if(opt == '?') {
+    //   std::cout << "rkemu [-o] [-t] [-s] [-a] [-d .dump] [-i .intr] .rk.bin" << std::endl
+    //             << "   t: interval Time         逐次実行します" << std::endl
+    //             << "   o: print Operatioin      命令を表示します" << std::endl
+    //             << "   a: dump All              全命令でダンプします" << std::endl
+    //             << "   d: Dump points file      ダンプ設定ファイル" << std::endl
+    //             << "   i: Interrupt points file 割り込み設定ファイル" << std::endl
+    //             << "   ?: option mannual" << std::endl;
+    //   return EXIT_SUCCESS;
+    // }
   }
   cpu.load_rom(argv[optind]);
 
@@ -49,7 +59,7 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
-    bool dump = dump_points.contains(pc);
+    bool dump = dump_points.is_dump(pc);
 
     // Print Debug Info
     if(print_opr || dump)
@@ -66,7 +76,7 @@ int main(int argc, char* argv[]) {
     // Interrupt
     cpu.jump_interrupt();
     cpu.catch_interrupt();
-    if(intr_points.contains(t)) cpu.external_interrupt(intr_points.at(t).ino);
+    if(intr_points.is_intr(t)) cpu.external_interrupt(intr_points.at(t).ino);
 
     // Exit
     if(exit) break;

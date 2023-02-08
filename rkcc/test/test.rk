@@ -1,0 +1,102 @@
+  loadi t0 2
+  store zero t0 a
+; ----------------
+  loadi t0 3
+  store zero t0 b
+; ----------------
+  load  t0 zero a
+  store sp t0 0
+  subi  sp sp 1
+  load  t0 zero b
+  addi  sp sp 1
+  load  t1 sp 0
+  add   t0 t0 t1
+  store zero t0 c
+; ----------------
+  load  t0 zero a
+  store sp t0 0
+  subi  sp sp 1
+  load  t0 zero b
+  addi  sp sp 1
+  load  t1 sp 0
+  sub   t0 t0 t1
+  store zero t0 c
+; ----------------
+  load  t0 zero a
+  store sp t0 0
+  subi  sp sp 1
+  load  t0 zero b
+  addi  sp sp 1
+  load  t1 sp 0
+; [t0 = (t0 & t1)]
+  store zero t0 c
+; ----------------
+  load  t0 zero a
+  store sp t0 0
+  subi  sp sp 1
+  load  t0 zero b
+  addi  sp sp 1
+  load  t1 sp 0
+; [t0 = (t0 | t1)]
+  store zero t0 c
+; ----------------
+  load  t0 zero a
+  store sp t0 0
+  subi  sp sp 1
+  loadi t0 1
+  addi  sp sp 1
+  load  t1 sp 0
+; [t0 = (t0 == t1)]
+  breq  t0 zero if_id_end
+  loadi t0 6
+  store zero t0 d
+if_id_end:
+; ----------------
+  load  t0 zero hoge
+  breq  t0 zero if_id_else
+  load  t0 zero a
+  jump  zero zero if_id_end
+if_id_else:
+  load  t0 zero b
+if_id_end:
+; ----------------
+while_id_continue:
+  load  t0 zero i
+  store sp t0 0
+  subi  sp sp 1
+  loadi t0 0
+  addi  sp sp 1
+  load  t1 sp 0
+; [t0 = (t0 == t1)]
+  breq  t0 zero while_id_break
+; Cannot Generate Asm
+  jump  zero zero while_id_continue
+while_id_break:
+; ----------------
+do_while_id_continue:
+  loadi t0 0
+  store zero t0 dodo
+  load  t0 zero a
+  breq  t0 zero do_while_id_break
+  jump  zero zero do_while_id_continue
+do_while_id_break:
+; ----------------
+  loadi t0 0
+  store zero t0 i
+for_id_check:
+  load  t0 zero i
+  store sp t0 0
+  subi  sp sp 1
+  loadi t0 10
+  addi  sp sp 1
+  load  t1 sp 0
+; [t0 = (t0 < t1)]
+  breq  t0 zero for_id_break
+  load  t0 zero i
+  store zero t0 out
+for_id_continue:
+  load  t0 zero i
+  addi  t0 t0 1
+  jump  zero zero for_id_check
+for_id_break:
+

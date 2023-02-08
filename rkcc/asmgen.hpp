@@ -2,6 +2,8 @@
 
 namespace Asm {
 extern std::vector<std::string> code;
+extern std::vector<std::string> global_var;  // グローバル変数リスト
+
 void comment(std::string comment);
 void label(std::string label);
 void add(std::string rd, std::string rs1, std::string rs2);
