@@ -29,8 +29,13 @@ std::string print(Node* node) {
     return ss.str();
   }
 
+  if(node->type == Node::Type::Type) {
+    for(auto n : node->childs) ss << print(n);
+    return ss.str();
+  }
+
   if(node->type == Node::Type::Func) {
-    ss << node->str << "(";
+    ss << print(node->ident_type) << " " << node->str << "(";
     for(auto n : node->childs) ss << n->str << ",";
     ss << ")" << print(node->stmt);
     return ss.str();
@@ -91,51 +96,46 @@ std::string print(Node* node) {
 
 Node* program(Tokens& tokens) {
   Node* root = new Node(Node::Type::Program);
-  while(!tokens.empty()) {
-    root->childs.push_back(func(tokens));
-  }
+  while(!tokens.empty()) root->childs.push_back(func(tokens));
   return root;
+}
+
+Node* type(Tokens& tokens) {
+  Node* node = new Node(Node::Type::Type);
+  node->childs.push_back(new Node(tokens.pop().str));
+  return node;
 }
 
 Node* func(Tokens& tokens) {
   Node* node = new Node(Node::Type::Func);
-  if(!tokens.type_is(Token::Type::Identifier))
-    error("Function start with Ident: " + tokens.head());
-
-  node->str = tokens.head();
-  tokens.pop();
-  tokens.expect("(");
-  for(; tokens.head() != ")"; tokens.pop()) {
+  node->ident_type = type(tokens);
+  node->str = tokens.pop().str;
+  if(!tokens.consume("(")) error("Expect (");
+  for(; !tokens.consume(")"); tokens.pop()) {
     node->childs.push_back(ident(tokens));
-    if(tokens.head() == ")") break;
+    if(tokens.consume(")")) break;
   }
-  tokens.expect(")");
-
   node->stmt = compound(tokens);
-
   return node;
 }
 
 Node* compound(Tokens& tokens) {
   Node* node = new Node(Node::Type::Compound);
-  tokens.expect("{");
-  while(tokens.head() != "}") {
-    node->childs.push_back(stmt(tokens));
-  }
-  tokens.expect("}");
+  if(!tokens.consume("{")) error("Expect {");
+  while(!tokens.consume("}")) node->childs.push_back(stmt(tokens));
   return node;
 }
 
 Node* stmt(Tokens& tokens) {
   if(tokens.consume(";")) {
     return new Node(Node::Type::Statement);
-  } else if(tokens.head() == "{") {
+  } else if(tokens.head_is("{")) {
     return compound(tokens);
   } else if(tokens.consume("if")) {
     Node* if_node = new Node(Node::Type::If);
-    tokens.expect("(");
+    tokens.consume("(");
     if_node->cond = expr(tokens);
-    tokens.expect(")");
+    tokens.consume(")");
     if_node->true_stmt = stmt(tokens);
     if(tokens.consume("else")) {
       if_node->type = Node::Type::IfElse;
@@ -144,48 +144,48 @@ Node* stmt(Tokens& tokens) {
     return if_node;
   } else if(tokens.consume("while")) {
     Node* while_node = new Node(Node::Type::While);
-    tokens.expect("(");
+    tokens.consume("(");
     while_node->cond = expr(tokens);
-    tokens.expect(")");
+    tokens.consume(")");
     while_node->stmt = stmt(tokens);
     return while_node;
   } else if(tokens.consume("do")) {
     Node* do_while_node = new Node(Node::Type::DoWhile);
     do_while_node->stmt = stmt(tokens);
-    tokens.expect("while");
-    tokens.expect("(");
+    tokens.consume("while");
+    tokens.consume("(");
     do_while_node->cond = expr(tokens);
-    tokens.expect(")");
-    tokens.expect(";");
+    tokens.consume(")");
+    tokens.consume(";");
     return do_while_node;
   } else if(tokens.consume("for")) {
     Node* for_node = new Node(Node::Type::For);
-    tokens.expect("(");
+    tokens.consume("(");
     for_node->init = expr(tokens);
-    tokens.expect(";");
+    tokens.consume(";");
     for_node->cond = expr(tokens);
-    tokens.expect(";");
+    tokens.consume(";");
     for_node->iterate = expr(tokens);
-    tokens.expect(")");
+    tokens.consume(")");
     for_node->stmt = stmt(tokens);
     return for_node;
   } else if(tokens.consume("continue")) {
     Node* continue_node = new Node(Node::Type::Continue);
-    tokens.expect(";");
+    tokens.consume(";");
     return continue_node;
   } else if(tokens.consume("break")) {
     Node* break_node = new Node(Node::Type::Break);
-    tokens.expect(";");
+    tokens.consume(";");
     return break_node;
   } else if(tokens.consume("return")) {
     Node* return_node = new Node(Node::Type::Return);
     return_node->stmt = expr(tokens);
-    tokens.expect(";");
+    tokens.consume(";");
     return return_node;
   } else {
     Node* node = new Node(Node::Type::Statement);
     node->stmt = expr(tokens);
-    tokens.expect(";");
+    tokens.consume(";");
     return node;
   }
 }
@@ -207,7 +207,7 @@ Node* cond(Tokens& tokens) {
   Node* node = logical_or(tokens);
   if(tokens.consume("?")) {
     Node* true_expr = expr(tokens);
-    tokens.expect(":");
+    tokens.consume(":");
     Node* false_expr = cond(tokens);
     node = new Node(Node::Type::Cond, node, true_expr, false_expr);
   }
@@ -331,25 +331,21 @@ Node* post(Tokens& tokens) {
 Node* prim(Tokens& tokens) {
   if(tokens.consume("(")) {
     Node* node = expr(tokens);
-    tokens.expect(")");
+    tokens.consume(")");
     return node;
-  } else if(tokens.type_is(Token::Type::Number)) {
-    Node* node = new Node(tokens.at(0).val);
+  } else if(tokens.head().type_is(Token::Type::Number)) {
+    Node* node = new Node(tokens.head().val);
     tokens.pop();
     return node;
-  } else if(tokens.type_is(Token::Type::Identifier)) {
+  } else if(tokens.head().type_is(Token::Type::Identifier)) {
     return ident(tokens);
-    Node* node = new Node(tokens.at(0).str);
+    Node* node = new Node(tokens.head().str);
     tokens.pop();
     return node;
   } else {
-    error("Expected Primitive: " + tokens.head());
+    error("Expected Primitive: " + tokens.head().str);
     return nullptr;
   }
 }
 
-Node* ident(Tokens& tokens) {
-  Node* node = new Node(tokens.head());
-  tokens.pop();
-  return node;
-}
+Node* ident(Tokens& tokens) { return new Node(tokens.pop().str); }

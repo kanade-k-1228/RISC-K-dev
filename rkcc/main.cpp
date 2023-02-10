@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
   Tokens tokens;
   while(std::getline(fin, line))
     tokenize(line, tokens);
+  for(auto t : tokens.tokens) std::cout << t.print();
+  std::cout << std::endl;
 
   // 構文木
   Node* root = program(tokens);

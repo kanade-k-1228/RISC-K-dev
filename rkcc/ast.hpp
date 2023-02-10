@@ -6,6 +6,7 @@ class Node {
 public:
   enum class Type {
     Program,
+    Type,
     Func,
     Compound,
     Statement,
@@ -56,23 +57,30 @@ public:
   Node* iterate = nullptr;              // for の後処理
   Node* true_stmt = nullptr;            // if の本体
   Node* false_stmt = nullptr;           // else の本体
+  Node* ident_type = nullptr;           // 型
   int val;
   std::string str;
-  uint16_t addr;  // 評価値のアドレス
+  uint16_t addr;  // アドレス
   uint16_t reg;   // レジスタ
 
   // ノードのコンストラクタ
+  Node(Type type);
   Node(Type type, Node* cond, Node* lhs, Node* rhs);  // 三項演算子
   Node(Type type, Node* lhs, Node* rhs);              // 二項演算子
   Node(Type type, Node* lhs);                         // 単項演算子
-  Node(Type type);                                    // 末端
   Node(int val);                                      // 定数値
   Node(std::string ident);                            // 識別子
+
+  void add_child(Node* node) { childs.push_back(node); }
+
+  Node* get_lhs();
+  Node* get_rhs();
 };
 
 std::string print(Node* node);
 
 Node* program(Tokens&);
+Node* type(Tokens&);
 Node* func(Tokens&);
 Node* compound(Tokens&);
 
