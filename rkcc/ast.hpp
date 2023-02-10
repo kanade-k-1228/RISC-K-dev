@@ -6,7 +6,15 @@ class Node {
 public:
   enum class Type {
     Program,
+    // Type
     Type,
+    TypeFunc,
+    TypeUnion,
+    TypeStruct,
+    TypeArray,
+    TypePointer,
+    TypePrim,
+    // Func
     Func,
     Compound,
     // Program Flow
@@ -90,6 +98,8 @@ std::string print(Node* node);
 
 Node* program(Tokens&);
 Node* type(Tokens&);
+Node* type_struct(Tokens&);
+
 Node* func(Tokens&);
 Node* compound(Tokens&);
 

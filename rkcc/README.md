@@ -4,6 +4,7 @@ RISC-K 用の C コンパイラ
 
 - [RKCC](#rkcc)
 - [特徴](#特徴)
+  - [型システム](#型システム)
 - [作業日誌](#作業日誌)
   - [11/10](#1110)
   - [11/13](#1113)
@@ -14,7 +15,7 @@ RISC-K 用の C コンパイラ
   - [2/10](#210)
     - [配列](#配列)
 - [実装すること](#実装すること)
-  - [変数リストd](#変数リストd)
+  - [変数リスト d](#変数リスト-d)
   - [関数定義](#関数定義)
   - [関数呼出](#関数呼出)
   - [アセンブリの生成](#アセンブリの生成)
@@ -38,11 +39,33 @@ RISC-K 用の C コンパイラ
 
 # 特徴
 
-- 型
-  - 型は int = uint16 のみ
-  - ポインタも 16bit
-  - const, volatile
-- 構造体
+## 型システム
+
+|          | TypedC                            |
+| -------- | --------------------------------- |
+| primary  | `int`                             |
+| pointer  | `int*`                            |
+| array 　 | `int[N]`                          |
+| struct   | `{m0 : int, m1 : int}`            |
+| func 　  | `(a0 : int, a1 : int*[N]) => int` |
+
+```
+type =
+type_func    = "(" ident ":" type % "," ")" "=>" type
+type_struct  = "{" ident ":" type % "," "}"
+type_array   = type "[" expr "]"
+type_pointer = type "*"
+type_prim    = "(" type ")" | ident
+```
+
+|            | 記法                                                     |
+| ---------- | -------------------------------------------------------- |
+| 変数宣言   | `extern hoge : int;`                                     |
+| 変数定義   | `var hoge : int;`                                        |
+| 変数初期化 | `const hoge : int = 10;`                                 |
+| 関数宣言   | `extern hoge : (int, int) => int;`                       |
+| 関数定義   | `const hoge : (a : int, b : int) => int { return a+b; }` |
+| 型定義     | `type position : {x : int, y : int};`                    |
 
 # 作業日誌
 
@@ -135,27 +158,11 @@ func = type ident "(" type ident % "," ")" compound
 
 ## 2/10
 
-- ASTの子供を一つのvectorにまとめた
-- 配列とポインタ型の実装
-
-| C           | 意味                  |
-| ----------- | --------------------- |
-| `int a`     | `int a`               |
-| `int* a`    | `ptr<int> a`          |
-| `int** a`   | `ptr<ptr<int>> a`     |
-| `int a[N]`  | `array<int,N> a`      |
-| `int* a[N]` | `array<ptr<int>,N> a` |
+- AST の子供を一つの vector にまとめた
+- 型演算
 
 ```
-type_ident = type ident array
-```
 
-C言語の型は識別子にまたがっているので
-
-```
-typed
-|- type
-|- ident
 ```
 
 ### 配列
@@ -176,7 +183,7 @@ typed
 
 # 実装すること
 
-## 変数リストd
+## 変数リスト d
 
 ## 関数定義
 

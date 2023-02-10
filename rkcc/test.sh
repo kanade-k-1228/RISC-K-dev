@@ -4,4 +4,3 @@ cd ..
 rkcc test/test1.c
 rkcc test/test2.c
 rkcc test/test3.c
-rkcc test/test4.c

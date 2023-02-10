@@ -23,6 +23,6 @@ void breq(std::string rs1, std::string rs2, std::string label);
 void push(std::string reg);
 void pop(std::string reg);
 std::string print();
-};  // namespace Asm
 
 void asembly(Node* node);
+};  // namespace Asm

@@ -16,6 +16,9 @@ std::string print(Node* node) {
     return ss.str();
   }
 
+  if(node->type == Node::Type::TypeFunc) {
+  }
+
   if(node->type == Node::Type::Func) {
     ss << print(node->func_type()) << " " << print(node->func_name()) << "(";
     for(auto n : node->func_args()) ss << print(n) << ",";
@@ -83,9 +86,33 @@ Node* program(Tokens& tokens) {
 }
 
 Node* type(Tokens& tokens) {
-  Node* node = new Node(Node::Type::Type);
-  node->add_child(new Node(tokens.pop().str));
-  return node;
+  if(tokens.consume("{")) {
+    Node* node_struct = new Node(Node::Type::TypeStruct);
+    while(!tokens.consume("}")) {
+      node_struct->add_child(type(tokens));   // Member Type
+      node_struct->add_child(ident(tokens));  // Member Name
+      if(tokens.consume(",")) continue;
+      if(tokens.consume("}")) break;
+    }
+    if(tokens.consume("=>"))
+      return new Node(Node::Type::TypeFunc, {node_struct, type(tokens)});
+    else
+      return new Node(Node::Type::TypeStruct, {node_struct});
+  } else if(tokens.consume("[")) {
+    Node* base_type = type(tokens);
+    Node* array_len = expr(tokens);
+    tokens.consume("]");
+    return new Node(Node::Type::TypeArray, {base_type, array_len});
+  } else if(tokens.consume("@")) {
+    return new Node(Node::Type::TypePointer, {type(tokens)});
+  } else if(tokens.consume("(")) {
+    Node* ret = type(tokens);
+    tokens.consume(")");
+    return ret;
+  } else if(tokens.head().type_is(Token::Type::Identifier)) {
+    return new Node(tokens.pop().str);
+  }
+  return nullptr;
 }
 
 Node* func(Tokens& tokens) {
@@ -96,8 +123,8 @@ Node* func(Tokens& tokens) {
   while(!tokens.consume(")")) {
     node->add_child(type(tokens));   // Arg Type
     node->add_child(ident(tokens));  // Arg Name
+    if(tokens.consume(",")) continue;
     if(tokens.consume(")")) break;
-    tokens.consume(",");
   }
   node->add_child(compound(tokens));  // Function Body
   return node;

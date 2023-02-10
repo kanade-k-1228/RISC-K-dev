@@ -34,7 +34,6 @@ std::string print() {
   for(auto line : code) ss << line << std::endl;
   return ss.str();
 }
-};  // namespace Asm
 
 void asembly(Node* node) {
   if(node->type == Node::Type::Program) {
@@ -47,7 +46,7 @@ void asembly(Node* node) {
     // 値は一時レジスタ t0 に入っているので，左辺に代入する
     // 代入式の左辺はレジスタまたはメモリアドレスである必要がある
     if(node->lhs()->type == Node::Type::Ident) {
-      Asm::store("t0", "zero", node->lhs()->str);
+      store("t0", "zero", node->lhs()->str);
     }
     return;
   }
@@ -58,15 +57,15 @@ void asembly(Node* node) {
     // 条件式を評価
     asembly(node->tri_cond());
     // 条件値はt0に入っている
-    Asm::breq("t0", "zero", cond + "_false");
+    breq("t0", "zero", cond + "_false");
     // True
     asembly(node->tri_true());
-    Asm::jump("zero", "zero", cond + "_end");
+    jump("zero", "zero", cond + "_end");
     // False
-    Asm::label(cond + "_false");
+    label(cond + "_false");
     asembly(node->tri_true());
     // End
-    Asm::label(cond + "_end");
+    label(cond + "_end");
     return;
   }
 
@@ -90,45 +89,45 @@ void asembly(Node* node) {
      || node->type == Node::Type::Div
      || node->type == Node::Type::Mod) {
     asembly(node->lhs());  // 左辺値を評価し
-    Asm::push("t0");       // スタックに退避
+    push("t0");            // スタックに退避
     asembly(node->rhs());  // 右辺値を評価
-    Asm::pop("t1");        // 左辺値を戻す
+    pop("t1");             // 左辺値を戻す
 
-    if(node->type == Node::Type::LogicalOr) Asm::comment("[t0 = (t0 || t1)]");
-    if(node->type == Node::Type::LogicalAnd) Asm::comment("[t0 = (t0 && t1)]");
+    if(node->type == Node::Type::LogicalOr) comment("[t0 = (t0 || t1)]");
+    if(node->type == Node::Type::LogicalAnd) comment("[t0 = (t0 && t1)]");
 
-    if(node->type == Node::Type::BitOr) Asm::comment("[t0 = (t0 | t1)]");
-    if(node->type == Node::Type::BitXor) Asm::comment("[t0 = (t0 ^ t1)]");
-    if(node->type == Node::Type::BitAnd) Asm::comment("[t0 = (t0 & t1)]");
+    if(node->type == Node::Type::BitOr) comment("[t0 = (t0 | t1)]");
+    if(node->type == Node::Type::BitXor) comment("[t0 = (t0 ^ t1)]");
+    if(node->type == Node::Type::BitAnd) comment("[t0 = (t0 & t1)]");
 
-    if(node->type == Node::Type::EQ) Asm::comment("[t0 = (t0 == t1)]");
-    if(node->type == Node::Type::NEQ) Asm::comment("[t0 = (t0 != t1)]");
-    if(node->type == Node::Type::LT) Asm::comment("[t0 = (t0 < t1)]");
-    if(node->type == Node::Type::LEQ) Asm::comment("[t0 = (t0 <= t1)]");
-    if(node->type == Node::Type::GT) Asm::comment("[t0 = (t0 > t1)]");
-    if(node->type == Node::Type::GEQ) Asm::comment("[t0 = (t0 >= t1)]");
+    if(node->type == Node::Type::EQ) comment("[t0 = (t0 == t1)]");
+    if(node->type == Node::Type::NEQ) comment("[t0 = (t0 != t1)]");
+    if(node->type == Node::Type::LT) comment("[t0 = (t0 < t1)]");
+    if(node->type == Node::Type::LEQ) comment("[t0 = (t0 <= t1)]");
+    if(node->type == Node::Type::GT) comment("[t0 = (t0 > t1)]");
+    if(node->type == Node::Type::GEQ) comment("[t0 = (t0 >= t1)]");
 
-    if(node->type == Node::Type::RShift) Asm::comment("[t0 = (t0 >> t1)]");
-    if(node->type == Node::Type::LShift) Asm::comment("[t0 = (t0 << t1)]");
+    if(node->type == Node::Type::RShift) comment("[t0 = (t0 >> t1)]");
+    if(node->type == Node::Type::LShift) comment("[t0 = (t0 << t1)]");
 
-    if(node->type == Node::Type::Add) Asm::add("t0", "t0", "t1");
-    if(node->type == Node::Type::Sub) Asm::sub("t0", "t0", "t1");
+    if(node->type == Node::Type::Add) add("t0", "t0", "t1");
+    if(node->type == Node::Type::Sub) sub("t0", "t0", "t1");
 
-    if(node->type == Node::Type::Mul) Asm::comment("[t0 = (t0 * t1)]");
-    if(node->type == Node::Type::Div) Asm::comment("[t0 = (t0 / t1)]");
-    if(node->type == Node::Type::Mod) Asm::comment("[t0 = (t0 % t1)]");
+    if(node->type == Node::Type::Mul) comment("[t0 = (t0 * t1)]");
+    if(node->type == Node::Type::Div) comment("[t0 = (t0 / t1)]");
+    if(node->type == Node::Type::Mod) comment("[t0 = (t0 % t1)]");
 
     return;
   }
 
   if(node->type == Node::Type::UnaryAdd) {
     asembly(node->lhs());
-    Asm::addi("t0", "t0", 1);
+    addi("t0", "t0", 1);
     return;
   }
   if(node->type == Node::Type::UnarySub) {
     asembly(node->lhs());
-    Asm::subi("t0", "t0", 1);
+    subi("t0", "t0", 1);
     return;
   }
 
@@ -137,18 +136,18 @@ void asembly(Node* node) {
 
   if(node->type == Node::Type::Num) {
     // 定数値
-    Asm::loadi("t0", node->val);
+    loadi("t0", node->val);
     return;
   }
 
   if(node->type == Node::Type::Ident) {
     // 変数の入ってるアドレスから値を取り出す
     // グローバル変数の場合
-    Asm::load("t0", "zero", node->str);
+    load("t0", "zero", node->str);
     return;
     // ローカル変数の場合
     std::string addr = "XXX";
-    Asm::load("t0", "fp", node->str);
+    load("t0", "fp", node->str);
     return;
   }
 
@@ -156,60 +155,61 @@ void asembly(Node* node) {
 
   if(node->type == Node::Type::If) {
     std::string if_id = "if_id";
-    asembly(node->ctrl_cond());               // 条件式を評価
-    Asm::breq("t0", "zero", if_id + "_end");  // 分岐
-    asembly(node->ctrl_true());               // true の処理
-    Asm::label(if_id + "_end");               // if の最後
+    asembly(node->ctrl_cond());          // 条件式を評価
+    breq("t0", "zero", if_id + "_end");  // 分岐
+    asembly(node->ctrl_true());          // true の処理
+    label(if_id + "_end");               // if の最後
     return;
   }
 
   if(node->type == Node::Type::IfElse) {
     std::string if_id = "if_id";
-    asembly(node->ctrl_cond());                 // 条件式を評価
-    Asm::breq("t0", "zero", if_id + "_else");   // 分岐
-    asembly(node->ctrl_true());                 // true の処理
-    Asm::jump("zero", "zero", if_id + "_end");  // else を飛ばす
-    Asm::label(if_id + "_else");                // else:
-    asembly(node->ctrl_false());                // else の処理
-    Asm::label(if_id + "_end");                 // if - else の最後
+    asembly(node->ctrl_cond());            // 条件式を評価
+    breq("t0", "zero", if_id + "_else");   // 分岐
+    asembly(node->ctrl_true());            // true の処理
+    jump("zero", "zero", if_id + "_end");  // else を飛ばす
+    label(if_id + "_else");                // else:
+    asembly(node->ctrl_false());           // else の処理
+    label(if_id + "_end");                 // if - else の最後
     return;
   }
 
   if(node->type == Node::Type::While) {
     std::string while_id = "while_id";
-    Asm::label(while_id + "_continue");
-    asembly(node->ctrl_cond());                    // 条評価
-    Asm::breq("t0", "zero", while_id + "_break");  // 分岐
-    asembly(node->ctrl_body());                    // ループ処理
-    Asm::jump("zero", "zero", while_id + "_continue");
-    Asm::label(while_id + "_break");
+    label(while_id + "_continue");
+    asembly(node->ctrl_cond());               // 条評価
+    breq("t0", "zero", while_id + "_break");  // 分岐
+    asembly(node->ctrl_body());               // ループ処理
+    jump("zero", "zero", while_id + "_continue");
+    label(while_id + "_break");
     return;
   }
 
   if(node->type == Node::Type::DoWhile) {
     std::string do_while_id = "do_while_id";
-    Asm::label(do_while_id + "_continue");
-    asembly(node->ctrl_body());                            // ループ処理
-    asembly(node->ctrl_cond());                            // 条件評価
-    Asm::breq("t0", "zero", do_while_id + "_break");       // 分岐
-    Asm::jump("zero", "zero", do_while_id + "_continue");  // ループを続ける
-    Asm::label(do_while_id + "_break");
+    label(do_while_id + "_continue");
+    asembly(node->ctrl_body());                       // ループ処理
+    asembly(node->ctrl_cond());                       // 条件評価
+    breq("t0", "zero", do_while_id + "_break");       // 分岐
+    jump("zero", "zero", do_while_id + "_continue");  // ループを続ける
+    label(do_while_id + "_break");
     return;
   }
 
   if(node->type == Node::Type::For) {
     std::string for_id = "for_id";
     asembly(node->ctrl_init());  // 初期化処理
-    Asm::label(for_id + "_check");
-    asembly(node->ctrl_cond());                  // 条件評価
-    Asm::breq("t0", "zero", for_id + "_break");  // 分岐
-    asembly(node->ctrl_body());                  // ループ処理
-    Asm::label(for_id + "_continue");
-    asembly(node->ctrl_iterate());                 // 反復処理
-    Asm::jump("zero", "zero", for_id + "_check");  // 条件確認に戻る
-    Asm::label(for_id + "_break");
+    label(for_id + "_check");
+    asembly(node->ctrl_cond());             // 条件評価
+    breq("t0", "zero", for_id + "_break");  // 分岐
+    asembly(node->ctrl_body());             // ループ処理
+    label(for_id + "_continue");
+    asembly(node->ctrl_iterate());            // 反復処理
+    jump("zero", "zero", for_id + "_check");  // 条件確認に戻る
+    label(for_id + "_break");
     return;
   }
 
-  Asm::comment("Cannot Generate Asm");
+  comment("Cannot Generate Asm");
 }
+};  // namespace Asm
