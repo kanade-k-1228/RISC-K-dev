@@ -9,7 +9,6 @@ public:
     Type,
     Func,
     Compound,
-    Statement,
     // Program Flow
     If,
     IfElse,
@@ -20,6 +19,7 @@ public:
     Break,
     Return,
     // Statement
+    Expr,
     Assignment,  // =
     Cond,
     LogicalOr,
@@ -49,32 +49,41 @@ public:
   };
 
   Type type;
-  std::vector<Node*> childs;            // 子ノード
-  Node *lhs = nullptr, *rhs = nullptr;  // 演算子の左辺・右辺
-  Node* cond = nullptr;                 // cond, for, while, if の条件文
-  Node* init = nullptr;                 // for の前処理
-  Node* stmt = nullptr;                 // for, while の本体
-  Node* iterate = nullptr;              // for の後処理
-  Node* true_stmt = nullptr;            // if の本体
-  Node* false_stmt = nullptr;           // else の本体
-  Node* ident_type = nullptr;           // 型
-  int val;
-  std::string str;
-  uint16_t addr;  // アドレス
-  uint16_t reg;   // レジスタ
+  std::vector<Node*> childs;  // 子ノード
+  int val;                    // 数値
+  std::string str;            // 文字列
 
   // ノードのコンストラクタ
-  Node(Type type);
-  Node(Type type, Node* cond, Node* lhs, Node* rhs);  // 三項演算子
-  Node(Type type, Node* lhs, Node* rhs);              // 二項演算子
-  Node(Type type, Node* lhs);                         // 単項演算子
-  Node(int val);                                      // 定数値
-  Node(std::string ident);                            // 識別子
+  Node(Type type) : type(type) {}
+  Node(Type type, std::vector<Node*> childs) : type(type), childs(childs) {}
+  Node(int val) : type(Type::Num), val(val) {}                // 定数値
+  Node(std::string ident) : type(Type::Ident), str(ident) {}  // 識別子
 
   void add_child(Node* node) { childs.push_back(node); }
 
-  Node* get_lhs();
-  Node* get_rhs();
+  Node* func_type() { return childs.at(0); }
+  Node* func_name() { return childs.at(1); }
+  std::vector<Node*> func_args() { return std::vector<Node*>(childs.begin() + 2, childs.end() - 1); }
+  Node* func_stmt() { return childs.at(childs.size() - 1); }
+
+  Node* ctrl_cond() { return type == Type::For ? childs.at(1) : childs.at(0); }  // 条件文
+  Node* ctrl_body() { return childs.at(1); }                                     // 本体
+  Node* ctrl_true() { return childs.at(1); }                                     // 真の処理
+  Node* ctrl_false() { return childs.at(2); }                                    // 偽の処理
+  Node* ctrl_init() { return childs.at(2); }                                     // 初期化処理
+  Node* ctrl_iterate() { return childs.at(2); }                                  // 次に進む処理
+
+  // 三項演算
+  Node* tri_cond() { return childs.at(0); }   // 条件文
+  Node* tri_true() { return childs.at(1); }   // 真
+  Node* tri_false() { return childs.at(2); }  // 偽
+
+  // 二項演算
+  Node* lhs() { return childs.at(0); };  // 左側
+  Node* rhs() { return childs.at(1); };  // 右側
+
+  // 単項演算
+  Node* child() { return childs.at(0); }
 };
 
 std::string print(Node* node);
@@ -102,4 +111,5 @@ Node* mul(Tokens&);
 Node* unary(Tokens&);
 Node* post(Tokens&);
 Node* prim(Tokens&);
+Node* num(Tokens&);
 Node* ident(Tokens&);

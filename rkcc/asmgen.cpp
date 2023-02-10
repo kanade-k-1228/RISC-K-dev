@@ -38,18 +38,16 @@ std::string print() {
 
 void asembly(Node* node) {
   if(node->type == Node::Type::Program) {
-    asembly(node->lhs);
-    Asm::comment("----------------");
-    asembly(node->rhs);
+    for(auto n : node->childs) asembly(n);
     return;
   }
   if(node->type == Node::Type::Assignment) {
     // 代入する値を計算する
-    asembly(node->rhs);
+    asembly(node->lhs());
     // 値は一時レジスタ t0 に入っているので，左辺に代入する
     // 代入式の左辺はレジスタまたはメモリアドレスである必要がある
-    if(node->lhs->type == Node::Type::Ident) {
-      Asm::store("t0", "zero", node->lhs->str);
+    if(node->lhs()->type == Node::Type::Ident) {
+      Asm::store("t0", "zero", node->lhs()->str);
     }
     return;
   }
@@ -58,15 +56,15 @@ void asembly(Node* node) {
   if(node->type == Node::Type::Cond) {
     std::string cond = "cond_id";
     // 条件式を評価
-    asembly(node->cond);
+    asembly(node->tri_cond());
     // 条件値はt0に入っている
     Asm::breq("t0", "zero", cond + "_false");
     // True
-    asembly(node->true_stmt);
+    asembly(node->tri_true());
     Asm::jump("zero", "zero", cond + "_end");
     // False
     Asm::label(cond + "_false");
-    asembly(node->false_stmt);
+    asembly(node->tri_true());
     // End
     Asm::label(cond + "_end");
     return;
@@ -91,10 +89,10 @@ void asembly(Node* node) {
      || node->type == Node::Type::Mul
      || node->type == Node::Type::Div
      || node->type == Node::Type::Mod) {
-    asembly(node->lhs);  // 左辺値を評価し
-    Asm::push("t0");     // スタックに退避
-    asembly(node->rhs);  // 右辺値を評価
-    Asm::pop("t1");      // 左辺値を戻す
+    asembly(node->lhs());  // 左辺値を評価し
+    Asm::push("t0");       // スタックに退避
+    asembly(node->rhs());  // 右辺値を評価
+    Asm::pop("t1");        // 左辺値を戻す
 
     if(node->type == Node::Type::LogicalOr) Asm::comment("[t0 = (t0 || t1)]");
     if(node->type == Node::Type::LogicalAnd) Asm::comment("[t0 = (t0 && t1)]");
@@ -124,12 +122,12 @@ void asembly(Node* node) {
   }
 
   if(node->type == Node::Type::UnaryAdd) {
-    asembly(node->lhs);
+    asembly(node->lhs());
     Asm::addi("t0", "t0", 1);
     return;
   }
   if(node->type == Node::Type::UnarySub) {
-    asembly(node->lhs);
+    asembly(node->lhs());
     Asm::subi("t0", "t0", 1);
     return;
   }
@@ -158,21 +156,21 @@ void asembly(Node* node) {
 
   if(node->type == Node::Type::If) {
     std::string if_id = "if_id";
-    asembly(node->cond);                      // 条件式を評価
+    asembly(node->ctrl_cond());               // 条件式を評価
     Asm::breq("t0", "zero", if_id + "_end");  // 分岐
-    asembly(node->true_stmt);                 // true の処理
+    asembly(node->ctrl_true());               // true の処理
     Asm::label(if_id + "_end");               // if の最後
     return;
   }
 
   if(node->type == Node::Type::IfElse) {
     std::string if_id = "if_id";
-    asembly(node->cond);                        // 条件式を評価
+    asembly(node->ctrl_cond());                 // 条件式を評価
     Asm::breq("t0", "zero", if_id + "_else");   // 分岐
-    asembly(node->true_stmt);                   // true の処理
+    asembly(node->ctrl_true());                 // true の処理
     Asm::jump("zero", "zero", if_id + "_end");  // else を飛ばす
     Asm::label(if_id + "_else");                // else:
-    asembly(node->false_stmt);                  // else の処理
+    asembly(node->ctrl_false());                // else の処理
     Asm::label(if_id + "_end");                 // if - else の最後
     return;
   }
@@ -180,9 +178,9 @@ void asembly(Node* node) {
   if(node->type == Node::Type::While) {
     std::string while_id = "while_id";
     Asm::label(while_id + "_continue");
-    asembly(node->cond);                           // 条評価
+    asembly(node->ctrl_cond());                    // 条評価
     Asm::breq("t0", "zero", while_id + "_break");  // 分岐
-    asembly(node->stmt);                           // ループ処理
+    asembly(node->ctrl_body());                    // ループ処理
     Asm::jump("zero", "zero", while_id + "_continue");
     Asm::label(while_id + "_break");
     return;
@@ -191,8 +189,8 @@ void asembly(Node* node) {
   if(node->type == Node::Type::DoWhile) {
     std::string do_while_id = "do_while_id";
     Asm::label(do_while_id + "_continue");
-    asembly(node->stmt);                                   // ループ処理
-    asembly(node->cond);                                   // 条件評価
+    asembly(node->ctrl_body());                            // ループ処理
+    asembly(node->ctrl_cond());                            // 条件評価
     Asm::breq("t0", "zero", do_while_id + "_break");       // 分岐
     Asm::jump("zero", "zero", do_while_id + "_continue");  // ループを続ける
     Asm::label(do_while_id + "_break");
@@ -201,13 +199,13 @@ void asembly(Node* node) {
 
   if(node->type == Node::Type::For) {
     std::string for_id = "for_id";
-    asembly(node->init);  // 初期化処理
+    asembly(node->ctrl_init());  // 初期化処理
     Asm::label(for_id + "_check");
-    asembly(node->cond);                         // 条件評価
+    asembly(node->ctrl_cond());                  // 条件評価
     Asm::breq("t0", "zero", for_id + "_break");  // 分岐
-    asembly(node->stmt);                         // ループ処理
+    asembly(node->ctrl_body());                  // ループ処理
     Asm::label(for_id + "_continue");
-    asembly(node->iterate);                        // 反復処理
+    asembly(node->ctrl_iterate());                 // 反復処理
     Asm::jump("zero", "zero", for_id + "_check");  // 条件確認に戻る
     Asm::label(for_id + "_break");
     return;

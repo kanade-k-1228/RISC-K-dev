@@ -73,7 +73,6 @@ prim = num | ident | "(" expr ")"
 
 - 文の実装
 - 代入の実装
-- 現時点での文法
 
 ```
 program = stmt*
@@ -390,19 +389,19 @@ stmt = expr? ";" // expr : 式文
 | ------------ | -------- | --------- | ---------- | ----- |
 | Program      |          |           |            |       |
 | Type         |          |           |            |       |
-| Func         | type     | name      | args[]     | child |
-| Compound     | stmt[]   |           |            |       |
-| Stmt         | child    |           |            |       |
-| 制御文       |          |           |            |       |
+| Func         | type     | name      | compound   | arg[] |
+| Compound     | stmt[]   | -         | -          | -     |
+| 文 : stmt    |          |           |            |       |
+| Stmt         | expr?    | -         | -          | -     |
 | If           | cond     | true_node | -          | -     |
 | IfElse       | cond     | true_node | false_node | -     |
-| While        | cond     | child     | -          | -     |
-| DoWhile      | cond     | child     | -          | -     |
-| For          | init     | cond      | iterate    | child |
+| While        | cond     | body      | -          | -     |
+| DoWhile      | cond     | body      | -          | -     |
+| For          | init     | cond      | iterate    | body  |
 | Continue     | -        | -         | -          | -     |
 | Break        | -        | -         | -          | -     |
 | Return       | expr     | -         | -          | -     |
-| 式           |          |           |            |       |
-| 三項演算     | cond     | true_node | false_node |       |
-| 二項演算     | lhs      | rhs       |            |       |
-| 単項演算     | child    |           |            |       |
+| 式 : expr    |          |           |            |       |
+| 三項演算     | cond     | true_node | false_node | -     |
+| 二項演算     | lhs      | rhs       | -          | -     |
+| 単項演算     | child    | -         | -          | -     |
