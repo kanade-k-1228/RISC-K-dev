@@ -11,8 +11,10 @@ RISC-K 用の C コンパイラ
   - [11/16](#1116)
   - [2/8](#28)
   - [2/9](#29)
+  - [2/10](#210)
+    - [配列](#配列)
 - [実装すること](#実装すること)
-  - [変数リスト](#変数リスト)
+  - [変数リストd](#変数リストd)
   - [関数定義](#関数定義)
   - [関数呼出](#関数呼出)
   - [アセンブリの生成](#アセンブリの生成)
@@ -131,23 +133,50 @@ program = func*
 func = type ident "(" type ident % "," ")" compound
 ```
 
-C 言語の型は記法が複雑なので，ここでは簡単な記法を使う．
+## 2/10
 
-| C           | C--                   |
+- ASTの子供を一つのvectorにまとめた
+- 配列とポインタ型の実装
+
+| C           | 意味                  |
 | ----------- | --------------------- |
 | `int a`     | `int a`               |
-| `int* a`    | `ptr<Int> a`          |
-| `int* a`    | `ptr<ptr<int>> a`     |
+| `int* a`    | `ptr<int> a`          |
+| `int** a`   | `ptr<ptr<int>> a`     |
 | `int a[N]`  | `array<int,N> a`      |
 | `int* a[N]` | `array<ptr<int>,N> a` |
 
 ```
-type = ident ("<" type ("," num)? ">")?
+type_ident = type ident array
 ```
+
+C言語の型は識別子にまたがっているので
+
+```
+typed
+|- type
+|- ident
+```
+
+### 配列
+
+- 配列の定義は、コンパイル時にメモリの確保をする
+
+`int a[N]`
+
+を読み込んだ時に、コンパイラはメモリリソースカウンタを `sizeof(int)*N` 進める。
+
+- 配列は先頭へのポインタである
+
+`*a == a[0]`
+
+- 配列アクセスはメモリへの相対アクセスである
+
+`a[n] == *(a + n * sizeof(int))`
 
 # 実装すること
 
-## 変数リスト
+## 変数リストd
 
 ## 関数定義
 
@@ -385,23 +414,23 @@ stmt = expr? ";" // expr : 式文
 
 抽象構文木のノード一覧
 
-| `Node::Type` | `childs` |           |            |       |
-| ------------ | -------- | --------- | ---------- | ----- |
-| Program      |          |           |            |       |
-| Type         |          |           |            |       |
-| Func         | type     | name      | compound   | arg[] |
-| Compound     | stmt[]   | -         | -          | -     |
-| 文 : stmt    |          |           |            |       |
-| Stmt         | expr?    | -         | -          | -     |
-| If           | cond     | true_node | -          | -     |
-| IfElse       | cond     | true_node | false_node | -     |
-| While        | cond     | body      | -          | -     |
-| DoWhile      | cond     | body      | -          | -     |
-| For          | init     | cond      | iterate    | body  |
-| Continue     | -        | -         | -          | -     |
-| Break        | -        | -         | -          | -     |
-| Return       | expr     | -         | -          | -     |
-| 式 : expr    |          |           |            |       |
-| 三項演算     | cond     | true_node | false_node | -     |
-| 二項演算     | lhs      | rhs       | -          | -     |
-| 単項演算     | child    | -         | -          | -     |
+| `Node::Type` | `childs` |           |            |         |
+| ------------ | -------- | --------- | ---------- | ------- |
+| Program      |          |           |            |         |
+| Type         |          |           |            |         |
+| Func         | type     | name      | compound   | arg[]   |
+| Compound     | stmt[]   | -         | -          | -       |
+| 文 : stmt    |          |           |            |         |
+| Stmt         | expr?    | -         | -          | -       |
+| If           | cond     | true_node | -          | -       |
+| IfElse       | cond     | true_node | false_node | -       |
+| While        | cond     | body      | -          | -       |
+| DoWhile      | cond     | body      | -          | -       |
+| For          | cond     | body      | init       | iterate |
+| Continue     | -        | -         | -          | -       |
+| Break        | -        | -         | -          | -       |
+| Return       | expr     | -         | -          | -       |
+| 式 : expr    |          |           |            |         |
+| 三項演算     | cond     | true_node | false_node | -       |
+| 二項演算     | lhs      | rhs       | -          | -       |
+| 単項演算     | child    | -         | -          | -       |

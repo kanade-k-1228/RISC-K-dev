@@ -66,12 +66,12 @@ public:
   std::vector<Node*> func_args() { return std::vector<Node*>(childs.begin() + 2, childs.end() - 1); }
   Node* func_stmt() { return childs.at(childs.size() - 1); }
 
-  Node* ctrl_cond() { return type == Type::For ? childs.at(1) : childs.at(0); }  // 条件文
-  Node* ctrl_body() { return childs.at(1); }                                     // 本体
-  Node* ctrl_true() { return childs.at(1); }                                     // 真の処理
-  Node* ctrl_false() { return childs.at(2); }                                    // 偽の処理
-  Node* ctrl_init() { return childs.at(2); }                                     // 初期化処理
-  Node* ctrl_iterate() { return childs.at(2); }                                  // 次に進む処理
+  Node* ctrl_cond() { return childs.at(0); }     // 条件文
+  Node* ctrl_body() { return childs.at(1); }     // 本体
+  Node* ctrl_true() { return childs.at(1); }     // 真の処理
+  Node* ctrl_false() { return childs.at(2); }    // 偽の処理
+  Node* ctrl_init() { return childs.at(0); }     // 初期化処理
+  Node* ctrl_iterate() { return childs.at(3); }  // 次に進む処理
 
   // 三項演算
   Node* tri_cond() { return childs.at(0); }   // 条件文

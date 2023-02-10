@@ -148,7 +148,7 @@ Node* stmt(Tokens& tokens) {
     Node* for_iterate = expr(tokens);
     tokens.consume(")");
     Node* for_body = stmt(tokens);
-    return new Node(Node::Type::For, {for_init, for_cond, for_iterate, for_body});
+    return new Node(Node::Type::For, {for_cond, for_body, for_init, for_iterate});
   } else if(tokens.consume("continue")) {
     tokens.consume(";");
     return new Node(Node::Type::Continue);
