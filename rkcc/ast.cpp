@@ -6,30 +6,68 @@
 
 std::string print(Node* node) {
   std::stringstream ss;
-  if(node->type == Node::Type::Program) {
+  if(node->type_is(Node::Type::Program)) {
     for(auto n : node->childs) ss << print(n);
     return ss.str();
   }
 
-  if(node->type == Node::Type::Type) {
+  if(node->type_is(Node::Type::Type)) {
     for(auto n : node->childs) ss << print(n);
     return ss.str();
   }
 
-  if(node->type == Node::Type::TypeFunc) {
-  }
-
-  if(node->type == Node::Type::Func) {
-    ss << print(node->func_type()) << " " << print(node->func_name()) << "(";
-    for(auto n : node->func_args()) ss << print(n) << ",";
-    ss << ")" << print(node->func_stmt());
+  if(node->type_is(Node::Type::TypeFunc)) {
+    int arg_n = node->childs.size() / 2;
+    ss << "( ";
+    for(int i = 0; i < arg_n; ++i)
+      ss << print(node->childs.at(i * 2)) << " : "
+         << print(node->childs.at(i * 2 + 1))
+         << (i == arg_n - 1 ? " " : ", ");
+    ss << ") => " << print(node->childs.at(node->childs.size() - 1));
     return ss.str();
   }
 
-  if(node->type == Node::Type::Compound) {
+  if(node->type_is(Node::Type::TypeStruct)) {
+    int n_member = node->childs.size() / 2;
+    ss << "{ ";
+    for(int i = 0; i < n_member; ++i)
+      ss << print(node->childs.at(i * 2)) << " : "
+         << print(node->childs.at(i * 2 + 1))
+         << (i == n_member - 1 ? " " : ", ");
+    ss << "}";
+    return ss.str();
+  }
+
+  if(node->type_is(Node::Type::TypeArray)) {
+    ss << "[" << 99 << "]" << print(node->childs.at(0));
+    return ss.str();
+  }
+
+  if(node->type_is(Node::Type::TypePointer)) {
+    ss << "*" << print(node->childs.at(0));
+    return ss.str();
+  }
+
+  if(node->type_is(Node::Type::Func)) {
+    ss << "func " << print(node->func_name())
+       << " : " << print(node->func_type())
+       << " " << print(node->func_stmt());
+    return ss.str();
+  }
+
+  if(node->type_is(Node::Type::Compound)) {
     ss << "{" << std::endl;
     for(auto n : node->childs) ss << print(n) << std::endl;
     ss << "}";
+    return ss.str();
+  }
+
+  if(node->type_is(Node::Type::VarDef)) {
+    ss << "var " << print(node->childs.at(0))
+       << " : " << print(node->childs.at(1));
+    if(node->childs.size() > 2)
+      ss << " = " << print(node->childs.at(2));
+    ss << ";";
     return ss.str();
   }
 
@@ -86,30 +124,49 @@ Node* program(Tokens& tokens) {
 }
 
 Node* type(Tokens& tokens) {
+  // 構造体
   if(tokens.consume("{")) {
     Node* node_struct = new Node(Node::Type::TypeStruct);
     while(!tokens.consume("}")) {
-      node_struct->add_child(type(tokens));   // Member Type
       node_struct->add_child(ident(tokens));  // Member Name
+      tokens.consume(":");
+      node_struct->add_child(type(tokens));  // Member Type
       if(tokens.consume(",")) continue;
       if(tokens.consume("}")) break;
     }
-    if(tokens.consume("=>"))
-      return new Node(Node::Type::TypeFunc, {node_struct, type(tokens)});
-    else
-      return new Node(Node::Type::TypeStruct, {node_struct});
-  } else if(tokens.consume("[")) {
-    Node* base_type = type(tokens);
+    return node_struct;
+  }
+  if(tokens.consume("(")) {
+    int close = tokens.pair_bracket(1, "(", ")");
+    if(tokens.head(close + 1).str_is("=>")) {  // 関数
+      Node* node_func = new Node(Node::Type::TypeFunc);
+      while(!tokens.consume(")")) {
+        node_func->add_child(ident(tokens));  // Arg Name
+        tokens.consume(":");
+        node_func->add_child(type(tokens));  // Arg Type
+        if(tokens.consume(",")) continue;
+        if(tokens.consume(")")) break;
+      }
+      tokens.consume("=>");
+      node_func->add_child(type(tokens));  // Return Type
+      return node_func;
+    } else {  // 括弧
+      Node* node_child = new Node(Node::Type::Type, {type(tokens)});
+      tokens.consume(")");
+      return node_child;
+    }
+  }
+  if(tokens.consume("[")) {  // 配列
     Node* array_len = expr(tokens);
     tokens.consume("]");
+    Node* base_type = type(tokens);
     return new Node(Node::Type::TypeArray, {base_type, array_len});
-  } else if(tokens.consume("@")) {
+  }
+  if(tokens.consume("*")) {  // ポインタ
     return new Node(Node::Type::TypePointer, {type(tokens)});
-  } else if(tokens.consume("(")) {
-    Node* ret = type(tokens);
-    tokens.consume(")");
-    return ret;
-  } else if(tokens.head().type_is(Token::Type::Identifier)) {
+  }
+  // ベース型
+  if(tokens.head().type_is(Token::Type::Identifier)) {
     return new Node(tokens.pop().str);
   }
   return nullptr;
@@ -117,15 +174,10 @@ Node* type(Tokens& tokens) {
 
 Node* func(Tokens& tokens) {
   Node* node = new Node(Node::Type::Func);
-  node->add_child(type(tokens));   // Function Type
+  tokens.consume("func");
   node->add_child(ident(tokens));  // Function Name
-  tokens.consume("(");
-  while(!tokens.consume(")")) {
-    node->add_child(type(tokens));   // Arg Type
-    node->add_child(ident(tokens));  // Arg Name
-    if(tokens.consume(",")) continue;
-    if(tokens.consume(")")) break;
-  }
+  tokens.consume(":");
+  node->add_child(type(tokens));      // Function Type
   node->add_child(compound(tokens));  // Function Body
   return node;
 }
@@ -140,7 +192,7 @@ Node* compound(Tokens& tokens) {
 Node* stmt(Tokens& tokens) {
   if(tokens.consume(";")) {
     return new Node(Node::Type::Expr);
-  } else if(tokens.head_is("{")) {
+  } else if(tokens.head().str_is("{")) {
     return compound(tokens);
   } else if(tokens.consume("if")) {
     tokens.consume("(");
@@ -186,6 +238,14 @@ Node* stmt(Tokens& tokens) {
     Node* ret = expr(tokens);
     tokens.consume(";");
     return new Node(Node::Type::Return, {ret});
+  } else if(tokens.consume("var")) {
+    Node* var = new Node(Node::Type::VarDef);
+    var->add_child(ident(tokens));
+    tokens.consume(":");
+    var->add_child(type(tokens));
+    if(tokens.consume("=")) var->add_child(expr(tokens));
+    tokens.consume(";");
+    return var;
   } else {
     Node* body = expr(tokens);
     tokens.consume(";");

@@ -13,6 +13,7 @@ RISC-K 用の C コンパイラ
   - [2/8](#28)
   - [2/9](#29)
   - [2/10](#210)
+  - [2/12](#212)
     - [配列](#配列)
 - [実装すること](#実装すること)
   - [変数リスト d](#変数リスト-d)
@@ -41,21 +42,21 @@ RISC-K 用の C コンパイラ
 
 ## 型システム
 
-|          | TypedC                            |
-| -------- | --------------------------------- |
-| primary  | `int`                             |
-| pointer  | `int*`                            |
-| array 　 | `int[N]`                          |
-| struct   | `{m0 : int, m1 : int}`            |
-| func 　  | `(a0 : int, a1 : int*[N]) => int` |
+|          | TypedC                        |
+| -------- | ----------------------------- |
+| primary  | `int`                         |
+| pointer  | `*int`                        |
+| array 　 | `[N]int`                      |
+| struct   | `{m0 : int, m1 : int}`        |
+| func 　  | `(a0 : int, a1 : int) => int` |
 
 ```
 type =
-type_func    = "(" ident ":" type % "," ")" "=>" type
-type_struct  = "{" ident ":" type % "," "}"
-type_array   = type "[" expr "]"
-type_pointer = type "*"
-type_prim    = "(" type ")" | ident
+ | type_struct = "{" ident ":" type % "," "}"
+ | type_func   = "(" ident ":" type % "," ")" "=>" type
+ | type_prim   = "(" type ")" | ident
+ | type_single = type ( "*" | "[" expr "]" )*
+
 ```
 
 |            | 記法                                                     |
@@ -65,7 +66,7 @@ type_prim    = "(" type ")" | ident
 | 変数初期化 | `const hoge : int = 10;`                                 |
 | 関数宣言   | `extern hoge : (int, int) => int;`                       |
 | 関数定義   | `const hoge : (a : int, b : int) => int { return a+b; }` |
-| 型定義     | `type position : {x : int, y : int};`                    |
+| 型定義     | `type position : (x : int, y : int);`                    |
 
 # 作業日誌
 
@@ -161,8 +162,12 @@ func = type ident "(" type ident % "," ")" compound
 - AST の子供を一つの vector にまとめた
 - 型演算
 
-```
+## 2/12
 
+- 変数定義
+
+```
+stmt = var_def = "var" ident ("=" expr)?
 ```
 
 ### 配列
@@ -424,10 +429,17 @@ stmt = expr? ";" // expr : 式文
 | `Node::Type` | `childs` |           |            |         |
 | ------------ | -------- | --------- | ---------- | ------- |
 | Program      |          |           |            |         |
-| Type         |          |           |            |         |
-| Func         | type     | name      | compound   | arg[]   |
+| **Type**     |          |           |            |         |
+| TypeFunc     | arg[]    | ret       |            |         |
+| TypeStruct   | member[] |           |            |         |
+| TypeArray    | base     | size      |            |         |
+| TypePointer  | base     |           |            |         |
+| TypePrim     | ident    |           |            |         |
+| -            |          |           |            |         |
+| Func         | name     | type      | expr       |         |
 | Compound     | stmt[]   | -         | -          | -       |
-| 文 : stmt    |          |           |            |         |
+| **stmt**     |          |           |            |         |
+| VarDef       | name     | type      | stmt?      |         |
 | Stmt         | expr?    | -         | -          | -       |
 | If           | cond     | true_node | -          | -       |
 | IfElse       | cond     | true_node | false_node | -       |

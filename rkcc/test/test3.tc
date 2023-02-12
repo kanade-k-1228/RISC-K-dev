@@ -1,6 +1,7 @@
-int main() {
-  int a;
-  int b;
+func main : () => int {
+  var a:int;
+  var b:int;
+  var p:*int;
   a = a + b;
   a = a - b;
   a = a * b;

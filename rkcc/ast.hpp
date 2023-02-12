@@ -9,7 +9,6 @@ public:
     // Type
     Type,
     TypeFunc,
-    TypeUnion,
     TypeStruct,
     TypeArray,
     TypePointer,
@@ -17,6 +16,7 @@ public:
     // Func
     Func,
     Compound,
+    VarDef,
     // Program Flow
     If,
     IfElse,
@@ -67,12 +67,13 @@ public:
   Node(int val) : type(Type::Num), val(val) {}                // 定数値
   Node(std::string ident) : type(Type::Ident), str(ident) {}  // 識別子
 
+  bool type_is(Type t) { return type == t; }
+
   void add_child(Node* node) { childs.push_back(node); }
 
-  Node* func_type() { return childs.at(0); }
-  Node* func_name() { return childs.at(1); }
-  std::vector<Node*> func_args() { return std::vector<Node*>(childs.begin() + 2, childs.end() - 1); }
-  Node* func_stmt() { return childs.at(childs.size() - 1); }
+  Node* func_name() { return childs.at(0); }
+  Node* func_type() { return childs.at(1); }
+  Node* func_stmt() { return childs.at(2); }
 
   Node* ctrl_cond() { return childs.at(0); }     // 条件文
   Node* ctrl_body() { return childs.at(1); }     // 本体
@@ -98,6 +99,7 @@ std::string print(Node* node);
 
 Node* program(Tokens&);
 Node* type(Tokens&);
+Node* type_func(Tokens&);
 Node* type_struct(Tokens&);
 
 Node* func(Tokens&);

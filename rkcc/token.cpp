@@ -5,7 +5,6 @@
 Token::Token(Type type, std::string str, int val)
     : type(type), str(str), val(val) {}
 
-bool Token::type_is(Type type) { return this->type == type; }
 
 std::string Token::print() {
   std::stringstream ss;
