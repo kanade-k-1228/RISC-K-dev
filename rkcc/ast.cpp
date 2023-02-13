@@ -39,7 +39,7 @@ std::string print(Node* node) {
   }
 
   if(node->type_is(Node::Type::TypeArray)) {
-    ss << "[" << 99 << "]" << print(node->childs.at(0));
+    ss << "[" << print(node->childs.at(1)) << "]" << print(node->childs.at(0));
     return ss.str();
   }
 

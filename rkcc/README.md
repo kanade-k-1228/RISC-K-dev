@@ -14,6 +14,7 @@ RISC-K 用の C コンパイラ
   - [2/9](#29)
   - [2/10](#210)
   - [2/12](#212)
+  - [2/13](#213)
     - [配列](#配列)
 - [実装すること](#実装すること)
   - [変数リスト d](#変数リスト-d)
@@ -166,8 +167,42 @@ func = type ident "(" type ident % "," ")" compound
 
 - 変数定義
 
+## 2/13
+
 ```
-stmt = var_def = "var" ident ("=" expr)?
+program  = ( func_def | var_def )*
+func_def = "func" ident ":" type compound
+var_def  = "var"  ident ":" type ("=" expr)? ";"
+compound = "{" stmt* "}"
+
+stmt =
+ | ";"
+ | expr_stmt = expr ";"
+ | assign    = expr ("="|"+="|"*="|"/=") expr ";"
+ | var_def
+ | compound
+ | if        = "if" "(" expr ")" stmt ("else" stmt)?
+ | while     = "while" "(" expr ")" stmt
+ | do_while  = "do" stmt "while" ( expr ) ";"
+ | for       = "for" "(" expr? ";" expr? ";" expr? ")" stmt
+ | continue  = "continue" ";"
+ | break     = "break" ";"
+ | return    = "return" expr ";"
+
+expr = cond = logical_or ("?" expr ":" cond)?
+logical_or  = logical_and ("||" logical_and)*
+logical_and = bit_or  ("&&" bit_or)*
+bit_or  = bit_xor ("|" bit_xor)*
+bit_xor = bit_and ("^" bit_and)*
+bit_and = equal ("&" equal)*
+equal = relat ("==" relat | "!=" relat)*
+relat = shift ("<" shift | "<=" shift | ">" shift | ">=" shift)*
+shift = (shift "<<" | shift ">>")? add
+add   = mul ("+" mul | "-" mul)*
+mul   = unary ("*" unary | "/" unary | "%" unary)*
+unary = ("++"|"--")? post
+post  = prim ("++"|"--")?
+prim  = num | ident | "(" expr ")"
 ```
 
 ### 配列

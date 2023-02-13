@@ -1,8 +1,25 @@
 #include "ast.hpp"
 
+struct Symbol {
+  enum class Kind {
+    VarGlobal,
+    VarLocal,
+    Func
+  };
+  Kind kind;
+  std::string name;
+  Symbol(Kind kind, std::string name) : kind(kind), name(name) {}
+};
+
+struct Symbols {
+  std::map<std::string, Symbol> symbols;
+  bool add(std::string name);
+  Symbol get(std::string name);
+};
+
 namespace Asm {
 extern std::vector<std::string> code;
-extern std::vector<std::string> global_var;  // グローバル変数リスト
+extern Symbols symbols;
 
 void comment(std::string comment);
 void label(std::string label);

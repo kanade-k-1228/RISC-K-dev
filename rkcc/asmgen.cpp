@@ -4,22 +4,31 @@
 
 namespace Asm {
 std::vector<std::string> code;
+Symbols symbols;
+
 void comment(std::string comment) { code.push_back("; " + comment); }
+
 void label(std::string label) { code.push_back(label + ":"); };
+
 void add(std::string rd, std::string rs1, std::string rs2) { code.push_back("  add   " + rd + " " + rs1 + " " + rs2); }
 void sub(std::string rd, std::string rs1, std::string rs2) { code.push_back("  sub   " + rd + " " + rs1 + " " + rs2); }
 void addi(std::string rd, std::string rs, int imm) { code.push_back("  addi  " + rd + " " + rs + " " + std::to_string(imm)); }
 void subi(std::string rd, std::string rs, int imm) { code.push_back("  subi  " + rd + " " + rs + " " + std::to_string(imm)); }
+
 void load(std::string rd, std::string addr_base, int addr_imm) { code.push_back("  load  " + rd + " " + addr_base + " " + std::to_string(addr_imm)); }
 void load(std::string rd, std::string addr_base, std::string label) { code.push_back("  load  " + rd + " " + addr_base + " " + label); }
 void loadi(std::string rd, int imm) { code.push_back("  loadi " + rd + " " + std::to_string(imm)); }
 void loadi(std::string rd, std::string label) { code.push_back("  loadi " + rd + " " + label); }
+
 void store(std::string src, std::string addr_base, int addr_imm) { code.push_back("  store " + addr_base + " " + src + " " + std::to_string(addr_imm)); }
 void store(std::string src, std::string addr_base, std::string label) { code.push_back("  store " + addr_base + " " + src + " " + label); }
+
 void jump(std::string rd, std::string rs, int addr) { code.push_back("  jump  " + rd + " " + rs + " " + std::to_string(addr)); }
 void jump(std::string rd, std::string rs, std::string label) { code.push_back("  jump  " + rd + " " + rs + " " + label); }
+
 void breq(std::string rs1, std::string rs2, int addr) { code.push_back("  breq  " + rs1 + " " + rs2 + " " + std::to_string(addr)); }
 void breq(std::string rs1, std::string rs2, std::string label) { code.push_back("  breq  " + rs1 + " " + rs2 + " " + label); }
+
 // 拡張命令
 void push(std::string reg) {
   store(reg, "sp", 0);
