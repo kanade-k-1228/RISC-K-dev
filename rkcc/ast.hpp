@@ -71,6 +71,10 @@ public:
 
   void add_child(Node* node) { childs.push_back(node); }
 
+  Node* type_base() { return childs.at(0); }
+  int array_len() { return childs.at(1)->val; }
+  std::vector<Node*> type_members() { return childs; }
+
   Node* func_name() { return childs.at(0); }
   Node* func_type() { return childs.at(1); }
   Node* func_stmt() { return childs.at(2); }

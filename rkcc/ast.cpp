@@ -407,3 +407,24 @@ Node* prim(Tokens& tokens) {
 
 Node* num(Tokens& tokens) { return new Node(tokens.pop().val); }
 Node* ident(Tokens& tokens) { return new Node(tokens.pop().str); }
+
+int type_size(Node* node) {
+  switch(node->type) {
+  case Node::Type::TypePrim:  // 整数型 : 1
+    return 1;
+  case Node::Type::TypePointer:  // ポインタ : 1
+    return 1;
+  case Node::Type::TypeArray:  // 配列型 : ベース型のN倍
+    return type_size(node->type_base()) * node->array_len();
+  case Node::Type::TypeStruct:  // 構造体 : メンバの型の合計
+    int ret;
+    for(auto t : node->type_members())
+      ret += type_size(t);
+    return ret;
+  case Node::Type::TypeFunc:  // 関数型 : 評価不可
+    return -1;
+  default:
+    error("This node is not type: " + print(node));
+    return 0;
+  }
+}
