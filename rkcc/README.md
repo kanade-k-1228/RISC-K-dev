@@ -334,14 +334,14 @@ prim =
 | mul        | Mul          |           |           |            |         |
 |            | Div          |           |           |            |         |
 |            | Mod          |           |           |            |         |
-| prim       | Num          | ***int*** |           |            |         |
-|            | Ident        | ***str*** |           |            |         |
-|            | Cast         | ident     | type      |            |         |
+| post       | Cast         | ident     | type      |            |         |
 |            | Ref          | ident     |           |            |         |
 |            | Addr         | ident     |           |            |         |
 |            | Array        | ident     | expr      |            |         |
 |            | Member       | ident     | ident     |            |         |
 |            | FuncCall     | ident     |           |            |         |
+| prim       | Num          | ***int*** |           |            |         |
+|            | Ident        | ***str*** |           |            |         |
 
 
 ## 2.3. ASTの再帰的評価

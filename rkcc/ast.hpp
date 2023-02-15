@@ -57,14 +57,14 @@ public:
     Div,
     Mod,
     // Unary
-    Num,
-    Ident,
     Cast,
     Ref,
     Addr,
     Array,
     Member,
     FuncCall,
+    Num,
+    Ident,
   };
 
   Type type;
@@ -84,7 +84,15 @@ public:
 
   Node* type_base() { return childs.at(0); }
   int array_len() { return childs.at(1)->val; }
-  std::vector<Node*> type_members() { return childs; }
+  std::vector<std::pair<Node*, Node*>> type_members() {
+    int n = childs.size() / 2;
+    std::vector<std::pair<Node*, Node*>> ret;
+    for(int i = 0; i < n; ++i) {
+      ret.emplace_back(childs.at(i * 2), childs.at(i * 2 + 1));
+    }
+    return ret;
+  }
+  Node* type_return() { return childs.at(childs.size() - 1); }
 
   Node* func_name() { return childs.at(0); }
   Node* func_type() { return childs.at(1); }

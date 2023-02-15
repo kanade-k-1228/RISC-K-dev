@@ -3,20 +3,12 @@
 
 std::ostream& operator<<(std::ostream& ss, Node* node) {
   if(node->type_is(Node::Type::TypeFunc)) {
-    int arg_n = node->childs.size() / 2;
     ss << "(";
-    for(int i = 0; i < arg_n; ++i)
-      ss << node->childs.at(i * 2) << " : "
-         << node->childs.at(i * 2 + 1)
-         << (i == arg_n - 1 ? " " : ", ");
-    ss << ") => " << node->childs.at(node->childs.size() - 1);
+    for(auto n : node->type_members()) ss << n.first << " : " << n.second << ", ";
+    ss << ") => " << node->type_return();
   } else if(node->type_is(Node::Type::TypeStruct)) {
-    int n_member = node->childs.size() / 2;
     ss << "{ ";
-    for(int i = 0; i < n_member; ++i)
-      ss << node->childs.at(i * 2) << " : "
-         << node->childs.at(i * 2 + 1)
-         << (i == n_member - 1 ? " " : ", ");
+    for(auto n : node->type_members()) ss << n.first << " : " << n.second << ", ";
     ss << "}";
   } else if(node->type_is(Node::Type::TypeArray)) {
     ss << "[" << node->childs.at(1) << "]" << node->childs.at(0);
@@ -25,13 +17,13 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
   } else if(node->type_is(Node::Type::TypePrim)) {
     ss << node->childs.at(0);
   } else if(node->type_is(Node::Type::Program)) {
-    for(auto n : node->childs) ss << n;
+    for(auto n : node->childs) ss << n << std::endl;
   } else if(node->type_is(Node::Type::FuncDef)) {
     ss << "func " << node->func_name()
        << " : " << node->func_type()
        << " " << node->func_stmt();
   } else if(node->type_is(Node::Type::GVarDef)) {
-    ss << "var  " << node->childs.at(0)
+    ss << "var " << node->childs.at(0)
        << " : " << node->childs.at(1)
        << ";";
   } else if(node->type_is(Node::Type::TypeDef)) {
@@ -45,9 +37,9 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
   } else if(node->type_is(Node::Type::VoidStmt)) {
     ss << ";" << std::endl;
   } else if(node->type_is(Node::Type::ExprStmt)) {
-    ss << node->childs.at(0);
+    ss << node->childs.at(0) << ";";
   } else if(node->type_is(Node::Type::LVarDef)) {
-    ss << "var " << node->childs.at(0) << " : " << node->childs.at(1);
+    ss << "var " << node->childs.at(0) << " : " << node->childs.at(1) << ";";
   } else if(node->type_is(Node::Type::Assign)) {
     ss << node->childs.at(0) << " = " << node->childs.at(1) << ";";
   } else if(node->type_is(Node::Type::UAssign)) {
@@ -57,11 +49,11 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
   } else if(node->type_is(Node::Type::IfElse)) {
     ss << "if " << node->ctrl_cond() << node->ctrl_true() << "else" << node->ctrl_false();
   } else if(node->type_is(Node::Type::Goto)) {
-    ss << "goto " << node->childs.at(0) << ";" << std::endl;
+    ss << "goto " << node->childs.at(0) << ";";
   } else if(node->type_is(Node::Type::Label)) {
-    ss << node->childs.at(0) << ":" << std::endl;
+    ss << node->childs.at(0) << ":";
   } else if(node->type_is(Node::Type::Return)) {
-    ss << "return " << node->childs.at(0) << ";" << std::endl;
+    ss << "return " << node->childs.at(0) << ";";
   } else if(node->type_is(Node::Type::While)) {
     ss << "while " << node->ctrl_cond() << node->ctrl_body();
   } else if(node->type_is(Node::Type::DoWhile)) {
@@ -110,6 +102,18 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
     ss << "(" << node->lhs() << " / " << node->rhs() << ")";
   } else if(node->type == Node::Type::Mod) {
     ss << "(" << node->lhs() << " % " << node->rhs() << ")";
+  } else if(node->type == Node::Type::Cast) {
+    ss << node->childs.at(0) << ":" << node->childs.at(1);
+  } else if(node->type == Node::Type::Ref) {
+    ss << node->childs.at(0) << "*";
+  } else if(node->type == Node::Type::Addr) {
+    ss << node->childs.at(0) << "&";
+  } else if(node->type == Node::Type::Array) {
+    ss << node->childs.at(0) << "[" << node->childs.at(1) << "]";
+  } else if(node->type == Node::Type::Member) {
+    ss << node->childs.at(0) << "." << node->childs.at(1);
+  } else if(node->type == Node::Type::FuncCall) {
+    ss << node->childs.at(0) << "()";
   } else if(node->type == Node::Type::Num) {
     ss << std::to_string(node->val);
   } else if(node->type == Node::Type::Ident) {

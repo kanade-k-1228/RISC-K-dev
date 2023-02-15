@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "../utils/utils.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -250,7 +251,7 @@ Node* add(Tokens& tokens) {
 }
 
 Node* mul(Tokens& tokens) {
-  Node* node = prim(tokens);
+  Node* node = post(tokens);
   for(;;) {
     if(tokens.consume("*"))
       node = new Node(Node::Type::Mul, {node, post(tokens)});
@@ -275,12 +276,15 @@ Node* post(Tokens& tokens) {
       node = new Node(Node::Type::Addr, {node});
     } else if(tokens.consume("[")) {
       Node* array_sufix = expr(tokens);
+      tokens.consume("]");
       node = new Node(Node::Type::Array, {node, array_sufix});
     } else if(tokens.consume(".")) {
       Node* member_name = ident(tokens);
       node = new Node(Node::Type::Member, {node, member_name});
     } else if(tokens.consume("(")) {
       node = new Node(Node::Type::FuncCall, {node});
+      while(!tokens.consume(")")) node->add_child(ident(tokens));
+      return node;
     } else {
       return node;
     }
@@ -316,7 +320,7 @@ int type_size(Node* node) {
   case Node::Type::TypeStruct:  // 構造体 : メンバの型の合計
     int ret;
     for(auto t : node->type_members())
-      ret += type_size(t);
+      ret += type_size(t.second);
     return ret;
   case Node::Type::TypeFunc:  // 関数型 : 評価不可
     return -1;
