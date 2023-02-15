@@ -5,13 +5,11 @@
 Token::Token(Type type, std::string str, int val)
     : type(type), str(str), val(val) {}
 
-
-std::string Token::print() {
-  std::stringstream ss;
-  if(type == Type::Sign) ss << "\033[31m" << str << "\033[m ";
-  if(type == Type::Identifier) ss << "\033[34m" << str << "\033[m ";
-  if(type == Type::Number) ss << "\033[32m" << val << "\033[m ";
-  return ss.str();
+std::ostream& operator<<(std::ostream& ss, Token token) {
+  if(token.type_is(Token::Type::Sign)) ss << "\033[31m" << token.str << "\033[m ";
+  if(token.type_is(Token::Type::Identifier)) ss << "\033[34m" << token.str << "\033[m ";
+  if(token.type_is(Token::Type::Number)) ss << "\033[32m" << token.val << "\033[m ";
+  return ss;
 }
 
 void tokenize(std::string code, Tokens& tokens) {

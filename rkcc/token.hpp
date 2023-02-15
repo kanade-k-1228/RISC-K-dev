@@ -18,8 +18,9 @@ public:
   bool str_is(std::string str) { return this->str == str; };
   std::string get_str() { return str; }
   int get_val() { return val; }
-  std::string print();
 };
+
+std::ostream& operator<<(std::ostream&, Token);
 
 namespace TokenRegex {
 const std::regex blank("^\\s");

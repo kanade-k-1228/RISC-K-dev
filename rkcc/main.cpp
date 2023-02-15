@@ -1,5 +1,5 @@
-#include "asmgen.hpp"
 #include "ast.hpp"
+#include "code.hpp"
 #include "token.hpp"
 #include <fstream>
 #include <iomanip>
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   Tokens tokens;
   while(std::getline(fin, line))
     tokenize(line, tokens);
-  for(auto t : tokens.tokens) std::cout << t.print();
+  for(auto t : tokens.tokens) std::cout << t;
   std::cout << std::endl;
 
   // 構文木
