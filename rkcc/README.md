@@ -26,8 +26,9 @@
     - [1.3.2. 代入文](#132-代入文)
     - [1.3.3. goto label](#133-goto-label)
   - [1.4. 式](#14-式)
-    - [1.4.1. 演算](#141-演算)
-    - [1.4.2. 値](#142-値)
+    - [1.4.1. 二項演算](#141-二項演算)
+    - [1.4.2. 後置演算子](#142-後置演算子)
+    - [1.4.3. 値](#143-値)
 - [2. コンパイラの動作](#2-コンパイラの動作)
   - [2.1. トークン化](#21-トークン化)
   - [2.2. 抽象構文木の構築](#22-抽象構文木の構築)
@@ -43,15 +44,6 @@
   - [2.8. 関数のコード生成](#28-関数のコード生成)
   - [2.9. 実行環境メモ](#29-実行環境メモ)
 - [3. 作業日誌](#3-作業日誌)
-  - [3.1. 11/10](#31-1110)
-  - [3.2. 11/13](#32-1113)
-  - [3.3. 11/15](#33-1115)
-  - [3.4. 11/16](#34-1116)
-  - [3.5. 2/8](#35-28)
-  - [3.6. 2/9](#36-29)
-  - [3.7. 2/10](#37-210)
-  - [3.8. 2/12](#38-212)
-  - [3.9. 2/14](#39-214)
 
 # 1. 文法
 
@@ -249,7 +241,7 @@ func main : ()=>int {
 
 ## 1.4. 式
 
-### 1.4.1. 演算
+### 1.4.1. 二項演算
 
 ```
 expr = cond = logical_or ("?" expr ":" cond)?
@@ -265,17 +257,26 @@ add   = mul ("+" mul | "-" mul)*
 mul   = prim ("*" prim | "/" prim | "%" prim)*
 ```
 
-### 1.4.2. 値
+### 1.4.2. 後置演算子
+
+```
+post = prim ( ":" type 
+            | "*"
+            | "&" 
+            | "[" expr "]" 
+            | "." ident 
+            | "(" expr % "," )" )*
+```
+
+キャスト演算子、参照演算子、アドレス演算子、添字演算子、メンバ演算子、関数呼び出し演算子
+
+### 1.4.3. 値
 
 ```
 prim =
  | num
- | cast      = ("(" expr ")" | ident) (":" type)*
- | access    = ("(" expr ")" | ident) ("*")*
- | addr      = ("(" expr ")" | ident) ("&")*
- | array     = ("(" expr ")" | ident) ("[" expr "]")*
- | member    = ("(" expr ")" | ident) ("."  ident)*
- | func_call = ("(" expr ")" | ident) ("(" expr % "," ")")*
+ | ident
+ | "(" expr ")"
 ```
 
 # 2. コンパイラの動作
@@ -286,62 +287,61 @@ prim =
 
 抽象構文木 (Abstract Syntax Tree : AST) は構造化されたソースコードです。
 
-|                | `Node::Type` | `childs`  |           |            |         |
-| -------------- | ------------ | --------- | --------- | ---------- | ------- |
-| **Type**       | TypeFunc     | arg[]     | ret       |            |         |
-|                | TypeStruct   | member[]  |           |            |         |
-|                | TypeArray    | base      | size      |            |         |
-|                | TypePointer  | base      |           |            |         |
-|                | TypePrim     | ident     |           |            |         |
-| **Program**    | Program      | defs      |           |            |         |
-|                | FuncDef      | name      | type      | compound   |         |
-|                | GVarDef      | name      | type      |            |         |
-|                | TypeDef      | name      | type      |            |         |
-| **Stmt**       | Compound     | stmt[]    |           |            |         |
-|                | VoidStmt     |           |           |            |         |
-|                | ExprStmt     | expr      |           |            |         |
-|                | LVarDef      | name      | type      |            |         |
-| **AssignStmt** | Assign       | expr      | expr      |            |         |
-|                | UAssign      | expr      |           |            |         |
-| **CtrlStmt**   | If           | cond      | true_node |            |         |
-|                | IfElse       | cond      | true_node | false_node |         |
-|                | Goto         | name      |           |            |         |
-|                | Label        | name      |           |            |         |
-|                | Return       | expr      |           |            |         |
-| **LoopStmt**   | While        | cond      | body      |            |         |
-|                | DoWhile      | cond      | body      |            |         |
-|                | For          | cond      | body      | init       | iterate |
-|                | Continue     |           |           |            |         |
-|                | Break        |           |           |            |         |
-|                | Return       | expr      |           |            |         |
-| **Expr**       |              |           |           |            |         |
-| **TriOpr**     | Cond         | cond      | true_node | false_node |         |
-| **BinOpr**     | LogicalOr    | lhs       | rhs       |            |         |
-|                | LogicalAnd   |           |           |            |         |
-|                | BitOr        |           |           |            |         |
-|                | BitXor       |           |           |            |         |
-|                | BitAnd       |           |           |            |         |
-|                | EQ           |           |           |            |         |
-|                | NEQ          |           |           |            |         |
-|                | LT           |           |           |            |         |
-|                | LEQ          |           |           |            |         |
-|                | GT           |           |           |            |         |
-|                | GEQ          |           |           |            |         |
-|                | RShift       |           |           |            |         |
-|                | LShift       |           |           |            |         |
-|                | Add          |           |           |            |         |
-|                | Sub          |           |           |            |         |
-|                | Mul          |           |           |            |         |
-|                | Div          |           |           |            |         |
-|                | Mod          |           |           |            |         |
-| **UnaryOpr**   | Num          | ***int*** |           |            |         |
-|                | Ident        | ***std*** |           |            |         |
-|                | Cast         | ident     | type      |            |         |
-|                | Ref          | ident     |           |            |         |
-|                | Addr         | ident     |           |            |         |
-|                | Array        | ident     | expr      |            |         |
-|                | Member       | ident     | ident     |            |         |
-|                | FuncCall     | ident     |           |            |         |
+| Func       | `Node::Type` | `childs`  |           |            |         |
+| ---------- | ------------ | --------- | --------- | ---------- | ------- |
+| type       | TypeFunc     | arg[]     | ret       |            |         |
+|            | TypeStruct   | member[]  |           |            |         |
+|            | TypeArray    | base      | size      |            |         |
+|            | TypePointer  | base      |           |            |         |
+|            | TypePrim     | ident     |           |            |         |
+| program    | Program      | defs      |           |            |         |
+|            | FuncDef      | name      | type      | compound   |         |
+|            | GVarDef      | name      | type      |            |         |
+|            | TypeDef      | name      | type      |            |         |
+| compound   | Compound     | stmt[]    |           |            |         |
+| stmt       | VoidStmt     |           |           |            |         |
+|            | ExprStmt     | expr      |           |            |         |
+|            | LVarDef      | name      | type      |            |         |
+|            | Assign       | expr      | expr      |            |         |
+|            | UAssign      | expr      |           |            |         |
+|            | If           | cond      | true_node |            |         |
+|            | IfElse       | cond      | true_node | false_node |         |
+|            | Goto         | name      |           |            |         |
+|            | Label        | name      |           |            |         |
+|            | Return       | expr      |           |            |         |
+|            | While        | cond      | body      |            |         |
+|            | DoWhile      | cond      | body      |            |         |
+|            | For          | cond      | body      | init       | iterate |
+|            | Continue     |           |           |            |         |
+|            | Break        |           |           |            |         |
+| **Expr**   |              |           |           |            |         |
+| **TriOpr** | Cond         | cond      | true_node | false_node |         |
+|            | LogicalOr    | lhs       | rhs       |            |         |
+|            | LogicalAnd   |           |           |            |         |
+|            | BitOr        |           |           |            |         |
+|            | BitXor       |           |           |            |         |
+|            | BitAnd       |           |           |            |         |
+| equality   | EQ           |           |           |            |         |
+|            | NEQ          |           |           |            |         |
+| relational | LT           |           |           |            |         |
+|            | LEQ          |           |           |            |         |
+|            | GT           |           |           |            |         |
+|            | GEQ          |           |           |            |         |
+| shift      | RShift       |           |           |            |         |
+|            | LShift       |           |           |            |         |
+| add        | Add          |           |           |            |         |
+|            | Sub          |           |           |            |         |
+| mul        | Mul          |           |           |            |         |
+|            | Div          |           |           |            |         |
+|            | Mod          |           |           |            |         |
+| prim       | Num          | ***int*** |           |            |         |
+|            | Ident        | ***str*** |           |            |         |
+|            | Cast         | ident     | type      |            |         |
+|            | Ref          | ident     |           |            |         |
+|            | Addr         | ident     |           |            |         |
+|            | Array        | ident     | expr      |            |         |
+|            | Member       | ident     | ident     |            |         |
+|            | FuncCall     | ident     |           |            |         |
 
 
 ## 2.3. ASTの再帰的評価
@@ -426,11 +426,10 @@ return, break, continue に必要な情報。
 
 # 3. 作業日誌
 
-## 3.1. 11/10
-
-- 四則演算の実装
-  - 構文木構築
-  - 再帰的評価
+- 11/10
+  - 四則演算の実装
+    - 構文木構築
+    - 再帰的評価
 
 ```
 expr =  mul ("+" mul | "-" mul)*
@@ -438,23 +437,20 @@ mul = primary ("*" primary | "/" primary | "%" primary)*
 primary = num | "(" expr ")"
 ```
 
-## 3.2. 11/13
+- 11/13
+  - 演算子の拡張
+    - ? :, ||, &&, |, ^, &, ==, !=, <, <=, >, >=, <<, >>, \*, /, %, ++, --
 
-- 演算子の拡張
-  - ? :, ||, &&, |, ^, &, ==, !=, <, <=, >, >=, <<, >>, \*, /, %, ++, --
-
-## 3.3. 11/15
-
-- 変数の実装
+- 11/15
+  - 変数の実装
 
 ```
 prim = num | ident | "(" expr ")"
 ```
 
-## 3.4. 11/16
-
-- 文の実装
-- 代入の実装
+- 11/16
+  - 文の実装
+  - 代入の実装
 
 ```
 program = stmt*
@@ -467,9 +463,8 @@ stmt = ";"
      | expr ";"
 ```
 
-## 3.5. 2/8
-
-- 関数定義
+- 2/8
+  - 関数定義
 
 ```
 program = func*
@@ -477,20 +472,15 @@ func = ident "(" ident % "," ")" compound
 compound = "{" stmt* "}"
 ```
 
-## 3.6. 2/9
-
-- 型
-
-## 3.7. 2/10
-
-- AST ノードの改良
-  - child を vector にまとめメソッドでアクセスするようにした
-
-## 3.8. 2/12
-
-- 変数定義
-
-## 3.9. 2/14
-
-- 細かい文法を決めた
-- ドキュメントの整備
+- 2/9
+  - 型
+- 2/10
+  - AST ノードの改良
+    - child を vector にまとめメソッドでアクセスするようにした
+- 2/12
+  - 変数定義
+- 2/14
+  - 細かい文法を決めた
+  - ドキュメントの整備
+- 2/15
+  

@@ -49,7 +49,7 @@ void asembly(Node* node) {
     for(auto n : node->childs) asembly(n);
     return;
   }
-  if(node->type == Node::Type::Assignment) {
+  if(node->type == Node::Type::Assign) {
     // 代入する値を計算する
     asembly(node->lhs());
     // 値は一時レジスタ t0 に入っているので，左辺に代入する
@@ -126,17 +126,6 @@ void asembly(Node* node) {
     if(node->type == Node::Type::Div) comment("[t0 = (t0 / t1)]");
     if(node->type == Node::Type::Mod) comment("[t0 = (t0 % t1)]");
 
-    return;
-  }
-
-  if(node->type == Node::Type::UnaryAdd) {
-    asembly(node->lhs());
-    addi("t0", "t0", 1);
-    return;
-  }
-  if(node->type == Node::Type::UnarySub) {
-    asembly(node->lhs());
-    subi("t0", "t0", 1);
     return;
   }
 

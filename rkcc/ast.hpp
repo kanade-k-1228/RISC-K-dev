@@ -5,30 +5,38 @@
 class Node {
 public:
   enum class Type {
-    Program,
     // Type
-    Type,
     TypeFunc,
     TypeStruct,
     TypeArray,
     TypePointer,
     TypePrim,
-    // Func
-    Func,
+    // Program
+    Program,
+    FuncDef,
+    GVarDef,
+    TypeDef,
+    // Stmt
     Compound,
-    VarDef,
-    // Program Flow
+    VoidStmt,
+    ExprStmt,
+    LVarDef,
+    // Stmt - Assign
+    Assign,
+    UAssign,
+    // Stmt - Ctrl
     If,
     IfElse,
+    Goto,
+    Label,
+    Return,
+    // Stmt - Loop
     While,
     DoWhile,
     For,
     Continue,
     Break,
-    Return,
-    // Statement
-    Expr,
-    Assignment,  // =
+    // Expr
     Cond,
     LogicalOr,
     LogicalAnd,
@@ -48,12 +56,15 @@ public:
     Mul,
     Div,
     Mod,
-    UnaryAdd,
-    UnarySub,
-    PostAdd,
-    PostSub,
+    // Unary
     Num,
     Ident,
+    Cast,
+    Ref,
+    Addr,
+    Array,
+    Member,
+    FuncCall,
   };
 
   Type type;
@@ -99,17 +110,13 @@ public:
   Node* child() { return childs.at(0); }
 };
 
-std::string print(Node* node);
+std::ostream& operator<<(std::ostream& stream, Node* node);
 
-Node* program(Tokens&);
 Node* type(Tokens&);
-Node* type_func(Tokens&);
-Node* type_struct(Tokens&);
-
-Node* func(Tokens&);
+Node* program(Tokens&);
 Node* compound(Tokens&);
-
 Node* stmt(Tokens&);
+
 Node* expr(Tokens&);
 Node* assign(Tokens&);
 Node* cond(Tokens&);
@@ -124,8 +131,9 @@ Node* relational(Tokens&);
 Node* shift(Tokens&);
 Node* add(Tokens&);
 Node* mul(Tokens&);
-Node* unary(Tokens&);
+
 Node* post(Tokens&);
+
 Node* prim(Tokens&);
 Node* num(Tokens&);
 Node* ident(Tokens&);

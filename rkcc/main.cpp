@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 
   // 構文木
   Node* root = program(tokens);
-  std::cout << print(root) << std::endl;
+  std::cout << root << std::endl;
   // シンボルテーブル生成
   // アセンブラ生成
   // asembly(root);

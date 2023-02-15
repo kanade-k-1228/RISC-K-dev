@@ -1,127 +1,7 @@
 #include "ast.hpp"
 #include "../utils/utils.hpp"
-#include <iostream>
 #include <string>
 #include <vector>
-
-std::string print(Node* node) {
-  std::stringstream ss;
-  if(node->type_is(Node::Type::Program)) {
-    for(auto n : node->childs) ss << print(n);
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::Type)) {
-    for(auto n : node->childs) ss << print(n);
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::TypeFunc)) {
-    int arg_n = node->childs.size() / 2;
-    ss << "( ";
-    for(int i = 0; i < arg_n; ++i)
-      ss << print(node->childs.at(i * 2)) << " : "
-         << print(node->childs.at(i * 2 + 1))
-         << (i == arg_n - 1 ? " " : ", ");
-    ss << ") => " << print(node->childs.at(node->childs.size() - 1));
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::TypeStruct)) {
-    int n_member = node->childs.size() / 2;
-    ss << "{ ";
-    for(int i = 0; i < n_member; ++i)
-      ss << print(node->childs.at(i * 2)) << " : "
-         << print(node->childs.at(i * 2 + 1))
-         << (i == n_member - 1 ? " " : ", ");
-    ss << "}";
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::TypeArray)) {
-    ss << "[" << print(node->childs.at(1)) << "]" << print(node->childs.at(0));
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::TypePointer)) {
-    ss << "*" << print(node->childs.at(0));
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::Func)) {
-    ss << "func " << print(node->func_name())
-       << " : " << print(node->func_type())
-       << " " << print(node->func_stmt());
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::Compound)) {
-    ss << "{" << std::endl;
-    for(auto n : node->childs) ss << print(n) << std::endl;
-    ss << "}";
-    return ss.str();
-  }
-
-  if(node->type_is(Node::Type::VarDef)) {
-    ss << "var " << print(node->childs.at(0))
-       << " : " << print(node->childs.at(1));
-    if(node->childs.size() > 2)
-      ss << " = " << print(node->childs.at(2));
-    ss << ";";
-    return ss.str();
-  }
-
-  if(node->type == Node::Type::If) return "if " + print(node->ctrl_cond()) + print(node->ctrl_true());
-  if(node->type == Node::Type::IfElse) return "if " + print(node->ctrl_cond()) + print(node->ctrl_true()) + "else" + print(node->ctrl_false());
-  if(node->type == Node::Type::While) return "while " + print(node->ctrl_cond()) + print(node->ctrl_body());
-  if(node->type == Node::Type::DoWhile) return "do " + print(node->ctrl_body()) + "while " + print(node->ctrl_cond());
-  if(node->type == Node::Type::For) return "for " + print(node->ctrl_init()) + print(node->ctrl_cond()) + print(node->ctrl_iterate()) + print(node->ctrl_body());
-
-  if(node->type == Node::Type::Continue) return "continue;";
-  if(node->type == Node::Type::Break) return "break;";
-  if(node->type == Node::Type::Return) return "return " + print(node->child()) + ";";
-
-  if(node->type == Node::Type::Expr) {
-    if(node->childs.size() == 0)
-      return ";";
-    else
-      return print(node->child()) + ";";
-  }
-
-  if(node->type == Node::Type::Assignment) return "(" + print(node->lhs()) + " = " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Cond) return "(" + print(node->tri_true()) + " ? " + print(node->tri_true()) + " : " + print(node->tri_false()) + ")";
-  if(node->type == Node::Type::LogicalOr) return "(" + print(node->lhs()) + " || " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::LogicalAnd) return "(" + print(node->lhs()) + " && " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::BitOr) return "(" + print(node->lhs()) + " | " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::BitXor) return "(" + print(node->lhs()) + " ^ " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::BitAnd) return "(" + print(node->lhs()) + " & " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::EQ) return "(" + print(node->lhs()) + " == " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::NEQ) return "(" + print(node->lhs()) + " != " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::LT) return "(" + print(node->lhs()) + " < " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::LEQ) return "(" + print(node->lhs()) + " <= " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::GT) return "(" + print(node->lhs()) + " > " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::GEQ) return "(" + print(node->lhs()) + " >= " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::RShift) return "(" + print(node->lhs()) + " >> " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::LShift) return "(" + print(node->lhs()) + " << " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Add) return "(" + print(node->lhs()) + " + " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Sub) return "(" + print(node->lhs()) + " - " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Mul) return "(" + print(node->lhs()) + " * " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Div) return "(" + print(node->lhs()) + " / " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::Mod) return "(" + print(node->lhs()) + " % " + print(node->rhs()) + ")";
-  if(node->type == Node::Type::UnaryAdd) return "(++ " + print(node->lhs()) + ")";
-  if(node->type == Node::Type::UnarySub) return "(-- " + print(node->lhs()) + ")";
-  if(node->type == Node::Type::PostAdd) return "(" + print(node->lhs()) + " ++)";
-  if(node->type == Node::Type::PostSub) return "(" + print(node->lhs()) + " --)";
-  if(node->type == Node::Type::Num) return std::to_string(node->val);
-  if(node->type == Node::Type::Ident) return node->str;
-  return "NO PRINT FORMAT";
-}
-
-Node* program(Tokens& tokens) {
-  Node* root = new Node(Node::Type::Program);
-  while(!tokens.empty()) root->add_child(func(tokens));
-  return root;
-}
 
 Node* type(Tokens& tokens) {
   // 構造体
@@ -151,7 +31,7 @@ Node* type(Tokens& tokens) {
       node_func->add_child(type(tokens));  // Return Type
       return node_func;
     } else {  // 括弧
-      Node* node_child = new Node(Node::Type::Type, {type(tokens)});
+      Node* node_child = type(tokens);
       tokens.consume(")");
       return node_child;
     }
@@ -167,19 +47,35 @@ Node* type(Tokens& tokens) {
   }
   // ベース型
   if(tokens.head().type_is(Token::Type::Identifier)) {
-    return new Node(tokens.pop().str);
+    return new Node(Node::Type::TypePrim, {new Node(tokens.pop().str)});
   }
   return nullptr;
 }
 
-Node* func(Tokens& tokens) {
-  Node* node = new Node(Node::Type::Func);
-  tokens.consume("func");
-  node->add_child(ident(tokens));  // Function Name
-  tokens.consume(":");
-  node->add_child(type(tokens));      // Function Type
-  node->add_child(compound(tokens));  // Function Body
-  return node;
+Node* program(Tokens& tokens) {
+  Node* program_root = new Node(Node::Type::Program);
+  while(!tokens.empty()) {
+    if(tokens.consume("func")) {
+      Node* func_name = ident(tokens);
+      tokens.consume(":");
+      Node* func_type = type(tokens);
+      Node* func_body = compound(tokens);
+      program_root->add_child(new Node(Node::Type::FuncDef, {func_name, func_type, func_body}));
+    } else if(tokens.consume("var")) {
+      Node* gvar_name = ident(tokens);
+      tokens.consume(":");
+      Node* gvar_type = type(tokens);
+      tokens.consume(";");
+      program_root->add_child(new Node(Node::Type::GVarDef, {gvar_name, gvar_type}));
+    } else if(tokens.consume("type")) {
+      Node* type_name = ident(tokens);
+      tokens.consume(":");
+      Node* type_type = type(tokens);
+      tokens.consume(";");
+      program_root->add_child(new Node(Node::Type::TypeDef, {type_name, type_type}));
+    }
+  }
+  return program_root;
 }
 
 Node* compound(Tokens& tokens) {
@@ -191,7 +87,7 @@ Node* compound(Tokens& tokens) {
 
 Node* stmt(Tokens& tokens) {
   if(tokens.consume(";")) {
-    return new Node(Node::Type::Expr);
+    return new Node(Node::Type::VoidStmt);
   } else if(tokens.head().str_is("{")) {
     return compound(tokens);
   } else if(tokens.consume("if")) {
@@ -239,30 +135,26 @@ Node* stmt(Tokens& tokens) {
     tokens.consume(";");
     return new Node(Node::Type::Return, {ret});
   } else if(tokens.consume("var")) {
-    Node* var = new Node(Node::Type::VarDef);
-    var->add_child(ident(tokens));
+    Node* lvar_name = ident(tokens);
     tokens.consume(":");
-    var->add_child(type(tokens));
-    if(tokens.consume("=")) var->add_child(expr(tokens));
+    Node* lvar_type = type(tokens);
     tokens.consume(";");
-    return var;
+    return new Node(Node::Type::LVarDef, {lvar_name, lvar_type});
   } else {
     Node* body = expr(tokens);
-    tokens.consume(";");
-    return new Node(Node::Type::Expr, {body});
+    if(tokens.consume(";")) {  // 式文
+      return new Node(Node::Type::ExprStmt, {body});
+    } else if(tokens.consume("=")) {  // 代入文
+      Node* rhs = expr(tokens);
+      tokens.consume(";");
+      return new Node(Node::Type::Assign, {body, rhs});
+    }
   }
+  error("Cannot read as stmt" + tokens.head().str);
+  return nullptr;
 }
 
-Node* expr(Tokens& tokens) {
-  return assign(tokens);
-}
-
-Node* assign(Tokens& tokens) {
-  Node* node = cond(tokens);
-  if(tokens.consume("="))
-    node = new Node(Node::Type::Assignment, {node, assign(tokens)});
-  return node;
-}
+Node* expr(Tokens& tokens) { return cond(tokens); }
 
 Node* cond(Tokens& tokens) {
   Node* node = logical_or(tokens);
@@ -358,36 +250,41 @@ Node* add(Tokens& tokens) {
 }
 
 Node* mul(Tokens& tokens) {
-  Node* node = unary(tokens);
+  Node* node = prim(tokens);
   for(;;) {
     if(tokens.consume("*"))
-      node = new Node(Node::Type::Mul, {node, unary(tokens)});
+      node = new Node(Node::Type::Mul, {node, post(tokens)});
     else if(tokens.consume("/"))
-      node = new Node(Node::Type::Div, {node, unary(tokens)});
+      node = new Node(Node::Type::Div, {node, post(tokens)});
     else if(tokens.consume("%"))
-      node = new Node(Node::Type::Mod, {node, unary(tokens)});
+      node = new Node(Node::Type::Mod, {node, post(tokens)});
     else
       return node;
   }
 }
 
-Node* unary(Tokens& tokens) {
-  if(tokens.consume("++"))
-    return new Node(Node::Type::UnaryAdd, {post(tokens)});
-  else if(tokens.consume("--"))
-    return new Node(Node::Type::UnarySub, {post(tokens)});
-  else
-    return post(tokens);
-}
-
 Node* post(Tokens& tokens) {
   Node* node = prim(tokens);
-  if(tokens.consume("++"))
-    return new Node(Node::Type::PostAdd, {node});
-  else if(tokens.consume("--"))
-    return new Node(Node::Type::PostSub, {node});
-  else
-    return node;
+  for(;;) {
+    if(tokens.consume(":")) {
+      Node* cast_type = type(tokens);
+      node = new Node(Node::Type::Cast, {node, cast_type});
+    } else if(tokens.consume("*")) {
+      node = new Node(Node::Type::Ref, {node});
+    } else if(tokens.consume("&")) {
+      node = new Node(Node::Type::Addr, {node});
+    } else if(tokens.consume("[")) {
+      Node* array_sufix = expr(tokens);
+      node = new Node(Node::Type::Array, {node, array_sufix});
+    } else if(tokens.consume(".")) {
+      Node* member_name = ident(tokens);
+      node = new Node(Node::Type::Member, {node, member_name});
+    } else if(tokens.consume("(")) {
+      node = new Node(Node::Type::FuncCall, {node});
+    } else {
+      return node;
+    }
+  }
 }
 
 Node* prim(Tokens& tokens) {
@@ -424,7 +321,7 @@ int type_size(Node* node) {
   case Node::Type::TypeFunc:  // 関数型 : 評価不可
     return -1;
   default:
-    error("This node is not type: " + print(node));
+    error("This node is not type: ");
     return 0;
   }
 }
