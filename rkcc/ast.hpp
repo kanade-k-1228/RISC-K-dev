@@ -129,7 +129,6 @@ Node* expr(Tokens&);
 Node* assign(Tokens&);
 Node* cond(Tokens&);
 Node* logical_or(Tokens&);
-Node* logical_xor(Tokens&);
 Node* logical_and(Tokens&);
 Node* bit_or(Tokens&);
 Node* bit_xor(Tokens&);

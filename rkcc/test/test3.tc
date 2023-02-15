@@ -2,11 +2,12 @@ func main : () => int {
   var a:int;
   var b:int;
   var p:*int;
+  p = a@;
   a = a + b;
   a = a - b;
-  a = a * b;
-  a = a / b;
-  a = a % b;
+  a = a ** b;
+  a = a // b;
+  a = a %% b;
   a = a & b;
   a = a | b;
   a = a ^ b;

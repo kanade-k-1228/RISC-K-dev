@@ -253,11 +253,11 @@ Node* add(Tokens& tokens) {
 Node* mul(Tokens& tokens) {
   Node* node = post(tokens);
   for(;;) {
-    if(tokens.consume("*"))
+    if(tokens.consume("**"))
       node = new Node(Node::Type::Mul, {node, post(tokens)});
-    else if(tokens.consume("/"))
+    else if(tokens.consume("//"))
       node = new Node(Node::Type::Div, {node, post(tokens)});
-    else if(tokens.consume("%"))
+    else if(tokens.consume("%%"))
       node = new Node(Node::Type::Mod, {node, post(tokens)});
     else
       return node;
@@ -272,7 +272,7 @@ Node* post(Tokens& tokens) {
       node = new Node(Node::Type::Cast, {node, cast_type});
     } else if(tokens.consume("*")) {
       node = new Node(Node::Type::Ref, {node});
-    } else if(tokens.consume("&")) {
+    } else if(tokens.consume("@")) {
       node = new Node(Node::Type::Addr, {node});
     } else if(tokens.consume("[")) {
       Node* array_sufix = expr(tokens);

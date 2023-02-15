@@ -97,17 +97,17 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
   } else if(node->type == Node::Type::Sub) {
     ss << "(" << node->lhs() << " - " << node->rhs() << ")";
   } else if(node->type == Node::Type::Mul) {
-    ss << "(" << node->lhs() << " * " << node->rhs() << ")";
+    ss << "(" << node->lhs() << " ** " << node->rhs() << ")";
   } else if(node->type == Node::Type::Div) {
-    ss << "(" << node->lhs() << " / " << node->rhs() << ")";
+    ss << "(" << node->lhs() << " // " << node->rhs() << ")";
   } else if(node->type == Node::Type::Mod) {
-    ss << "(" << node->lhs() << " % " << node->rhs() << ")";
+    ss << "(" << node->lhs() << " %% " << node->rhs() << ")";
   } else if(node->type == Node::Type::Cast) {
     ss << node->childs.at(0) << ":" << node->childs.at(1);
   } else if(node->type == Node::Type::Ref) {
     ss << node->childs.at(0) << "*";
   } else if(node->type == Node::Type::Addr) {
-    ss << node->childs.at(0) << "&";
+    ss << node->childs.at(0) << "@";
   } else if(node->type == Node::Type::Array) {
     ss << node->childs.at(0) << "[" << node->childs.at(1) << "]";
   } else if(node->type == Node::Type::Member) {
