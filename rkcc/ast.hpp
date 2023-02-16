@@ -82,6 +82,7 @@ public:
 
   void add_child(Node* node) { childs.push_back(node); }
 
+  // Type
   Node* type_base() { return childs.at(0); }
   int array_len() { return childs.at(1)->val; }
   std::vector<std::pair<Node*, Node*>> type_members() {
@@ -94,9 +95,10 @@ public:
   }
   Node* type_return() { return childs.at(childs.size() - 1); }
 
-  Node* func_name() { return childs.at(0); }
-  Node* func_type() { return childs.at(1); }
-  Node* func_stmt() { return childs.at(2); }
+  // FuncDef / VarDef / TypeDef
+  Node* def_name() { return childs.at(0); }
+  Node* def_type() { return childs.at(1); }
+  Node* func_body() { return childs.at(2); }
 
   Node* ctrl_cond() { return childs.at(0); }     // 条件文
   Node* ctrl_body() { return childs.at(1); }     // 本体

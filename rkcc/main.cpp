@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "code.hpp"
+#include "symbols.hpp"
 #include "token.hpp"
 #include <fstream>
 #include <iomanip>
@@ -32,6 +33,13 @@ int main(int argc, char* argv[]) {
   Node* root = program(tokens);
   std::cout << root << std::endl;
   // シンボルテーブル生成
+  GlobalSymbols gsymbols(root);
+  std::cout << "| GlobalSymbols      |" << std::endl;
+  for(auto gs : gsymbols.symbols)
+    std::cout << "| " << gs
+              << " : " << std::setw(12) << std::left << gs.name
+              << "|" << std::endl;
+
   // アセンブラ生成
   // asembly(root);
   // std::cout << Asm::print() << std::endl;

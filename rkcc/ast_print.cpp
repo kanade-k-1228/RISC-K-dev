@@ -19,9 +19,9 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
   } else if(node->type_is(Node::Type::Program)) {
     for(auto n : node->childs) ss << n << std::endl;
   } else if(node->type_is(Node::Type::FuncDef)) {
-    ss << "func " << node->func_name()
-       << " : " << node->func_type()
-       << " " << node->func_stmt();
+    ss << "func " << node->def_name()
+       << " : " << node->def_type()
+       << " " << node->func_body();
   } else if(node->type_is(Node::Type::GVarDef)) {
     ss << "var " << node->childs.at(0)
        << " : " << node->childs.at(1)
