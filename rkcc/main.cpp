@@ -27,25 +27,28 @@ int main(int argc, char* argv[]) {
   Tokens tokens;
   while(std::getline(fin, line))
     tokenize(line, tokens);
-  for(auto t : tokens.tokens) std::cout << t;
-  std::cout << std::endl;
+  // for(auto t : tokens.tokens) std::cout << t;
+  // std::cout << std::endl;
 
   // 構文木
   Node* root = program(tokens);
-  std::cout << root << std::endl;
+  // std::cout << root << std::endl;
   // シンボルテーブル生成
   GlobalSymbols gsymbols(root);
-  std::cout << "| GlobalSymbols      |" << std::endl;
+  std::cout << "+-- Symbols ---------+" << std::endl;
   for(auto gs : gsymbols.symbols) {
     std::cout << "| " << gs
               << " : " << std::setw(12) << std::left << gs.name
-              << "|" << std::endl;
+              << ": " << gs.type
+              << std::endl;
     if(gs.kind == GlobalSymbol::Kind::Func) {
       for(auto ls : gs.ls.symbols) {
-        std::cout << "|      - " << std::setw(12) << std::left << ls.name << "|" << std::endl;
+        std::cout << "|  - var : " << std::setw(10) << std::left << ls.name
+                  << ": " << ls.type << std::endl;
       }
     }
   }
+  std::cout << "+--------------------+" << std::endl;
 
   // アセンブラ生成
   // asembly(root);

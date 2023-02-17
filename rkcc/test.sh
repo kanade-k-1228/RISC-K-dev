@@ -1,6 +1,10 @@
 cd build
 make
 cd ..
-rkcc test/test1.tc
-rkcc test/test2.tc
-rkcc test/test3.tc
+
+for i in 1 2 3
+do
+cat test/test$i.tc
+rkcc test/test$i.tc
+echo
+done

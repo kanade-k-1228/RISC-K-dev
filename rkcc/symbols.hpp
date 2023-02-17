@@ -6,12 +6,13 @@ struct LocalSymbol {
   std::string name;
   Node* type;
   uint16_t addr;
+  LocalSymbol(std::string name, Node* type) : name(name), type(type), addr(0) {}
 };
 
 struct LocalSymbols {
   std::vector<LocalSymbol> symbols;
   LocalSymbols();
-  LocalSymbols(Node* comp_stmt);
+  LocalSymbols(Node* type, Node* comp_stmt);
 };
 
 struct GlobalSymbol {

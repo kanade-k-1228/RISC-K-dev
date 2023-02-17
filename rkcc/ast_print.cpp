@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& ss, Node* node) {
        << ";";
   } else if(node->type_is(Node::Type::Compound)) {
     ss << "{" << std::endl;
-    for(auto n : node->childs) ss << n << std::endl;
+    for(auto n : node->childs) ss << "  " << n << std::endl;
     ss << "}";
   } else if(node->type_is(Node::Type::VoidStmt)) {
     ss << ";" << std::endl;

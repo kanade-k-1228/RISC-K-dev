@@ -2,15 +2,15 @@
 #include "dfs.hpp"
 
 LocalSymbols::LocalSymbols() {}
-LocalSymbols::LocalSymbols(Node* comp_stmt) {
+LocalSymbols::LocalSymbols(Node* type, Node* comp_stmt) {
   DFS dfs(comp_stmt);
+  // Args
+  for(auto n : type->type_members()) {
+    symbols.push_back(LocalSymbol(n.first->str, n.second));
+  }
   for(Node* n = dfs.begin(); !dfs.end(); n = dfs.next()) {
     if(n->type_is(Node::Type::LVarDef)) {
-      LocalSymbol ls;
-      ls.name = n->def_name()->str;
-      ls.type = n->def_type();
-      ls.addr = 0;
-      symbols.push_back(ls);
+      symbols.push_back(LocalSymbol(n->def_name()->str, n->def_type()));
     }
   }
 }
@@ -21,7 +21,7 @@ GlobalSymbol::GlobalSymbol(Node* node) {
     this->name = node->def_name()->str;
     this->type = node->def_type();
     this->body = node->func_body();
-    this->ls = LocalSymbols(node->func_body());
+    this->ls = LocalSymbols(node->def_type(), node->func_body());
   } else if(node->type_is(Node::Type::GVarDef)) {
     this->kind = Kind::GVar;
     this->name = node->def_name()->str;
