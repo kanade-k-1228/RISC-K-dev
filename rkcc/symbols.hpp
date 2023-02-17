@@ -10,6 +10,7 @@ struct LocalSymbol {
 
 struct LocalSymbols {
   std::vector<LocalSymbol> symbols;
+  LocalSymbols();
   LocalSymbols(Node* comp_stmt);
 };
 
@@ -23,7 +24,7 @@ struct GlobalSymbol {
   std::string name;
   Node* type;
   Node* body;
-  // LocalSymbols ls;
+  LocalSymbols ls;
   GlobalSymbol(Node* node);
 };
 

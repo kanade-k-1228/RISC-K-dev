@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "code.hpp"
+#include "dfs.hpp"
 #include "symbols.hpp"
 #include "token.hpp"
 #include <fstream>
@@ -35,10 +36,16 @@ int main(int argc, char* argv[]) {
   // シンボルテーブル生成
   GlobalSymbols gsymbols(root);
   std::cout << "| GlobalSymbols      |" << std::endl;
-  for(auto gs : gsymbols.symbols)
+  for(auto gs : gsymbols.symbols) {
     std::cout << "| " << gs
               << " : " << std::setw(12) << std::left << gs.name
               << "|" << std::endl;
+    if(gs.kind == GlobalSymbol::Kind::Func) {
+      for(auto ls : gs.ls.symbols) {
+        std::cout << "|      - " << std::setw(12) << std::left << ls.name << "|" << std::endl;
+      }
+    }
+  }
 
   // アセンブラ生成
   // asembly(root);
