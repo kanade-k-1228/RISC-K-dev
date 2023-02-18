@@ -1,6 +1,161 @@
 #include "gen.hpp"
 #include "../utils/utils.hpp"
+#include <iomanip>
 #include <iostream>
+
+uint16_t CodeGen::gen_gvar(uint16_t global_top) {
+  code.comment("Global Var");
+  for(auto var : symbols->symbols) {
+    if(var.kind == GlobalSymbol::Kind::GVar) {
+      code.addr_label(var.name, global_top);
+      global_top += type_size(var.type);
+      // Print Type
+      std::stringstream ss;
+      ss << std::setw(5) << type_size(var.type) << "  : " << var.type;
+      code.comment(ss.str());
+    }
+  }
+  code.comment("End Global");
+  return global_top;
+}
+
+uint16_t CodeGen::type_size(Node* node) {
+  if(node->type_is(Node::Type::TypePrim)) {
+    std::string type_name = node->def_name()->str;
+
+    // 整数型 : 1
+    if(type_name == "int") return 1;
+
+    // 定義された型 : シンボルテーブルから探す
+    GlobalSymbol* defined_type = symbols->find(type_name);
+    if(defined_type == nullptr)
+      error("Cannot find def of type: " + node->def_name()->str);
+    return type_size(defined_type->type);
+  }
+
+  // ポインタ型 : 1
+  if(node->type_is(Node::Type::TypePointer)) {
+    return 1;
+  }
+
+  // 配列型 : ベース型の N 倍
+  if(node->type_is(Node::Type::TypeArray)) {
+    return type_size(node->type_base()) * node->array_len();
+  }
+
+  // 構造体 : メンバ型の合計
+  if(node->type_is(Node::Type::TypeStruct)) {
+    int ret = 0;
+    for(auto t : node->type_members())
+      ret += type_size(t.second);
+    return ret;
+  }
+
+  // 関数型 : RAM上になし
+  if(node->type_is(Node::Type::TypeFunc)) {
+    return 0;
+  }
+  error("This node is not type");
+  return 0;
+}
+
+void CodeGen::gen_func() {
+  for(auto func : symbols->symbols) {
+    if(func.kind == GlobalSymbol::Kind::Func) {
+      code.newline();
+      code.comment("Func " + func.name);
+      // Local variables
+      if(func.kind == GlobalSymbol::Kind::Func) {
+        uint16_t fp = 0xffff;
+        for(auto ls : func.ls.symbols) {
+          code.addr_label(func.name + "_" + ls.name, fp);
+          fp -= type_size(ls.type);
+          // Print Type
+          std::stringstream ss;
+          ss << std::setw(5) << type_size(ls.type) << "  : " << ls.type;
+          code.comment(ss.str());
+        }
+      }
+      // Func Body
+      code.label(func.name);
+      gen_stmt(func.body);
+    }
+  }
+}
+
+void CodeGen::gen_stmt(Node* node) {
+  if(node->type_is(Node::Type::Compound)) {
+    for(auto n : node->childs) gen_stmt(n);
+  }
+  if(node->type_is(Node::Type::VoidStmt)) {
+    code.nop();
+  }
+  if(node->type_is(Node::Type::ExprStmt)) {
+    gen_expr(node);
+  }
+  if(node->type_is(Node::Type::Assign)) {
+    code.comment(node);
+    gen_addr(node->lhs());  // 代入先アドレスを評価
+    code.push("t0");        // スタックに退避
+    gen_expr(node->rhs());  // 代入値を評価
+    code.pop("t1");         // アドレスを復元
+    code.store("t0", "t1", 0);
+  }
+  if(node->type == Node::Type::If) {
+    std::string if_id = "if_id";
+    gen_expr(node->ctrl_cond());              // 条件式を評価
+    code.breq("t0", "zero", if_id + "_end");  // 分岐
+    gen_stmt(node->ctrl_true());              // true の処理
+    code.label(if_id + "_end");               // if の最後
+    return;
+  }
+  if(node->type == Node::Type::IfElse) {
+    std::string if_id = "if_id";
+    gen_expr(node->ctrl_cond());                // 条件式を評価
+    code.breq("t0", "zero", if_id + "_else");   // 分岐
+    gen_stmt(node->ctrl_true());                // true の処理
+    code.jump("zero", "zero", if_id + "_end");  // else を飛ばす
+    code.label(if_id + "_else");                // else:
+    gen_stmt(node->ctrl_false());               // else の処理
+    code.label(if_id + "_end");                 // if - else の最後
+    return;
+  }
+  if(node->type == Node::Type::While) {
+    std::string while_id = "while_id";
+    code.label(while_id + "_continue");
+    gen_expr(node->ctrl_cond());                   // 条評価
+    code.breq("t0", "zero", while_id + "_break");  // 分岐
+    gen_expr(node->ctrl_body());                   // ループ処理
+    code.jump("zero", "zero", while_id + "_continue");
+    code.label(while_id + "_break");
+    return;
+  }
+
+  if(node->type == Node::Type::DoWhile) {
+    std::string do_while_id = "do_while_id";
+    code.label(do_while_id + "_continue");
+    gen_expr(node->ctrl_body());                           // ループ処理
+    gen_expr(node->ctrl_cond());                           // 条件評価
+    code.breq("t0", "zero", do_while_id + "_break");       // 分岐
+    code.jump("zero", "zero", do_while_id + "_continue");  // ループを続ける
+    code.label(do_while_id + "_break");
+    return;
+  }
+
+  if(node->type == Node::Type::For) {
+    std::string for_id = "for_id";
+    gen_expr(node->ctrl_init());  // 初期化処理
+    code.label(for_id + "_check");
+    gen_expr(node->ctrl_cond());                 // 条件評価
+    code.breq("t0", "zero", for_id + "_break");  // 分岐
+    gen_expr(node->ctrl_body());                 // ループ処理
+    code.label(for_id + "_continue");
+    gen_expr(node->ctrl_iterate());                // 反復処理
+    code.jump("zero", "zero", for_id + "_check");  // 条件確認に戻る
+    code.label(for_id + "_break");
+    return;
+  }
+}
 
 void CodeGen::gen_expr(Node* node) {
   if(node->type == Node::Type::Program) {
@@ -109,65 +264,11 @@ void CodeGen::gen_expr(Node* node) {
 
   // if(node->type == Node::Type::CompoundStmt) return print(node->lhs) + "\n" + print(node->rhs);
 
-  if(node->type == Node::Type::If) {
-    std::string if_id = "if_id";
-    gen_expr(node->ctrl_cond());              // 条件式を評価
-    code.breq("t0", "zero", if_id + "_end");  // 分岐
-    gen_expr(node->ctrl_true());              // true の処理
-    code.label(if_id + "_end");               // if の最後
-    return;
-  }
-
-  if(node->type == Node::Type::IfElse) {
-    std::string if_id = "if_id";
-    gen_expr(node->ctrl_cond());                // 条件式を評価
-    code.breq("t0", "zero", if_id + "_else");   // 分岐
-    gen_expr(node->ctrl_true());                // true の処理
-    code.jump("zero", "zero", if_id + "_end");  // else を飛ばす
-    code.label(if_id + "_else");                // else:
-    gen_expr(node->ctrl_false());               // else の処理
-    code.label(if_id + "_end");                 // if - else の最後
-    return;
-  }
-
-  if(node->type == Node::Type::While) {
-    std::string while_id = "while_id";
-    code.label(while_id + "_continue");
-    gen_expr(node->ctrl_cond());                   // 条評価
-    code.breq("t0", "zero", while_id + "_break");  // 分岐
-    gen_expr(node->ctrl_body());                   // ループ処理
-    code.jump("zero", "zero", while_id + "_continue");
-    code.label(while_id + "_break");
-    return;
-  }
-
-  if(node->type == Node::Type::DoWhile) {
-    std::string do_while_id = "do_while_id";
-    code.label(do_while_id + "_continue");
-    gen_expr(node->ctrl_body());                           // ループ処理
-    gen_expr(node->ctrl_cond());                           // 条件評価
-    code.breq("t0", "zero", do_while_id + "_break");       // 分岐
-    code.jump("zero", "zero", do_while_id + "_continue");  // ループを続ける
-    code.label(do_while_id + "_break");
-    return;
-  }
-
-  if(node->type == Node::Type::For) {
-    std::string for_id = "for_id";
-    gen_expr(node->ctrl_init());  // 初期化処理
-    code.label(for_id + "_check");
-    gen_expr(node->ctrl_cond());                 // 条件評価
-    code.breq("t0", "zero", for_id + "_break");  // 分岐
-    gen_expr(node->ctrl_body());                 // ループ処理
-    code.label(for_id + "_continue");
-    gen_expr(node->ctrl_iterate());                // 反復処理
-    code.jump("zero", "zero", for_id + "_check");  // 条件確認に戻る
-    code.label(for_id + "_break");
-    return;
-  }
 
   code.comment("Cannot Generate Asm");
 }
+
+void CodeGen::gen_addr(Node* node) {}
 
 // void CodeGen::gen_for(Node* node) {
 //   if(node->type == Node::Type::For) {
@@ -184,57 +285,3 @@ void CodeGen::gen_expr(Node* node) {
 //     return;
 //   }
 // }
-
-uint16_t CodeGen::gen_global(uint16_t global_top) {
-  for(auto var : symbols->symbols) {
-    if(var.kind == GlobalSymbol::Kind::GVar) {
-      code.addr_label(var.name, global_top);
-      global_top += type_size(var.type);
-      // Debug
-      std::stringstream ss;
-      ss << type_size(var.type) << " : " << var.type;
-      code.comment(ss.str());
-    }
-  }
-  return global_top;
-}
-
-uint16_t CodeGen::type_size(Node* node) {
-  if(node->type_is(Node::Type::TypePrim)) {
-    std::string type_name = node->def_name()->str;
-
-    // 整数型 : 1
-    if(type_name == "int") return 1;
-
-    // 定義された型 : シンボルテーブルから探す
-    GlobalSymbol* defined_type = symbols->find(type_name);
-    if(defined_type == nullptr)
-      error("Cannot find def of type:" + node->str);
-    return type_size(defined_type->type);
-  }
-
-  // ポインタ型 : 1
-  if(node->type_is(Node::Type::TypePointer)) {
-    return 1;
-  }
-
-  // 配列型 : ベース型の N 倍
-  if(node->type_is(Node::Type::TypeArray)) {
-    return type_size(node->type_base()) * node->array_len();
-  }
-
-  // 構造体 : メンバ型の合計
-  if(node->type_is(Node::Type::TypeStruct)) {
-    int ret = 0;
-    for(auto t : node->type_members())
-      ret += type_size(t.second);
-    return ret;
-  }
-
-  // 関数型 : RAM上になし
-  if(node->type_is(Node::Type::TypeFunc)) {
-    return 0;
-  }
-  error("This node is not type: ");
-  return 0;
-}

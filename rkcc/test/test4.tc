@@ -1,5 +1,5 @@
-type point: {x:int,y:int,z:int};
-type triangle: {p0:point,p1:point,p2:pint};
+type point: {x: int, y: int, z: int};
+type triangle: {p0: point, p1: point, p2: point};
 
 var a: int;
 var b: [16]int;
@@ -8,9 +8,6 @@ var d: {m:int,n:int};
 var e: point;
 var z: int;
 
-func member_test:()=>int{
-  s.m;
-}
 
 func add: (r0:point,r1:point)=>point{
   var ret: point;

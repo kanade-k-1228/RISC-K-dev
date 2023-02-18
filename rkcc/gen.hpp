@@ -7,14 +7,20 @@ class CodeGen {
   Node* root;
   GlobalSymbols* symbols;
   Code code;
+  std::string cur_func;
+  std::string cur_loop;
 public:
   CodeGen(Node* root, GlobalSymbols* symbols) : root(root), symbols(symbols) {}
-  uint16_t gen_global(uint16_t global_top);
-  void gen_func();
-  Code* get_code() { return &code; }
-private:
+
+  uint16_t gen_gvar(uint16_t global_top);
   uint16_t type_size(Node* node);
+
+  void gen_func();
+  // void gen_lvar();
   void gen_stmt(Node* node);
+  void gen_expr(Node* node);
+  void gen_addr(Node* node);
+
   void gen_for(Node* node);
   void gen_while(Node* node);
   void gen_break(Node* node);
@@ -22,5 +28,6 @@ private:
   void gen_goto(Node* node);
   void gen_label(Node* node);
 
-  void gen_expr(Node* node);
+
+  Code* get_code() { return &code; }
 };

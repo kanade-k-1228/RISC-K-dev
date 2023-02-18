@@ -4,6 +4,8 @@
 struct Code {
   std::vector<std::string> code;
   void comment(std::string comment);
+  void comment(Node* node);
+  void newline();
   void label(std::string label);
   void addr_label(std::string label, uint16_t addr);
   void const_label(std::string label, uint16_t value);
@@ -21,8 +23,11 @@ struct Code {
   void jump(std::string rd, std::string rs, std::string label);
   void breq(std::string rs1, std::string rs2, int addr);
   void breq(std::string rs1, std::string rs2, std::string label);
+
   void push(std::string reg);
   void pop(std::string reg);
+  void mov(std::string to, std::string from);
+  void nop();
 };
 
 std::ostream& operator<<(std::ostream&, Code);

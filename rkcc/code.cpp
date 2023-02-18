@@ -3,6 +3,12 @@
 #include <sstream>
 
 void Code::comment(std::string comment) { code.push_back("; " + comment); }
+void Code::comment(Node* node) {
+  std::stringstream ss;
+  ss << "; " << node;
+  code.push_back(ss.str());
+}
+void Code::newline() { code.push_back(""); }
 
 void Code::label(std::string label) { code.push_back(label + ":"); };
 void Code::addr_label(std::string label, uint16_t addr) { code.push_back("@" + hex(true, addr) + " " + label); };
@@ -35,6 +41,14 @@ void Code::push(std::string reg) {
 void Code::pop(std::string reg) {
   addi("sp", "sp", 1);
   load(reg, "sp", 0);
+}
+
+void Code::mov(std::string to, std::string from) {
+  add(to, from, "zero");
+}
+
+void Code::nop() {
+  add("zero", "zero", "zero");
 }
 
 std::ostream& operator<<(std::ostream& ss, Code asmcode) {

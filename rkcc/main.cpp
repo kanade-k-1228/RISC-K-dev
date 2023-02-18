@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
   std::cout << std::endl;
   // アセンブラ生成
   CodeGen gen(root, &gsymbols);
-  // asembly(root);
-  gen.gen_global(0x1000);
+  gen.gen_gvar(0x1000);
+  gen.gen_func();
   std::cout << *gen.get_code() << std::endl;
 }
