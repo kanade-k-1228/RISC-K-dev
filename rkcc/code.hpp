@@ -1,9 +1,12 @@
+#pragma once
 #include "ast.hpp"
 
 struct Code {
   std::vector<std::string> code;
   void comment(std::string comment);
   void label(std::string label);
+  void addr_label(std::string label, uint16_t addr);
+  void const_label(std::string label, uint16_t value);
   void add(std::string rd, std::string rs1, std::string rs2);
   void sub(std::string rd, std::string rs1, std::string rs2);
   void addi(std::string rd, std::string rs, int imm);
@@ -20,7 +23,6 @@ struct Code {
   void breq(std::string rs1, std::string rs2, std::string label);
   void push(std::string reg);
   void pop(std::string reg);
-  std::string print();
 };
 
 std::ostream& operator<<(std::ostream&, Code);

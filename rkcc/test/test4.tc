@@ -1,13 +1,12 @@
-var a: int;
-var b: int;
-var c: [10]int;
-var d: *int;
-var e: [10]*int;
-var s: {m:int,n:int};
-var aps: [10]*{x:int,y:int};
-
 type point: {x:int,y:int,z:int};
 type triangle: {p0:point,p1:point,p2:pint};
+
+var a: int;
+var b: [16]int;
+var c: *int;
+var d: {m:int,n:int};
+var e: point;
+var z: int;
 
 func member_test:()=>int{
   s.m;

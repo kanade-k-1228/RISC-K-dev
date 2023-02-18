@@ -1,6 +1,28 @@
+#pragma once
 #include "ast.hpp"
 #include <sstream>
 #include <string>
+
+// struct Symbol;
+
+// struct Symbols {
+//   std::map<std::string, Symbol> symbols;
+// };
+
+// struct Symbol {
+//   enum class Kind {
+//     Func,
+//     GVar,
+//     LVar,
+//     Type,
+//   };
+//   std::string name;
+//   Node* type;
+//   uint16_t addr;
+//   Node* body;
+//   Symbols* local;
+// };
+
 
 struct LocalSymbol {
   std::string name;
