@@ -8,6 +8,7 @@ add_executable(rkcc
     ast.cpp 
     dfs.cpp
     ast_print.cpp
+    symbol.cpp
     symbols.cpp
     type.cpp
     code.cpp

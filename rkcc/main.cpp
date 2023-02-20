@@ -36,22 +36,22 @@ int main(int argc, char* argv[]) {
   Node* root = program(tokens);
   // std::cout << root << std::endl;
   // シンボルテーブル生成
-  GlobalSymbols gsymbols(root);
-  for(auto gs : gsymbols.symbols) {
+  Symbols symbols(root);
+  for(auto gs : symbols.symbols) {
     std::cout << "+ " << gs
               << " : " << std::setw(8) << std::left << gs.name
               << " : " << gs.type
               << std::endl;
-    if(gs.kind == GlobalSymbol::Kind::Func) {
-      for(auto ls : gs.ls.symbols) {
-        std::cout << "|  + var : " << std::setw(6) << std::left << ls.name
+    if(gs.kind == Symbol::Kind::Func) {
+      for(auto ls : gs.local->symbols) {
+        std::cout << "|  + " << ls << " : " << std::setw(6) << std::left << ls.name
                   << " : " << ls.type << std::endl;
       }
     }
   }
   std::cout << std::endl;
   // アセンブラ生成
-  CodeGen gen(root, &gsymbols);
+  CodeGen gen(root, &symbols);
   gen.gen_gvar(0x1000);
   gen.gen_func();
   std::cout << *gen.get_code() << std::endl;

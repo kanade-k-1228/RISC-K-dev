@@ -1,3 +1,4 @@
+#pragma once
 #include "ast.hpp"
 
 // 深さ優先探索

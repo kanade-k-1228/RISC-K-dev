@@ -6,7 +6,7 @@
 uint16_t CodeGen::gen_gvar(uint16_t global_top) {
   code.comment("Global Var");
   for(auto var : symbols->symbols) {
-    if(var.kind == GlobalSymbol::Kind::GVar) {
+    if(var.kind == Symbol::Kind::GVar) {
       code.addr_label(var.name, global_top);
       global_top += type_size(var.type);
       // Print Type
@@ -27,7 +27,7 @@ uint16_t CodeGen::type_size(Node* node) {
     if(type_name == "int") return 1;
 
     // 定義された型 : シンボルテーブルから探す
-    GlobalSymbol* defined_type = symbols->find(type_name);
+    Symbol* defined_type = symbols->find(type_name);
     if(defined_type == nullptr)
       error("Cannot find def of type: " + node->def_name()->str);
     return type_size(defined_type->type);
@@ -61,13 +61,13 @@ uint16_t CodeGen::type_size(Node* node) {
 
 void CodeGen::gen_func() {
   for(auto func : symbols->symbols) {
-    if(func.kind == GlobalSymbol::Kind::Func) {
+    if(func.kind == Symbol::Kind::Func) {
       code.newline();
       code.comment("Func " + func.name);
       // Local variables
-      if(func.kind == GlobalSymbol::Kind::Func) {
+      if(func.kind == Symbol::Kind::Func) {
         uint16_t fp = 0xffff;
-        for(auto ls : func.ls.symbols) {
+        for(auto ls : func.local->symbols) {
           code.addr_label(func.name + "_" + ls.name, fp);
           fp -= type_size(ls.type);
           // Print Type

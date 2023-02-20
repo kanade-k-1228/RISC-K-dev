@@ -5,12 +5,12 @@
 
 class CodeGen {
   Node* root;
-  GlobalSymbols* symbols;
+  Symbols* symbols;
   Code code;
   std::string cur_func;
   std::string cur_loop;
 public:
-  CodeGen(Node* root, GlobalSymbols* symbols) : root(root), symbols(symbols) {}
+  CodeGen(Node* root, Symbols* symbols) : root(root), symbols(symbols) {}
 
   uint16_t gen_gvar(uint16_t global_top);
   uint16_t type_size(Node* node);
