@@ -38,13 +38,13 @@ int main(int argc, char* argv[]) {
   // シンボルテーブル生成
   Symbols symbols(root);
   for(auto gs : symbols.symbols) {
-    std::cout << "+ " << gs
+    std::cout << "+ " << gs->kind
               << " : " << std::setw(8) << std::left << gs->name
               << " : " << gs->type
               << std::endl;
     if(gs->kind == Symbol::Kind::Func) {
       for(auto ls : gs->local->symbols) {
-        std::cout << "|  + " << ls << " : " << std::setw(6) << std::left << ls->name
+        std::cout << "|  + " << ls->kind << " : " << std::setw(6) << std::left << ls->name
                   << " : " << ls->type << std::endl;
       }
     }

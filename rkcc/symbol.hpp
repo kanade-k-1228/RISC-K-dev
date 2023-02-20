@@ -26,4 +26,4 @@ struct Symbol {
       : kind(kind), name(name), type(type), addr(0), body(body), local(local) {}
 };
 
-std::ostream& operator<<(std::ostream& ss, Symbol s);
+std::ostream& operator<<(std::ostream& ss, Symbol::Kind kind);
