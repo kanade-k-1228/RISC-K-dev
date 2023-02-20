@@ -39,13 +39,13 @@ int main(int argc, char* argv[]) {
   Symbols symbols(root);
   for(auto gs : symbols.symbols) {
     std::cout << "+ " << gs
-              << " : " << std::setw(8) << std::left << gs.name
-              << " : " << gs.type
+              << " : " << std::setw(8) << std::left << gs->name
+              << " : " << gs->type
               << std::endl;
-    if(gs.kind == Symbol::Kind::Func) {
-      for(auto ls : gs.local->symbols) {
-        std::cout << "|  + " << ls << " : " << std::setw(6) << std::left << ls.name
-                  << " : " << ls.type << std::endl;
+    if(gs->kind == Symbol::Kind::Func) {
+      for(auto ls : gs->local->symbols) {
+        std::cout << "|  + " << ls << " : " << std::setw(6) << std::left << ls->name
+                  << " : " << ls->type << std::endl;
       }
     }
   }

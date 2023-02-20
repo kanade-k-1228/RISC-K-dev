@@ -8,7 +8,7 @@
 struct Symbol;
 
 struct Symbols {
-  std::vector<Symbol> symbols;
+  std::vector<Symbol*> symbols;
   Symbols();
   Symbols(Node* node);                   // Global
   Symbols(Node* type, Node* comp_stmt);  // Local

@@ -6,12 +6,12 @@
 uint16_t CodeGen::gen_gvar(uint16_t global_top) {
   code.comment("Global Var");
   for(auto var : symbols->symbols) {
-    if(var.kind == Symbol::Kind::GVar) {
-      code.addr_label(var.name, global_top);
-      global_top += type_size(var.type);
+    if(var->kind == Symbol::Kind::GVar) {
+      code.addr_label(var->name, global_top);
+      global_top += type_size(var->type);
       // Print Type
       std::stringstream ss;
-      ss << std::setw(5) << type_size(var.type) << "  : " << var.type;
+      ss << std::setw(5) << type_size(var->type) << "  : " << var->type;
       code.comment(ss.str());
     }
   }
@@ -61,24 +61,24 @@ uint16_t CodeGen::type_size(Node* node) {
 
 void CodeGen::gen_func() {
   for(auto func : symbols->symbols) {
-    if(func.kind == Symbol::Kind::Func) {
+    if(func->kind == Symbol::Kind::Func) {
       code.newline();
-      code.comment("Func " + func.name);
+      code.comment("Func " + func->name);
       // Local variables
-      if(func.kind == Symbol::Kind::Func) {
+      if(func->kind == Symbol::Kind::Func) {
         uint16_t fp = 0xffff;
-        for(auto ls : func.local->symbols) {
-          code.addr_label(func.name + "_" + ls.name, fp);
-          fp -= type_size(ls.type);
+        for(auto ls : func->local->symbols) {
+          code.addr_label(func->name + "_" + ls->name, fp);
+          fp -= type_size(ls->type);
           // Print Type
           std::stringstream ss;
-          ss << std::setw(5) << type_size(ls.type) << "  : " << ls.type;
+          ss << std::setw(5) << type_size(ls->type) << "  : " << ls->type;
           code.comment(ss.str());
         }
       }
       // Func Body
-      code.label(func.name);
-      gen_stmt(func.body);
+      code.label(func->name);
+      gen_stmt(func->body);
     }
   }
 }
