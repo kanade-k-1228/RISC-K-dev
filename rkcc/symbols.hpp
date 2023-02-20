@@ -1,30 +1,24 @@
 #pragma once
 #include "ast.hpp"
+#include "symbol.hpp"
 #include <sstream>
 #include <string>
 
-// struct Symbol;
+struct Symbol;
 
-// struct Symbols {
-//   std::map<std::string, Symbol> symbols;
-// };
-
-// struct Symbol {
-//   enum class Kind {
-//     Func,
-//     GVar,
-//     LVar,
-//     Type,
-//   };
-//   std::string name;
-//   Node* type;
-//   uint16_t addr;
-//   Node* body;
-//   Symbols* local;
-// };
-
+struct Symbols {
+  std::map<std::string, Symbol> symbols;
+  Symbol* find(std::string name) {
+    auto found = symbols.find(name);
+    if(found != symbols.end())
+      return &found->second;
+    else
+      return nullptr;
+  }
+};
 
 struct LocalSymbol {
+  enum class Kind {};
   std::string name;
   Node* type;
   uint16_t addr;

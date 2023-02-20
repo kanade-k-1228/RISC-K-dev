@@ -354,8 +354,8 @@ prim =
 | 種類 | 名前 | 型   | アドレス            | 関数本体 | ローカル |
 | ---- | ---- | ---- | ------------------- | -------- | -------- |
 | Func | name | type | addr (テキスト領域) | body     | lsymbol  |
-| GVar | name | type | int  (静的領域)     |          |          |
-| LVar | name | type | int  (スタック)     |          |          |
+| GVar | name | type | addr (静的領域)     |          |          |
+| LVar | name | type | addr (スタック相対) |          |          |
 | Type | name | type |                     |          |          |
 
 ## 2.4. ASTの再帰的評価
@@ -481,3 +481,4 @@ compound = "{" stmt* "}"
   - DFS、シンボルテーブルができた
   - シンボル、ローカルとグローバルを統一したいわね
   - Static変数も作りたい
+- 2/20
