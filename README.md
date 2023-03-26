@@ -2,11 +2,13 @@
 
 💻 Home-made 16bit CPU & Toolchain
 
+![](img/concept.dio.svg)
+
 | Tools               |              |
 | ------------------- | ------------ |
 | [RKISA](./rkisa/)   | CPU ISA      |
-| [RKASM](./rkasm/)   | Assembler    |
-| [RKEMU](./rkemu/)   | Emulator     |
+| [RKAsm](./rkasm/)   | Assembler    |
+| [RKEmu](./rkemu/)   | Emulator     |
 | [RKCC](./rkcc/)     | Compiler     |
 | [RKRTOS](./rkrtos/) | Real Time OS |
 | [RK16](./rk16/)     | Hardware     |
