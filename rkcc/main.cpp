@@ -1,3 +1,4 @@
+#include "../utils/utils.hpp"
 #include "ast.hpp"
 #include "code.hpp"
 #include "dfs.hpp"
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
   // std::cout << root << std::endl;
   // シンボルテーブル生成
   Symbols symbols(root);
+  std::cout << "------[Symbols]------" << std::endl;
   for(auto gs : symbols.symbols) {
     std::cout << "+ " << gs->kind
               << " : " << std::setw(8) << std::left << gs->name
@@ -54,5 +56,7 @@ int main(int argc, char* argv[]) {
   CodeGen gen(root, &symbols);
   gen.gen_gvar(0x1000);
   gen.gen_func();
-  std::cout << *gen.get_code() << std::endl;
+  std::cout << "------[ASM Out]------" << std::endl
+            << *gen.get_code()
+            << "---------------------" << std::endl;
 }

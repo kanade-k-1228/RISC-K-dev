@@ -120,34 +120,7 @@ uint16_t get_func(std::string op_s) {
 }
 
 uint32_t Operation::get_bin() {
-  bin = 0;
-  if(op == CALC) {
-    bin |= (rs1 & 0x3F);
-    bin |= (op & 0x0F) << 6;
-    bin |= (func & 0x0F) << 10;
-    bin |= (rs2 & 0x3F) << 20;
-    bin |= (rd & 0x3F) << 26;
-  } else if(op == CALCI) {
-    bin |= (rs1 & 0x3F);
-    bin |= (op & 0x0F) << 6;
-    bin |= (imm.value & 0x3FF) << 10;
-    bin |= (func & 0x0F) << 20;
-    bin |= (imm.value & 0xA00) >> 10 << 24;
-    bin |= (rd & 0x3F) << 26;
-  } else if(op == LOAD || op == LOADI || op == JUMP) {
-    bin |= (rs1 & 0x3F);
-    bin |= (op & 0x0F) << 6;
-    bin |= (imm.value & 0xFFFF) << 10;
-    bin |= (rd & 0x3F) << 26;
-  } else if(op == STORE || op == BREQ || op == BRLT) {
-    bin |= (rs1 & 0x3F);
-    bin |= (op & 0x0F) << 6;
-    bin |= (imm.value & 0x3FF) << 10;
-    bin |= (rs2 & 0x3F) << 20;
-    bin |= (imm.value & 0xFA00) >> 10 << 26;
-  } else {
-    error("Invalid Code Format");
-  }
+  bin = OPEncoder(op, func, rs1, rs2, rd, imm.value).bin;
   return bin;
 }
 

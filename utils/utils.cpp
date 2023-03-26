@@ -44,21 +44,6 @@ std::string hex(bool prefix, const uint32_t n) {
   return ss.str();
 }
 
-uint16_t decode_imm(uint32_t code, uint16_t opc) {
-  if(opc == CALC) return 0;
-  if(opc == CALCI) return ((code >> 10) & 0x03ff) | (((code >> 24) & 0x0003) << 10);
-  if(opc == LOAD || opc == LOADI || opc == JUMP) return (code >> 10) & 0xffff;
-  if(opc == STORE || opc == BREQ || opc == BRLT) return ((code >> 10) & 0x03ff) | ((code >> 26) & 0x003f);
-  error("Unknown OPC: " + opc);
-  return 0;
-}
-
-uint16_t decode_func(uint32_t code, uint16_t opc) {
-  if(opc == CALC) return (code >> 10) & 0x000f;
-  if(opc == CALCI) return (code >> 20) & 0x000f;
-  return 0;
-}
-
 // 区切り文字 sep で分割
 std::vector<std::string> split(const std::string& str, const char sep) {
   std::vector<std::string> v;

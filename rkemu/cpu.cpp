@@ -77,36 +77,30 @@ void CPU::jump_interrupt() {
 }
 
 void CPU::execute(uint32_t code) {
-  uint16_t opc = (code >> 6) & 0x000f;
-  uint16_t func = decode_func(code, opc);
-  uint16_t rs1 = (code >> 0) & 0x003f;
-  uint16_t rs2 = (code >> 20) & 0x003f;
-  uint16_t rd = (code >> 26) & 0x003f;
-  uint16_t imm = decode_imm(code, opc);
-
-  if(opc == CALC) {
-    if(func == ADD) add(rd, rs1, rs2);
-    if(func == SUB) sub(rd, rs1, rs2);
-    if(func == AND) land(rd, rs1, rs2);
-    if(func == OR) lor(rd, rs1, rs2);
-    if(func == XOR) lxor(rd, rs1, rs2);
-    if(func == NOT) lnot(rd, rs1);
-    if(func == LROT) lrot(rd, rs1);
-    if(func == RROT) rrot(rd, rs1);
+  OPDecoder op(code);
+  if(op.opc == CALC) {
+    if(op.func == ADD) add(op.rd, op.rs1, op.rs2);
+    if(op.func == SUB) sub(op.rd, op.rs1, op.rs2);
+    if(op.func == AND) land(op.rd, op.rs1, op.rs2);
+    if(op.func == OR) lor(op.rd, op.rs1, op.rs2);
+    if(op.func == XOR) lxor(op.rd, op.rs1, op.rs2);
+    if(op.func == NOT) lnot(op.rd, op.rs1);
+    if(op.func == LROT) lrot(op.rd, op.rs1);
+    if(op.func == RROT) rrot(op.rd, op.rs1);
   }
-  if(opc == CALCI) {
-    if(func == ADD) addi(rd, rs1, imm);
-    if(func == SUB) subi(rd, rs1, imm);
-    if(func == AND) landi(rd, rs1, imm);
-    if(func == OR) lori(rd, rs1, imm);
-    if(func == XOR) lxori(rd, rs1, imm);
+  if(op.opc == CALCI) {
+    if(op.func == ADD) addi(op.rd, op.rs1, op.imm);
+    if(op.func == SUB) subi(op.rd, op.rs1, op.imm);
+    if(op.func == AND) landi(op.rd, op.rs1, op.imm);
+    if(op.func == OR) lori(op.rd, op.rs1, op.imm);
+    if(op.func == XOR) lxori(op.rd, op.rs1, op.imm);
   }
-  if(opc == LOAD) load(rd, rs1, imm);
-  if(opc == LOADI) loadi(rd, imm);
-  if(opc == STORE) store(rs1, rs2, imm);
-  if(opc == JUMP) jump(rd, rs1, imm);
-  if(opc == BREQ) breq(rs1, rs2, imm);
-  if(opc == BRLT) brlt(rs1, rs2, imm);
+  if(op.opc == LOAD) load(op.rd, op.rs1, op.imm);
+  if(op.opc == LOADI) loadi(op.rd, op.imm);
+  if(op.opc == STORE) store(op.rs1, op.rs2, op.imm);
+  if(op.opc == JUMP) jump(op.rd, op.rs1, op.imm);
+  if(op.opc == BREQ) breq(op.rs1, op.rs2, op.imm);
+  if(op.opc == BRLT) brlt(op.rs1, op.rs2, op.imm);
   return;
 }
 

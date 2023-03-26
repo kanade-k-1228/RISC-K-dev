@@ -60,37 +60,31 @@ bool DumpPoints::is_dump(uint16_t pc) {
 }
 
 std::string Debug::print_code(uint32_t code) {
-  uint16_t opc = (code >> 6) & 0x000f;
-  uint16_t func = decode_func(code, opc);
-  uint16_t rs1 = (code >> 0) & 0x003f;
-  uint16_t rs2 = (code >> 20) & 0x003f;
-  uint16_t rd = (code >> 26) & 0x003f;
-  uint16_t imm = decode_imm(code, opc);
-
-  if(opc == CALC) {
-    if(func == ADD) return cprint("add", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6);
-    if(func == SUB) return cprint("sub", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6);
-    if(func == AND) return cprint("and", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6);
-    if(func == OR) return cprint("or", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6);
-    if(func == XOR) return cprint("xor", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6);
-    if(func == NOT) return cprint("not", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6);
-    if(func == LROT) return cprint("lrot", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6);
-    if(func == RROT) return cprint("rrot", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6);
+  OPDecoder op(code);
+  if(op.opc == CALC) {
+    if(op.func == ADD) return cprint("add", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
+    if(op.func == SUB) return cprint("sub", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
+    if(op.func == AND) return cprint("and", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
+    if(op.func == OR) return cprint("or", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
+    if(op.func == XOR) return cprint("xor", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
+    if(op.func == NOT) return cprint("not", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == LROT) return cprint("lrot", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == RROT) return cprint("rrot", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
   }
-  if(opc == CALCI) {
-    if(func == ADD) return cprint("addi", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-    if(func == SUB) return cprint("subi", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-    if(func == AND) return cprint("andi", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-    if(func == OR) return cprint("ori", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-    if(func == XOR) return cprint("xori", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
+  if(op.opc == CALCI) {
+    if(op.func == ADD) return cprint("addi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == SUB) return cprint("subi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == AND) return cprint("andi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == OR) return cprint("ori", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == XOR) return cprint("xori", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   }
-  if(opc == LOAD) return cprint("load", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  if(opc == LOADI) return cprint("loadi", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  if(opc == STORE) return cprint("store", RED, 6) + cprint(hex(false, rs2), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  if(opc == JUMP) return cprint("jump", RED, 6) + cprint(hex(false, rd), BLUE, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  if(opc == BREQ) return cprint("breq", RED, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  if(opc == BRLT) return cprint("brlt", RED, 6) + cprint(hex(false, rs1), BLUE, 6) + cprint(hex(false, rs2), BLUE, 6) + cprint(hex(false, imm), YELLOW, 6);
-  return "Unknown Opecode" + hex(true, opc);
+  if(op.opc == LOAD) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == LOADI) return cprint("loadi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == STORE) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == JUMP) return cprint("jump", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == BREQ) return cprint("breq", RED, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == BRLT) return cprint("brlt", RED, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  return "Unknown Opecode" + hex(true, op.opc);
 }
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {

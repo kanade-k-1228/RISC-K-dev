@@ -1,3 +1,6 @@
+#pragma once
+#include <string>
+
 enum Reg {
   ZERO = 0x00,
   RA = 0x01,
@@ -60,4 +63,19 @@ enum CSRBit {
 
 enum Addr {
   PC_INTR = 0x0001,
+};
+
+struct OPDecoder {
+  uint16_t opc;
+  uint16_t func;
+  uint16_t rs1;
+  uint16_t rs2;
+  uint16_t rd;
+  uint16_t imm;
+  OPDecoder(uint32_t code);
+};
+
+struct OPEncoder {
+  uint32_t bin;
+  OPEncoder(uint16_t op, uint16_t func, uint16_t rs1, uint16_t rs2, uint16_t rd, uint16_t imm);
 };
