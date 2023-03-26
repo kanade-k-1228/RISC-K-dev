@@ -54,8 +54,10 @@ void DumpPoints::init(std::string fname) {
 }
 
 bool DumpPoints::is_dump(uint16_t pc) {
-  if(all) return all;
-  if(use) return this->contains(pc);
+  if(all)
+    return true;
+  else if(use)
+    return this->contains(pc);
   return false;
 }
 
@@ -106,5 +108,19 @@ std::string Debug::dump(CPU& cpu, DumpOption& opt) {
       ss << " | " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << "                  |" << std::endl;
   }
   ss << " +--------------------------------+" << std::endl;
+  return ss.str();
+}
+
+std::string Debug::dump(CPU& cpu) {
+  std::stringstream ss;
+  ss << " +-----------+------+------+------+" << std::endl
+     << " |  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " | " << cprint("Arg", BLUE, 0) << "  |" << std::endl
+     << " |  RA: " << hex(false, cpu.mem.at(RA)) << " | " << hex(false, cpu.mem.at(S0)) << " | " << hex(false, cpu.mem.at(T0)) << " | " << hex(false, cpu.mem.at(A0)) << " |" << std::endl
+     << " | IRA: " << hex(false, cpu.mem.at(IRA)) << " | " << hex(false, cpu.mem.at(S1)) << " | " << hex(false, cpu.mem.at(T1)) << " | " << hex(false, cpu.mem.at(A1)) << " |" << std::endl
+     << " |  SP: " << hex(false, cpu.mem.at(SP)) << " | " << hex(false, cpu.mem.at(S2)) << " | " << hex(false, cpu.mem.at(T2)) << " | " << hex(false, cpu.mem.at(A2)) << " |" << std::endl
+     << " |  FP: " << hex(false, cpu.mem.at(FP)) << " | " << hex(false, cpu.mem.at(S3)) << " | " << hex(false, cpu.mem.at(T3)) << " | " << hex(false, cpu.mem.at(A3)) << " |" << std::endl
+     << " +-----------+------+------+------+" << std::endl
+     << " | CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          |" << std::endl
+     << " +--------------------------------+" << std::endl;
   return ss.str();
 }

@@ -9,12 +9,22 @@
 
 std::string esc_char(char);
 
+std::string man
+    = "rkemu [-o] [-t] [-s] [-a] [-d .dump] [-i .intr] .rk.bin\n"
+      "  -t:      set interval Time     命令実行の間で少し待ちます\n"
+      "  -o:      print Operatioin      命令を表示します\n"
+      "  -a:      dump All operation    全命令でダンプします\n"
+      "  -d FILE: Dump points file      ダンプ時刻ファイル\n"
+      "  -i FILE: Interrupt points file 割り込み時刻ファイル\n"
+      "     FILE: Emulation binary      エミュレートするバイナリファイル";
+
 int main(int argc, char* argv[]) {
   CPU cpu;
   DumpPoints dump_points;
   IntrPoints intr_points;
   bool print_opr = false;
   bool interval_time = false;
+  bool dump_all = false;
 
   // Init Emulator with Comandline options
   opterr = 0;
@@ -23,26 +33,26 @@ int main(int argc, char* argv[]) {
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'o') print_opr = true;
     if(opt == 't') interval_time = true;
-    if(opt == 'a') dump_points.all = true;
-    // if(opt == '?') {
-    //   std::cout << "rkemu [-o] [-t] [-s] [-a] [-d .dump] [-i .intr] .rk.bin" << std::endl
-    //             << "   t: interval Time         逐次実行します" << std::endl
-    //             << "   o: print Operatioin      命令を表示します" << std::endl
-    //             << "   a: dump All              全命令でダンプします" << std::endl
-    //             << "   d: Dump points file      ダンプ設定ファイル" << std::endl
-    //             << "   i: Interrupt points file 割り込み設定ファイル" << std::endl
-    //             << "   ?: option mannual" << std::endl;
-    //   return EXIT_SUCCESS;
-    // }
+    if(opt == 'a') dump_all = true;
+    if(opt == '?') {
+      std::cout << man << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  if(!(optind < argc)) {
+    std::cout << man << std::endl;
+    return EXIT_FAILURE;
   }
   cpu.load_rom(argv[optind]);
-
+  // Print Emulation Conditions
   std::cout << "+----------------------------------+" << std::endl
             << "|                                  |\r"
             << "| Emulate: " << cpu.fname << std::endl;
   if(dump_points.use)
     std::cout << "|                                  |\r"
               << "|  - Dump: " << dump_points.fname << std::endl;
+  if(dump_points.all)
+    std::cout << "|  - Dump: All                     |" << std::endl;
   if(intr_points.use)
     std::cout << "|                                  |\r"
               << "|  - Intr: " << intr_points.fname << std::endl;
@@ -59,10 +69,8 @@ int main(int argc, char* argv[]) {
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 
-    bool dump = dump_points.is_dump(pc);
-
-    // Print Debug Info
-    if(print_opr || dump)
+    // Print Operation
+    if(print_opr || dump_all || dump_points.is_dump(pc))
       std::cout << "[" << hex(false, (uint16_t)t) << "]  "
                 << cprint(hex(false, pc), GREEN, 0)
                 << Debug::print_code(code)
@@ -71,16 +79,22 @@ int main(int argc, char* argv[]) {
     else if(sout != -1)
       std::cout << (char)sout;
 
-    if(dump) std::cout << Debug::dump(cpu, dump_points.at(pc));
+    // Print Registor Value
+    if(dump_points.is_dump(pc))
+      std::cout << Debug::dump(cpu, dump_points.at(pc));
+    else if(dump_all)
+      std::cout << Debug::dump(cpu);
 
     // Interrupt
     cpu.jump_interrupt();
     cpu.catch_interrupt();
-    if(intr_points.is_intr(t)) cpu.external_interrupt(intr_points.at(t).ino);
+    if(intr_points.is_intr(t))
+      cpu.external_interrupt(intr_points.at(t).ino);
 
-    // Exit
+    // Exit Emulator
     if(exit) break;
 
+    // Interval Time between Operation
     if(interval_time) usleep(10000);
   }
   std::cout << std::endl

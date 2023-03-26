@@ -33,5 +33,6 @@ public:
 };
 namespace Debug {
 std::string dump(CPU&, DumpOption&);
+std::string dump(CPU&);
 std::string print_code(uint32_t);
 }  // namespace Debug

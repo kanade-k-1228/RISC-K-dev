@@ -1,6 +1,5 @@
 @0x1234 hoge
 @0x5678 fuga
-; @0x9abc piyo
 #0x01 A
     load t0 zero hoge
     store t0 zero piyo
