@@ -7,7 +7,7 @@
     not  t2 t0 zero
     srs  t2 t0 zero
     sru  t2 t0 zero
-    ls   t2 t0 t1
+    sl   t2 t0 t1
     eq   t2 t0 t1
     lts  t2 t0 t1
     ltu  t2 t0 t1
@@ -21,11 +21,14 @@
     ltsi t2 t0 0xf000
     ltui t2 t0 0xf000
 ; CTRL
-    callif ra zero zero func
-    if   zero func
-    jmp  func
-    call func
+    jmpif t0   zero a
+a:
+    jmpif zero zero b
+b:
+    fcnr  ra   zero c
+c:
     ret
+d:
     iret
-func:
+e:
     ori  csr csr 0x100
