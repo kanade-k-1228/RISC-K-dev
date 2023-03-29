@@ -55,15 +55,3 @@ std::vector<std::string> split(const std::string& str, const char sep) {
   }
   return v;
 }
-
-bool is_empty(const std::string& str) {
-  const std::regex non_empty(R"(\S)");  // 空でない文字にヒットする正規表現
-  return !std::regex_search(str, non_empty);
-}
-
-std::string trim_comment(std::string str) {
-  const auto pos = str.find(";");  // 最初にヒットした ; の位置
-  if(pos != std::string::npos)     // npos はヒットしなかった場合の pos の値
-    str = str.erase(pos);          // pos 以降を削除
-  return str;
-}

@@ -1,36 +1,51 @@
 @0x1234 hoge
 @0x5678 fuga
 #0x01 A
-    load t0 zero hoge
+; MOVE
+    load  t0 zero hoge
     store t0 zero piyo
     loadi t0 piyo
 piyo:
     loadi t0 0x1100
     loadi t1 0x0110
+; CALC
     add  t2 t0 t1
     sub  t2 t0 t1
     and  t2 t0 t1
     or   t2 t0 t1
     xor  t2 t0 t1
     not  t2 t0 zero
-    rrot t2 t0 zero
-    lrot t2 t0 zero
+    rss  t2 t0 zero
+    rsu  t2 t0 zero
+    ls   t2 t0 t1
+    eq   t2 t0 t1
+    lts  t2 t0 t1
+    ltu  t2 t0 t1
+    lnot t2 t0 zero
+; CALCI
     addi t2 t0 0x0011
     subi t2 t0 0x0100
     andi t2 t0 0x1111
     ori  t2 t0 0x0000
     xori t2 t0 0x0110
-    store t2 sp 0
-    loadi t2 0
-    load t2 sp 0
-    breq zero zero here
-    loadi t0 0xffff
+    eqi  t2 t0 0x1100
+    ltsi t2 t0 0xf000
+    ltui t2 t0 0xf000
+; CTRL
+    callif ra zero zero func
+    if   zero func
+    jmp  func
+    call func
+    ret
+    iret
 here:
-    brlt zero t2 koko
+    ; brlt zero t2 koko
     loadi t0 0xffff
 koko:
-    jump ra zero exit
+    ; jump ra zero exit
     loadi t0 0xffff
 exit:
+func:
     ori  csr csr 0x100
+
 

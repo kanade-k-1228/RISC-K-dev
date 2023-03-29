@@ -2,6 +2,7 @@
 #include "../utils/utils.hpp"
 #include "code.hpp"
 #include "label.hpp"
+#include "reader.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -11,64 +12,75 @@
 #include <unistd.h>
 #include <vector>
 
+std::string trim_comment(std::string);
+bool is_empty(const std::string&);
 std::string print_binary(uint32_t);
-std::string print_asm(Operation&);
-std::string print_imm(Imm&);
+
+std::string man
+    = "rkasm [-b] [-w] [-c] [-v] .rkasm\n"
+      "  -b: print Binary     バイナリを表示\n"
+      "  -w: print Warning    警告を表示\n"
+      "  -c: print Const list 定数リストを表示\n"
+      "  -v: print Var list   変数リストを表示\n"
+      "FILE: asembly file     アセンブリファイル";
 
 int main(int argc, char* argv[]) {
-  bool print_debug = false;
-  bool print_warn = false;
-  bool print_const = false;
-  bool print_var = false;
+  bool opt_b = false;
+  bool opt_w = false;
+  bool opt_c = false;
+  bool opt_v = false;
 
   // コマンドライン引数の処理
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "dwcv")) != -1;) {
-    if(opt == 'd') print_debug = true;
-    if(opt == 'w') print_warn = true;
-    if(opt == 'c') print_const = true;
-    if(opt == 'v') print_var = true;
-    if(opt == '?') std::cout << "rkasm [-d] [-w] [-c] [-v] file" << std::endl;
+  for(int opt; (opt = getopt(argc, argv, "bwcv")) != -1;) {
+    if(opt == 'b') opt_b = true;
+    if(opt == 'w') opt_w = true;
+    if(opt == 'c') opt_c = true;
+    if(opt == 'v') opt_v = true;
+    if(opt == '?') {
+      std::cout << man << std::endl;
+      return EXIT_FAILURE;
+    }
   }
-
-  // ファイル
+  if(!(optind < argc)) {
+    std::cout << man << std::endl;
+    return EXIT_FAILURE;
+  }
   std::string fname = argv[optind];
-  std::ifstream fin;
-  fin.open(fname, std::ios::in);
-  if(!fin) error("Can't open input file: " + fname);
-
   std::cout << "------------------------------------" << std::endl
-            << "Assembly: " << fname << std::endl
+            << "Assemble: " << fname << std::endl
             << "------------------------------------" << std::endl;
 
-  LabelTable opr_lab;        // 命令ラベルテーブル
-  LabelTable var_lab;        // 変数ラベルテーブル
-  LabelTable const_lab;      // 定数ラベルテーブル
-  std::vector<Code> codes;   // コードリスト
-  uint16_t program_cnt = 0;  // 機械語命令カウンタ
-  for(std::string line; std::getline(fin, line);) {
-    line = trim_comment(line);                  // コメント削除
-    if(is_empty(line)) continue;                // 空行削除
-    if(print_debug) std::cout << "\r" << line;  // デバッグ用出力
-    Code code(program_cnt, split(line, ' '));   // 行を解釈
-    codes.push_back(code);                      // 行を追加
+  // 一行ずつスキャンし、命令リストに格納
+  std::vector<ASMLine> asmlines;  // コードリスト
+  uint16_t operation_cnt = 0;     // 機械語命令カウンタ
+  for(Reader::init(fname); Reader::getline();) {
+    std::string line = trim_comment(Reader::line);        // コメント削除
+    if(is_empty(line)) continue;                          // 空行ならスキップ
+    ASMLine code(operation_cnt, split(line, ' '));        // 行を解釈
+    asmlines.push_back(code);                             // 行を追加
+    if(code.type == ASMLine::OPERATION) ++operation_cnt;  // 命令行の場合、PCのカウントアップ
+  }
 
-    if(code.type == Code::LABEL_DEF) {  // ラベルテーブルに追加
-      if(code.label.type == Label::OPR)
-        opr_lab.define(code.label.name, code.label.value);
-      if(code.label.type == Label::VAR)
-        var_lab.define(code.label.name, code.label.value);
-      if(code.label.type == Label::CONST)
-        const_lab.define(code.label.name, code.label.value);
-    } else {          // 命令行の場合
-      program_cnt++;  // PCのカウントアップ
+  // ラベルテーブルの生成
+  LabelTable opr_lab;    // 命令ラベルテーブル
+  LabelTable var_lab;    // 変数ラベルテーブル
+  LabelTable const_lab;  // 定数ラベルテーブル
+  for(auto& asmline : asmlines) {
+    if(asmline.type == ASMLine::LABEL_DEF) {
+      if(asmline.label.type == LabelDef::OPR)
+        opr_lab.define(asmline.label.name, asmline.label.value);
+      if(asmline.label.type == LabelDef::VAR)
+        var_lab.define(asmline.label.name, asmline.label.value);
+      if(asmline.label.type == LabelDef::CONST)
+        const_lab.define(asmline.label.name, asmline.label.value);
     }
   }
 
   // ラベルの解決
-  for(auto& code : codes) {
-    if(code.type == Code::OPERATION) {
-      if(print_debug) std::cout << "\r" << print_asm(code.opr);  // デバッグ用出力
+  for(auto& code : asmlines) {
+    if(code.type == ASMLine::OPERATION) {
+      if(opt_b) std::cout << "\r" << code.opr.print();
       if(code.opr.imm.type == Imm::LAB_REF) {
         std::string lab = code.opr.imm.label;
         bool lab_is_opr = opr_lab.contains(lab);
@@ -93,81 +105,63 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // 型エラーの表示
-  if(print_warn) {
-    for(auto& code : codes) {
-      if(code.opr.imm.type == Imm::OPR_LAB_REF && (code.opr.op == LOAD || code.opr.op == STORE))
-        warn("Label type @" + cprint(hex(true, code.opr.addr), RED, 0));
-      if(code.opr.imm.type == Imm::VAR_LAB_REF && (code.opr.op == JUMP || code.opr.op == BREQ || code.opr.op == BRLT))
-        warn("Label type @" + cprint(hex(true, code.opr.addr), RED, 0));
-    }
-  }
-
   // コードを出力
   std::ofstream fout;
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) error("Can't open file: " + fname + ".bin");
-  for(auto& code : codes) {
-    if(code.type == Code::OPERATION) {
+  for(auto& code : asmlines) {
+    if(code.type == ASMLine::OPERATION) {
       uint32_t bin = code.opr.get_bin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }
 
   // 表示
-  if(print_debug) std::cout << "\r";
+  if(opt_b) std::cout << "\r";
   // ラベルの一覧表示
-  if(print_const) {
+  if(opt_c) {
     for(auto var : const_lab.sort_by_value())
       std::cout << cprint(hex(true, var.first), YELLOW, 0) << " == " << var.second << std::endl;
     std::cout << "------------------------------------" << std::endl;
   }
-  if(print_var) {
+  if(opt_v) {
     for(auto var : var_lab.sort_by_value())
       std::cout << cprint(hex(true, var.first), BLUE, 0) << " <- " << var.second << std::endl;
     std::cout << "------------------------------------" << std::endl;
   }
   // アセンブラを表示
-  for(auto code : codes) {
-    if(code.type == Code::LABEL_DEF && code.label.type == Label::OPR) {
+  for(auto code : asmlines) {
+    if(code.type == ASMLine::LABEL_DEF && code.label.type == LabelDef::OPR) {
       std::cout << cprint(hex(true, code.label.value), GREEN, 0) << cprint(": " + code.label.name, GREEN, 0) << std::endl;
     }
-    if(code.type == Code::OPERATION) {
+    if(code.type == ASMLine::OPERATION) {
       std::cout << hex(true, code.opr.addr) << " |";
-      if(print_debug) std::cout << " " << print_binary(code.opr.bin) << " |";
-      std::cout << print_asm(code.opr) << std::endl;
+      if(opt_b) std::cout << " " << print_binary(code.opr.bin) << " |";
+      std::cout << code.opr.print() << std::endl;
     }
   }
   return EXIT_SUCCESS;
 }
 
+
+std::string trim_comment(std::string str) {
+  const auto pos = str.find(";");  // 最初にヒットした ; の位置
+  if(pos != std::string::npos)     // npos はヒットしなかった場合の pos の値
+    str = str.erase(pos);          // pos 以降を削除
+  return str;
+}
+
+bool is_empty(const std::string& str) {
+  const std::regex non_empty(R"(\S)");  // 空でない文字にヒットする正規表現
+  return !std::regex_search(str, non_empty);
+}
+
 std::string print_binary(uint32_t bin) {
   std::stringstream ss;
-  ss << std::bitset<6>((bin >> 26) & 0x3f) << " "
-     << std::bitset<6>((bin >> 20) & 0x3f) << " "
-     << std::bitset<10>((bin >> 10) & 0x3ff) << " "
-     << std::bitset<4>((bin >> 6) & 0xf) << " "
-     << std::bitset<6>(bin & 0x3f);
+  ss << std::bitset<16>((bin >> 16) & 0xffff) << " "
+     << std::bitset<4>((bin >> 12) & 0xf) << " "
+     << std::bitset<4>((bin >> 8) & 0xf) << " "
+     << std::bitset<4>((bin >> 4) & 0xf) << " "
+     << std::bitset<4>(bin & 0xf);
   return ss.str();
-}
-
-std::string print_asm(Operation& code) {
-  std::stringstream ss;
-  ss << cprint(code.str.at(0), RED, 6);
-  if(code.op == CALC) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << cprint(code.str.at(3), BLUE, 8);
-  if(code.op == CALCI) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  if(code.op == LOAD) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  if(code.op == LOADI) ss << cprint(code.str.at(1), BLUE, 6) << cprint("", BLUE, 8) << print_imm(code.imm);
-  if(code.op == STORE) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  if(code.op == JUMP) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  if(code.op == BREQ || code.op == BRLT) ss << cprint(code.str.at(1), BLUE, 6) << cprint(code.str.at(2), BLUE, 8) << print_imm(code.imm);
-  return ss.str();
-}
-
-std::string print_imm(Imm& imm) {
-  if(imm.type == Imm::LITERAL) return cprint(hex(true, imm.value), YELLOW, 8);
-  if(imm.type == Imm::OPR_LAB_REF) return cprint(hex(true, imm.value), GREEN, 8) + cprint(" = " + imm.label, GREEN, 0);
-  if(imm.type == Imm::VAR_LAB_REF) return cprint(hex(true, imm.value), BLUE, 8) + cprint(" = " + imm.label, BLUE, 0);
-  if(imm.type == Imm::CONST_LAB_REF) return cprint(hex(true, imm.value), YELLOW, 8) + cprint(" = " + imm.label, YELLOW, 0);
-  return "";
 }

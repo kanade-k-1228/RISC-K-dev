@@ -18,5 +18,3 @@ std::string hex(bool, const uint16_t);
 std::string hex(bool, const uint32_t);
 
 std::vector<std::string> split(const std::string&, const char);
-bool is_empty(const std::string&);
-std::string trim_comment(std::string);

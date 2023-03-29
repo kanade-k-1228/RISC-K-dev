@@ -2,41 +2,37 @@
 #include <string>
 
 enum Reg {
-  ZERO = 0x00,
-  RA = 0x01,
-  SP = 0x02,
-  FP = 0x03,
-  CSR = 0x04,
-  IRA = 0x05,
-  COUT = 0x06,
-  OS0 = 0x0C,
-  OS1 = 0x0D,
-  OS2 = 0x0E,
-  OS3 = 0x0F,
-  S0 = 0x10,
-  S1 = 0x11,
-  S2 = 0x12,
-  S3 = 0x13,
-  T0 = 0x20,
-  T1 = 0x21,
-  T2 = 0x22,
-  T3 = 0x23,
-  A0 = 0x30,
-  A1 = 0x31,
-  A2 = 0x32,
-  A3 = 0x33,
+  ZERO = 0x0,
+  PC = 0x1,
+  IRA = 0x2,
+  CSR = 0x3,
+  RA = 0x4,
+  SP = 0x5,
+  FP = 0x6,
+  COUT = 0x7,
+  S0 = 0x8,
+  S1 = 0x9,
+  S2 = 0xA,
+  S3 = 0xB,
+  T0 = 0xC,
+  T1 = 0xD,
+  T2 = 0xE,
+  T3 = 0xF
 };
+
+uint16_t str_to_reg(std::string reg_name);
 
 enum OP {
   CALC = 0x0,
   CALCI = 0x1,
   LOAD = 0x2,
-  LOADI = 0x3,
-  STORE = 0x4,
-  JUMP = 0x5,
-  BREQ = 0x6,
-  BRLT = 0x7,
+  STORE = 0x3,
+  CALLIF = 0x4,
 };
+
+bool is_calc(std::string op);
+bool is_calci(std::string op);
+uint16_t str_to_opc(std::string op_s);
 
 enum Func {
   ADD = 0x0,
@@ -45,9 +41,16 @@ enum Func {
   OR = 0x3,
   XOR = 0x4,
   NOT = 0x5,
-  LROT = 0x06,
-  RROT = 0x07,
+  RSS = 0x6,
+  RSU = 0x7,
+  LS = 0x8,
+  EQ = 0x9,
+  LTS = 0xA,
+  LTU = 0xB,
+  LNOT = 0xC
 };
+
+uint16_t str_to_func(std::string op_s);
 
 enum CSRBit {
   IEN = 0b0000'0000'0001,
@@ -64,6 +67,9 @@ enum CSRBit {
 enum Addr {
   PC_INTR = 0x0001,
 };
+
+extern std::string mnemonic;
+extern std::string pseudo_mnemonic;
 
 struct OPDecoder {
   uint16_t opc;

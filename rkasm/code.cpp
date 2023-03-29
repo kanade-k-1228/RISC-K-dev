@@ -1,14 +1,11 @@
 #include "code.hpp"
 #include "../rkisa/rkisa.hpp"
 #include "../utils/utils.hpp"
+#include "reader.hpp"
 #include <iomanip>
 #include <iostream>
 #include <regex>
 #include <sstream>
-
-uint16_t get_reg(std::string);
-uint16_t get_op(std::string);
-uint16_t get_func(std::string);
 
 void Imm::set(std::string str) {
   try {
@@ -23,120 +20,130 @@ void Imm::set(std::string str) {
   return;
 }
 
+std::string Imm::print() {
+  if(type == Imm::LITERAL) return cprint(hex(true, value), YELLOW, 8);
+  if(type == Imm::OPR_LAB_REF) return cprint(hex(true, value), GREEN, 8) + cprint(" = " + label, GREEN, 0);
+  if(type == Imm::VAR_LAB_REF) return cprint(hex(true, value), BLUE, 8) + cprint(" = " + label, BLUE, 0);
+  if(type == Imm::CONST_LAB_REF) return cprint(hex(true, value), YELLOW, 8) + cprint(" = " + label, YELLOW, 0);
+  return "";
+}
 void Operation::set(const uint16_t address, const std::vector<std::string> code_s) {
   addr = address;
   str = code_s;
-  op = get_op(str.at(0));
-  if(op == CALC) {
-    func = get_func(str.at(0));
-    rd = get_reg(str.at(1));
-    rs1 = get_reg(str.at(2));
-    rs2 = get_reg(str.at(3));
+  std::string s = str.at(0);
+  if(is_calc(s)) {
+    opc = OP::CALC;
+    func = str_to_func(s);
+    rd = str_to_reg(str.at(1));
+    rs1 = str_to_reg(str.at(2));
+    rs2 = str_to_reg(str.at(3));
   }
-  if(op == CALCI) {
-    func = get_func(str.at(0));
-    rd = get_reg(str.at(1));
-    rs1 = get_reg(str.at(2));
+  if(is_calci(s)) {
+    opc = OP::CALCI;
+    func = str_to_func(s);
+    rd = str_to_reg(str.at(1));
+    rs1 = str_to_reg(str.at(2));
     imm.set(str.at(3));
   }
-  if(op == LOAD) {
-    rd = get_reg(str.at(1));
-    rs1 = get_reg(str.at(2));
+  if(s == "load") {
+    opc = OP::LOAD;
+    rd = str_to_reg(str.at(1));
+    rs1 = str_to_reg(str.at(2));
     imm.set(str.at(3));
   }
-  if(op == LOADI) {
-    rd = get_reg(str.at(1));
+  if(s == "store") {
+    opc = OP::STORE;
+    rs2 = str_to_reg(str.at(1));
+    rs1 = str_to_reg(str.at(2));
+    imm.set(str.at(3));
+  }
+  if(s == "callif") {
+    opc == OP::CALLIF;
+    rd = str_to_reg(str.at(1));
+    rs2 = str_to_reg(str.at(2));
+    rs1 = str_to_reg(str.at(3));
+    imm.set(str.at(4));
+  }
+  // Pseudo Operation
+  if(s == "loadi") {
+    opc = OP::CALCI;
+    func = Func::ADD;
+    rd = str_to_reg(str.at(1));
+    rs1 = str_to_reg("zero");
     imm.set(str.at(2));
   }
-  if(op == STORE) {
-    rs2 = get_reg(str.at(1));
-    rs1 = get_reg(str.at(2));
-    imm.set(str.at(3));
+  if(s == "if") {
+    opc = OP::CALLIF;
+    rd = str_to_reg("zero");
+    rs2 = str_to_reg(str.at(1));
+    rs1 = str_to_reg("zero");
+    imm.set(str.at(2));
   }
-  if(op == JUMP) {
-    rd = get_reg(str.at(1));
-    rs1 = get_reg(str.at(2));
-    imm.set(str.at(3));
+  if(s == "jmp") {
+    opc = OP::CALLIF;
+    rd = str_to_reg("zero");
+    rs2 = str_to_reg("zero");
+    rs1 = str_to_reg("zero");
+    imm.set(str.at(1));
   }
-  if(op == BREQ || op == BRLT) {
-    rs1 = get_reg(str.at(1));
-    rs2 = get_reg(str.at(2));
-    imm.set(str.at(3));
+  if(s == "call") {
+    opc = OP::CALLIF;
+    rd = str_to_reg("ra");
+    rs2 = str_to_reg("zero");
+    rs1 = str_to_reg("zero");
+    imm.set(str.at(1));
   }
-}
-
-uint16_t get_reg(std::string name) {
-  if(name == "zero") return ZERO;
-  if(name == "ra") return RA;
-  if(name == "sp") return SP;
-  if(name == "fp") return FP;
-  if(name == "csr") return CSR;
-  if(name == "ira") return IRA;
-  if(name == "cout") return COUT;
-  if(name == "os0") return OS0;
-  if(name == "os1") return OS1;
-  if(name == "os2") return OS2;
-  if(name == "os3") return OS3;
-  if(name == "s0") return S0;
-  if(name == "s1") return S1;
-  if(name == "s2") return S2;
-  if(name == "s3") return S3;
-  if(name == "t0") return T0;
-  if(name == "t1") return T1;
-  if(name == "t2") return T2;
-  if(name == "t3") return T3;
-  if(name == "a0") return A0;
-  if(name == "a1") return A1;
-  if(name == "a2") return A2;
-  if(name == "a3") return A3;
-  error("Invalid Registor Name: " + name);
-  return 0;
-}
-
-uint16_t get_op(std::string op_s) {
-  if(op_s == "add" || op_s == "sub" || op_s == "and" || op_s == "or" || op_s == "xor" || op_s == "not" || op_s == "lrot" || op_s == "rrot") return CALC;
-  if(op_s == "addi" || op_s == "subi" || op_s == "andi" || op_s == "ori" || op_s == "xori") return CALCI;
-  if(op_s == "load") return LOAD;
-  if(op_s == "store") return STORE;
-  if(op_s == "loadi") return LOADI;
-  if(op_s == "jump") return JUMP;
-  if(op_s == "breq") return BREQ;
-  if(op_s == "brlt") return BRLT;
-  error("Invalid Operation Name: " + op_s);
-  return 0;
-}
-
-uint16_t get_func(std::string op_s) {
-  if(op_s == "add" || op_s == "addi") return ADD;
-  if(op_s == "sub" || op_s == "subi") return SUB;
-  if(op_s == "and" || op_s == "andi") return AND;
-  if(op_s == "or" || op_s == "ori") return OR;
-  if(op_s == "xor" || op_s == "xori") return XOR;
-  if(op_s == "not") return NOT;
-  if(op_s == "lrot") return LROT;
-  if(op_s == "rrot") return RROT;
-  error("Invalid Operation Name: " + op_s);
-  return 0;
+  if(s == "ret") {
+    opc = OP::CALLIF;
+    rd = str_to_reg("zero");
+    rs2 = str_to_reg("zero");
+    rs1 = str_to_reg("ra");
+    imm.set("0x00");
+  }
+  if(s == "iret") {
+    opc = OP::CALLIF;
+    rd = str_to_reg("zero");
+    rs2 = str_to_reg("zero");
+    rs1 = str_to_reg("ira");
+    imm.set("0x00");
+  }
 }
 
 uint32_t Operation::get_bin() {
-  bin = OPEncoder(op, func, rs1, rs2, rd, imm.value).bin;
+  bin = OPEncoder(opc, func, rs1, rs2, rd, imm.value).bin;
   return bin;
 }
 
-void Label::set(const uint16_t address, const std::vector<std::string> str) {
+std::string Operation::print() {
+  std::string s = str.at(0);
+  std::stringstream ss;
+  ss << cprint(str.at(0), RED, 6);
+  if(is_calc(s)) ss << cprint(str.at(1), BLUE, 6) << cprint(str.at(2), BLUE, 8) << cprint(str.at(3), BLUE, 8);
+  if(is_calci(s)) ss << cprint(str.at(1), BLUE, 6) << cprint(str.at(2), BLUE, 8) << imm.print();
+  if(s == "load") ss << cprint(str.at(1), BLUE, 6) << cprint(str.at(2), BLUE, 8) << imm.print();
+  if(s == "store") ss << cprint(str.at(1), BLUE, 6) << cprint(str.at(2), BLUE, 8) << imm.print();
+  if(s == "callif") ss << cprint(str.at(1), BLUE, 6) << cprint(str.at(2), BLUE, 8) << cprint(str.at(3), BLUE, 8) << imm.print();
+  // Pseudo Operation
+  if(s == "loadi" || s == "if") ss << cprint(str.at(1), BLUE, 6) << "        " << imm.print();
+  if(s == "jmp" || s == "call") ss << "              " << imm.print();
+  // if(s == "ret" || s == "iret")
+  return ss.str();
+}
+
+
+void LabelDef::set(const uint16_t address, const std::vector<std::string> str) {
   std::string str0 = str.at(0);
-  if(str0.at(str0.size() - 1) == ':') {
+  if(str0.at(str0.size() - 1) == ':') {  // 命令ラベル hoge:
     type = OPR;
     str0.pop_back();
     name = str0;
     value = address;
-  } else if(str0.at(0) == '@') {
+  } else if(str0.at(0) == '@') {  // 変数ラベル @0x00 hoge
     type = VAR;
     name = str.at(1);
     str0.erase(str0.begin());
     value = std::stoi(str0, nullptr, 0);
-  } else if(str0.at(0) == '#') {
+  } else if(str0.at(0) == '#') {  // 定数ラベル #0x00 hoge
     type = CONST;
     name = str.at(1);
     str0.erase(str0.begin());
@@ -144,14 +151,9 @@ void Label::set(const uint16_t address, const std::vector<std::string> str) {
   }
 }
 
-Code::Code(const uint16_t address, const std::vector<std::string> code_s)
+ASMLine::ASMLine(const uint16_t address, const std::vector<std::string> code_s)
     : code_s(code_s) {
-  if(std::regex_search(code_s.at(0), std::regex("^("
-                                                "add|sub|and|or|xor"
-                                                "|not|lrot|rrot"
-                                                "|addi|subi|andi|ori|xori"
-                                                "|store|load|loadi|jump|breq|brlt"
-                                                ")$"))) {
+  if(std::regex_search(code_s.at(0), std::regex("^(" + mnemonic + "|" + pseudo_mnemonic + ")$"))) {
     // 命令行の場合
     type = OPERATION;
     opr.set(address, code_s);
@@ -159,5 +161,7 @@ Code::Code(const uint16_t address, const std::vector<std::string> code_s)
     // ラベル定義の場合
     type = LABEL_DEF;
     label.set(address, code_s);
+  } else {
+    error("Unknown Code: " + code_s.at(0));
   }
 }
