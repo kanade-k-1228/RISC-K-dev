@@ -2,13 +2,14 @@
 
 ## 命令一覧
 
-| operation | arg1                     | arg2            | arg3                 | arg4    |
-| --------- | ------------------------ | --------------- | -------------------- | ------- |
-| calc      | rd  (Destination)        | rs1 (Source)    | rs2 (Source)         |         |
-| calci     | rd  (Destination)        | rs1 (Source)    | imm (Source)         |         |
-| load      | rd  (Destination)        | rs1 (Offset)    | imm/var              |         |
-| store     | rs2 (Source)             | rs1 (Offset)    | imm/var              |         |
-| calif     | rd  (Set Return Address) | rs2 (Condition) | rs1 (Return Address) | imm/lab |
+| operation | arg1                     | arg2         | arg3                  |
+| --------- | ------------------------ | ------------ | --------------------- |
+| calc      | rd  (Destination)        | rs1 (Source) | rs2 (Source)          |
+| calci     | rd  (Destination)        | rs1 (Source) | imm/const (Source)    |
+| load      | rd  (Destination)        | rs1 (Offset) | imm/var (RAM Address) |
+| store     | rs2 (Source)             | rs1 (Offset) | imm/var (RAM Address) |
+| jmpif     | rs2 (Condition)          | rs1 (Offset) | imm/lab (ROM Address) |
+| fcall     | rd  (Set Return Address) | rs1 (Offset) | imm/lab (ROM Address) |
 
 - add / addi
 - sub / subi

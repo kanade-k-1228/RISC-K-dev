@@ -86,7 +86,7 @@ void CPU::execute(uint32_t code) {
   }
   if(op.opc == LOAD) load(op.rd, op.rs1, op.imm);
   if(op.opc == STORE) store(op.rs1, op.rs2, op.imm);
-  if(op.opc == CALIF) calif(op.rd, op.rs1, op.rs2, op.imm);
+  if(op.opc == JMPIF) calif(op.rd, op.rs1, op.rs2, op.imm);
   return;
 }
 
@@ -170,7 +170,7 @@ void CPU::lnot(uint16_t rd, uint16_t rs1) {
 // srs rd rs1
 // rd = s>rs1>
 void CPU::srs(uint16_t rd, uint16_t rs1) {
-  ram.set(rd, (ram.get(rs1) >> 1) & 0x7fff | ram.get(rs1) & 0x8000);
+  ram.set(rd, ((ram.get(rs1) >> 1) & 0x7fff) | (ram.get(rs1) & 0x8000));
   ram.inc_pc();
 }
 

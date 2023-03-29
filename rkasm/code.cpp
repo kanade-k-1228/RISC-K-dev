@@ -58,7 +58,7 @@ void Operation::set(const uint16_t address, const std::vector<std::string> code_
     imm.set(str.at(3));
   }
   if(s == "callif") {
-    opc == OP::CALIF;
+    opc == OP::JMPIF;
     rd = str_to_reg(str.at(1));
     rs2 = str_to_reg(str.at(2));
     rs1 = str_to_reg(str.at(3));
@@ -73,35 +73,35 @@ void Operation::set(const uint16_t address, const std::vector<std::string> code_
     imm.set(str.at(2));
   }
   if(s == "if") {
-    opc = OP::CALIF;
+    opc = OP::JMPIF;
     rd = str_to_reg("zero");
     rs2 = str_to_reg(str.at(1));
     rs1 = str_to_reg("zero");
     imm.set(str.at(2));
   }
   if(s == "jmp") {
-    opc = OP::CALIF;
+    opc = OP::JMPIF;
     rd = str_to_reg("zero");
     rs2 = str_to_reg("zero");
     rs1 = str_to_reg("zero");
     imm.set(str.at(1));
   }
   if(s == "call") {
-    opc = OP::CALIF;
+    opc = OP::JMPIF;
     rd = str_to_reg("ra");
     rs2 = str_to_reg("zero");
     rs1 = str_to_reg("zero");
     imm.set(str.at(1));
   }
   if(s == "ret") {
-    opc = OP::CALIF;
+    opc = OP::JMPIF;
     rd = str_to_reg("zero");
     rs2 = str_to_reg("zero");
     rs1 = str_to_reg("ra");
     imm.set("0x00");
   }
   if(s == "iret") {
-    opc = OP::CALIF;
+    opc = OP::JMPIF;
     rd = str_to_reg("zero");
     rs2 = str_to_reg("zero");
     rs1 = str_to_reg("ira");

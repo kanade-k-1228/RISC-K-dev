@@ -45,10 +45,10 @@ uint16_t str_to_opc(std::string s) {
   if(is_calci(s)) return CALCI;
   if(s == "load") return LOAD;
   if(s == "store") return STORE;
-  if(s == "callif") return CALIF;
+  if(s == "callif") return JMPIF;
   // Pseudo Mnemonic
   if(s == "loadi") return CALCI;
-  if(s == "if" || s == "jmp" || s == "call" || s == "ret" || s == "iret") return CALIF;
+  if(s == "if" || s == "jmp" || s == "call" || s == "ret" || s == "iret") return JMPIF;
   error("Invalid Operation Name: " + s);
   return 0;
 }
@@ -96,7 +96,7 @@ OPEncoder::OPEncoder(uint16_t op, uint16_t func, uint16_t rs1, uint16_t rs2, uin
     bin = pack(rs1, rs2, rd, op, func);
   } else if(op == CALCI) {
     bin = pack(rs1, func, rd, op, imm);
-  } else if(op == LOAD || op == STORE || op == CALIF) {
+  } else if(op == LOAD || op == STORE || op == JMPIF) {
     bin = pack(rs1, rs2, rd, op, imm);
   } else {
     error("Invalid Code Format");

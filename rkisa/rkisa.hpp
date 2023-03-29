@@ -27,7 +27,8 @@ enum OP {
   CALCI = 0x1,
   LOAD = 0x2,
   STORE = 0x3,
-  CALIF = 0x4,
+  JMPIF = 0x4,
+  FCALL = 0x5
 };
 
 bool is_calc(std::string op);
