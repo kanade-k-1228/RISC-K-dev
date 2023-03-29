@@ -60,12 +60,11 @@ int main(int argc, char* argv[]) {
 
   // Run Emulator
   for(int t = 0;; ++t) {
-    uint16_t pc = cpu.pc;
+    uint16_t pc = cpu.ram.get(PC);
     uint32_t code = cpu.rom.at(pc);
 
     // Execute
     cpu.execute(code);
-    cpu.mem.at(ZERO) = 0;
     int sout = cpu.serial();
     bool exit = cpu.cstop();
 

@@ -70,8 +70,14 @@ std::string Debug::print_code(uint32_t code) {
     if(op.func == OR) return cprint("or", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
     if(op.func == XOR) return cprint("xor", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
     if(op.func == NOT) return cprint("not", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
-    if(op.func == LROT) return cprint("lrot", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
-    if(op.func == RROT) return cprint("rrot", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == SRS) return cprint("srs", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == SRU) return cprint("sru", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == SL) return cprint("sl", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == EQ) return cprint("eq", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == LTS) return cprint("lts", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == LTU) return cprint("ltu", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    if(op.func == LCAST) return cprint("lcast", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
+    return "Unknown FuncCode" + hex(true, op.func);
   }
   if(op.opc == CALCI) {
     if(op.func == ADD) return cprint("addi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
@@ -79,33 +85,34 @@ std::string Debug::print_code(uint32_t code) {
     if(op.func == AND) return cprint("andi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     if(op.func == OR) return cprint("ori", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     if(op.func == XOR) return cprint("xori", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == EQ) return cprint("eqi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == LTS) return cprint("ltsi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    if(op.func == LTU) return cprint("ltui", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+    return "Unknown FuncCode" + hex(true, op.func);
   }
   if(op.opc == LOAD) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == LOADI) return cprint("loadi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   if(op.opc == STORE) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == JUMP) return cprint("jump", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == BREQ) return cprint("breq", RED, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == BRLT) return cprint("brlt", RED, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == CALIF) return cprint("calif", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   return "Unknown Opecode" + hex(true, op.opc);
 }
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
   ss << " +-----------+------+------+------+" << std::endl
-     << " |  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " | " << cprint("Arg", BLUE, 0) << "  |" << std::endl
-     << " |  RA: " << hex(false, cpu.mem.at(RA)) << " | " << hex(false, cpu.mem.at(S0)) << " | " << hex(false, cpu.mem.at(T0)) << " | " << hex(false, cpu.mem.at(A0)) << " |" << std::endl
-     << " | IRA: " << hex(false, cpu.mem.at(IRA)) << " | " << hex(false, cpu.mem.at(S1)) << " | " << hex(false, cpu.mem.at(T1)) << " | " << hex(false, cpu.mem.at(A1)) << " |" << std::endl
-     << " |  SP: " << hex(false, cpu.mem.at(SP)) << " | " << hex(false, cpu.mem.at(S2)) << " | " << hex(false, cpu.mem.at(T2)) << " | " << hex(false, cpu.mem.at(A2)) << " |" << std::endl
-     << " |  FP: " << hex(false, cpu.mem.at(FP)) << " | " << hex(false, cpu.mem.at(S3)) << " | " << hex(false, cpu.mem.at(T3)) << " | " << hex(false, cpu.mem.at(A3)) << " |" << std::endl
+     << " |  " << cprint("PC: " + hex(false, cpu.ram.get(PC)), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " |" << std::endl
+     << " |  RA: " << hex(false, cpu.ram.get(RA)) << " | S0: " << hex(false, cpu.ram.get(S0)) << " | T0: " << hex(false, cpu.ram.get(T0)) << " |" << std::endl
+     << " | IRA: " << hex(false, cpu.ram.get(IRA)) << " | S1: " << hex(false, cpu.ram.get(S1)) << " | T1: " << hex(false, cpu.ram.get(T1)) << " |" << std::endl
+     << " |  SP: " << hex(false, cpu.ram.get(SP)) << " | S2: " << hex(false, cpu.ram.get(S2)) << " | T2: " << hex(false, cpu.ram.get(T2)) << " |" << std::endl
+     << " |  FP: " << hex(false, cpu.ram.get(FP)) << " | S3: " << hex(false, cpu.ram.get(S3)) << " | T3: " << hex(false, cpu.ram.get(T3)) << " |" << std::endl
      << " +-----------+------+------+------+" << std::endl
-     << " | CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          |" << std::endl;
+     << " | CSR: " << std::bitset<16>(cpu.ram.get(CSR)) << "          |" << std::endl;
   if(opt.address.size() != 0) ss << " +--------------------------------+" << std::endl;
   for(uint16_t addr : opt.address)
-    ss << " | " << hex(true, addr) << " : " << hex(false, cpu.mem.at(addr)) << "                  |" << std::endl;
+    ss << " | " << hex(true, addr) << " : " << hex(false, cpu.ram.get(addr)) << "                  |" << std::endl;
   if(opt.stack) {
-    if(cpu.mem.at(SP) < cpu.mem.at(FP)) ss << " +--------------------------------+" << std::endl;
-    for(uint16_t sp = cpu.mem.at(SP); sp < cpu.mem.at(FP); sp++)
-      ss << " | " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.mem.at(sp + 1)) << "                  |" << std::endl;
+    if(cpu.ram.get(SP) < cpu.ram.get(FP)) ss << " +--------------------------------+" << std::endl;
+    for(uint16_t sp = cpu.ram.get(SP); sp < cpu.ram.get(FP); sp++)
+      ss << " | " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.ram.get(sp + 1)) << "                  |" << std::endl;
   }
   ss << " +--------------------------------+" << std::endl;
   return ss.str();
@@ -113,14 +120,12 @@ std::string Debug::dump(CPU& cpu, DumpOption& opt) {
 
 std::string Debug::dump(CPU& cpu) {
   std::stringstream ss;
-  ss << " +-----------+------+------+------+" << std::endl
-     << " |  " << cprint("PC: " + hex(false, cpu.pc), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " | " << cprint("Arg", BLUE, 0) << "  |" << std::endl
-     << " |  RA: " << hex(false, cpu.mem.at(RA)) << " | " << hex(false, cpu.mem.at(S0)) << " | " << hex(false, cpu.mem.at(T0)) << " | " << hex(false, cpu.mem.at(A0)) << " |" << std::endl
-     << " | IRA: " << hex(false, cpu.mem.at(IRA)) << " | " << hex(false, cpu.mem.at(S1)) << " | " << hex(false, cpu.mem.at(T1)) << " | " << hex(false, cpu.mem.at(A1)) << " |" << std::endl
-     << " |  SP: " << hex(false, cpu.mem.at(SP)) << " | " << hex(false, cpu.mem.at(S2)) << " | " << hex(false, cpu.mem.at(T2)) << " | " << hex(false, cpu.mem.at(A2)) << " |" << std::endl
-     << " |  FP: " << hex(false, cpu.mem.at(FP)) << " | " << hex(false, cpu.mem.at(S3)) << " | " << hex(false, cpu.mem.at(T3)) << " | " << hex(false, cpu.mem.at(A3)) << " |" << std::endl
-     << " +-----------+------+------+------+" << std::endl
-     << " | CSR: " << std::bitset<16>(cpu.mem.at(CSR)) << "          |" << std::endl
-     << " +--------------------------------+" << std::endl;
+  ss << " +------------+-------------------------+" << std::endl
+     << " |  " << cprint("PC: " + hex(false, cpu.ram.get(PC)), GREEN, 0) << "  |  CSR: " << std::bitset<16>(cpu.ram.get(CSR)) << "  |" << std::endl
+     << " |  RA: " << hex(false, cpu.ram.get(RA)) << "  |  S0: " << hex(false, cpu.ram.get(S0)) << "  |  T0: " << hex(false, cpu.ram.get(T0)) << "  |" << std::endl
+     << " | IRA: " << hex(false, cpu.ram.get(IRA)) << "  |  S1: " << hex(false, cpu.ram.get(S1)) << "  |  T1: " << hex(false, cpu.ram.get(T1)) << "  |" << std::endl
+     << " |  SP: " << hex(false, cpu.ram.get(SP)) << "  |  S2: " << hex(false, cpu.ram.get(S2)) << "  |  T2: " << hex(false, cpu.ram.get(T2)) << "  |" << std::endl
+     << " |  FP: " << hex(false, cpu.ram.get(FP)) << "  |  S3: " << hex(false, cpu.ram.get(S3)) << "  |  T3: " << hex(false, cpu.ram.get(T3)) << "  |" << std::endl
+     << " +------------+------------+------------+" << std::endl;
   return ss.str();
 }

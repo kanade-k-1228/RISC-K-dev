@@ -1,7 +1,7 @@
 #include "rkisa.hpp"
 #include "../utils/utils.hpp"
 
-std::string mnemonic = "add|sub|and|or|xor|not|rss|rsu|ls|lnot|eq|lts|ltu|"
+std::string mnemonic = "add|sub|and|or|xor|not|srs|sru|ls|lnot|eq|lts|ltu|"
                        "addi|subi|andi|ori|xori|eqi|ltsi|ltui|"
                        "store|load|callif";
 std::string pseudo_mnemonic = "loadi|if|jmp|call|ret|iret";
@@ -30,7 +30,7 @@ uint16_t str_to_reg(std::string name) {
 bool is_calc(std::string s) {
   return s == "add" || s == "sub"
          || s == "and" || s == "or" || s == "xor" || s == "not"
-         || s == "rss" || s == "rsu" || s == "ls"
+         || s == "srs" || s == "sru" || s == "ls"
          || s == "lnot" || s == "eq" || s == "lts" || s == "ltu";
 }
 
@@ -45,10 +45,10 @@ uint16_t str_to_opc(std::string s) {
   if(is_calci(s)) return CALCI;
   if(s == "load") return LOAD;
   if(s == "store") return STORE;
-  if(s == "callif") return CALLIF;
+  if(s == "callif") return CALIF;
   // Pseudo Mnemonic
   if(s == "loadi") return CALCI;
-  if(s == "if" || s == "jmp" || s == "call" || s == "ret" || s == "iret") return CALLIF;
+  if(s == "if" || s == "jmp" || s == "call" || s == "ret" || s == "iret") return CALIF;
   error("Invalid Operation Name: " + s);
   return 0;
 }
@@ -60,9 +60,9 @@ uint16_t str_to_func(std::string s) {
   if(s == "or" || s == "ori") return OR;
   if(s == "xor" || s == "xori") return XOR;
   if(s == "not") return NOT;
-  if(s == "rss") return RSS;
-  if(s == "rsu") return RSU;
-  if(s == "ls") return LS;
+  if(s == "srs") return SRS;
+  if(s == "sru") return SRU;
+  if(s == "ls") return SL;
   if(s == "eq" || s == "eqi") return EQ;
   if(s == "lts" || s == "ltsi") return LTS;
   if(s == "ltu" || s == "ltui") return LTU;
@@ -72,13 +72,13 @@ uint16_t str_to_func(std::string s) {
 }
 
 OPDecoder::OPDecoder(uint32_t code) {
-  opc = (code >> 6) & 0x000F;
+  opc = (code >> 12) & 0x000F;
   func = opc == CALC    ? (code >> 16) & 0x000F
          : opc == CALCI ? (code >> 4) & 0x000F
-                        : ADD;
+                        : 0;
   rs1 = (code >> 0) & 0x000F;
-  rs2 = (code >> 20) & 0x000F;
-  rd = (code >> 26) & 0x000F;
+  rs2 = (code >> 4) & 0x000F;
+  rd = (code >> 8) & 0x000F;
   imm = (code >> 16) & 0xFFFF;
 }
 
@@ -95,8 +95,8 @@ OPEncoder::OPEncoder(uint16_t op, uint16_t func, uint16_t rs1, uint16_t rs2, uin
   if(op == CALC) {
     bin = pack(rs1, rs2, rd, op, func);
   } else if(op == CALCI) {
-    bin = pack(rs1, rs2, rd, op, imm);
-  } else if(op == LOAD || op == STORE || op == CALLIF) {
+    bin = pack(rs1, func, rd, op, imm);
+  } else if(op == LOAD || op == STORE || op == CALIF) {
     bin = pack(rs1, rs2, rd, op, imm);
   } else {
     error("Invalid Code Format");

@@ -5,13 +5,12 @@
     or   t2 t0 t1
     xor  t2 t0 t1
     not  t2 t0 zero
-    rss  t2 t0 zero
-    rsu  t2 t0 zero
+    srs  t2 t0 zero
+    sru  t2 t0 zero
     ls   t2 t0 t1
     eq   t2 t0 t1
     lts  t2 t0 t1
     ltu  t2 t0 t1
-    lnot t2 t0 zero
 ; CALCI
     addi t2 t0 0x0011
     subi t2 t0 0x0100
@@ -30,5 +29,3 @@
     iret
 func:
     ori  csr csr 0x100
-
-

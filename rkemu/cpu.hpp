@@ -1,15 +1,33 @@
 #pragma once
+#include "../rkisa/rkisa.hpp"
 #include <array>
 #include <fstream>
 #include <string>
 
+class RAM {
+  std::array<uint16_t, 0x10000> mem;
+public:
+  RAM() : mem{0} {}
+  bool set(uint16_t addr, uint16_t value) {
+    // Read Only
+    if(addr == ZERO || addr == PC || addr == IRA) {
+      return false;
+    } else {
+      mem.at(addr) = value;
+      return true;
+    }
+  };
+  uint16_t get(uint16_t addr) { return mem.at(addr); }
+  void set_pc(uint16_t value) { mem.at(PC) = value; }
+  void inc_pc() { mem.at(PC) += 1; }
+  void set_ira() { mem.at(IRA) = mem.at(PC); }
+};
+
 class CPU {
 public:
-  std::array<uint16_t, 0x10000> mem;
-  uint16_t pc = 0;
+  RAM ram;
   std::array<uint32_t, 0x10000> rom;
   std::string fname;
-
   bool intr_latch[4] = {false};
 
   CPU();
@@ -24,6 +42,7 @@ public:
   void jump_interrupt();
 
   void execute(uint32_t);
+
   void add(uint16_t, uint16_t, uint16_t);
   void addi(uint16_t, uint16_t, uint16_t);
   void sub(uint16_t, uint16_t, uint16_t);
@@ -35,12 +54,18 @@ public:
   void lxor(uint16_t, uint16_t, uint16_t);
   void lxori(uint16_t, uint16_t, uint16_t);
   void lnot(uint16_t, uint16_t);
-  void lrot(uint16_t, uint16_t);
-  void rrot(uint16_t, uint16_t);
+  void srs(uint16_t, uint16_t);
+  void sru(uint16_t, uint16_t);
+  void sl(uint16_t, uint16_t);
+  void eq(uint16_t, uint16_t, uint16_t);
+  void eqi(uint16_t, uint16_t, uint16_t);
+  void lts(uint16_t, uint16_t, uint16_t);
+  void ltsi(uint16_t, uint16_t, uint16_t);
+  void ltu(uint16_t, uint16_t, uint16_t);
+  void ltui(uint16_t, uint16_t, uint16_t);
+  void lcast(uint16_t, uint16_t);
+
   void load(uint16_t, uint16_t, uint16_t);
-  void loadi(uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);
-  void jump(uint16_t, uint16_t, uint16_t);
-  void breq(uint16_t, uint16_t, uint16_t);
-  void brlt(uint16_t, uint16_t, uint16_t);
+  void calif(uint16_t, uint16_t, uint16_t, uint16_t);
 };

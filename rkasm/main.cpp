@@ -17,23 +17,20 @@ bool is_empty(const std::string&);
 std::string print_binary(uint32_t);
 
 std::string man
-    = "rkasm [-b] [-w] [-c] [-v] .rkasm\n"
-      "  -b: print Binary     バイナリを表示\n"
+    = "rkasm [-w] [-c] [-v] .rkasm\n"
       "  -w: print Warning    警告を表示\n"
       "  -c: print Const list 定数リストを表示\n"
       "  -v: print Var list   変数リストを表示\n"
       "FILE: asembly file     アセンブリファイル";
 
 int main(int argc, char* argv[]) {
-  bool opt_b = false;
   bool opt_w = false;
   bool opt_c = false;
   bool opt_v = false;
 
   // コマンドライン引数の処理
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "bwcv")) != -1;) {
-    if(opt == 'b') opt_b = true;
+  for(int opt; (opt = getopt(argc, argv, "wcv")) != -1;) {
     if(opt == 'w') opt_w = true;
     if(opt == 'c') opt_c = true;
     if(opt == 'v') opt_v = true;
@@ -47,9 +44,9 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
   std::string fname = argv[optind];
-  std::cout << "------------------------------------" << std::endl
+  std::cout << "--------------------------------------------------" << std::endl
             << "Assemble: " << fname << std::endl
-            << "------------------------------------" << std::endl;
+            << "--------------------------------------------------" << std::endl;
 
   // 一行ずつスキャンし、命令リストに格納
   std::vector<ASMLine> asmlines;  // コードリスト
@@ -80,7 +77,7 @@ int main(int argc, char* argv[]) {
   // ラベルの解決
   for(auto& code : asmlines) {
     if(code.type == ASMLine::OPERATION) {
-      if(opt_b) std::cout << "\r" << code.opr.print();
+      std::cout << "\r" << code.opr.print();  // デバッグ出力
       if(code.opr.imm.type == Imm::LAB_REF) {
         std::string lab = code.opr.imm.label;
         bool lab_is_opr = opr_lab.contains(lab);
@@ -117,17 +114,17 @@ int main(int argc, char* argv[]) {
   }
 
   // 表示
-  if(opt_b) std::cout << "\r";
+  std::cout << "\r";  // デバッグ出力をクリア
   // ラベルの一覧表示
   if(opt_c) {
     for(auto var : const_lab.sort_by_value())
       std::cout << cprint(hex(true, var.first), YELLOW, 0) << " == " << var.second << std::endl;
-    std::cout << "------------------------------------" << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
   if(opt_v) {
     for(auto var : var_lab.sort_by_value())
       std::cout << cprint(hex(true, var.first), BLUE, 0) << " <- " << var.second << std::endl;
-    std::cout << "------------------------------------" << std::endl;
+    std::cout << "--------------------------------------------------" << std::endl;
   }
   // アセンブラを表示
   for(auto code : asmlines) {
@@ -135,9 +132,9 @@ int main(int argc, char* argv[]) {
       std::cout << cprint(hex(true, code.label.value), GREEN, 0) << cprint(": " + code.label.name, GREEN, 0) << std::endl;
     }
     if(code.type == ASMLine::OPERATION) {
-      std::cout << hex(true, code.opr.addr) << " |";
-      if(opt_b) std::cout << " " << print_binary(code.opr.bin) << " |";
-      std::cout << code.opr.print() << std::endl;
+      std::cout << hex(true, code.opr.addr)
+                << " | " << print_binary(code.opr.bin)
+                << " |" << code.opr.print() << std::endl;
     }
   }
   return EXIT_SUCCESS;
@@ -158,10 +155,9 @@ bool is_empty(const std::string& str) {
 
 std::string print_binary(uint32_t bin) {
   std::stringstream ss;
-  ss << std::bitset<16>((bin >> 16) & 0xffff) << " "
-     << std::bitset<4>((bin >> 12) & 0xf) << " "
-     << std::bitset<4>((bin >> 8) & 0xf) << " "
-     << std::bitset<4>((bin >> 4) & 0xf) << " "
-     << std::bitset<4>(bin & 0xf);
+  ss.setf(std::ios::hex, std::ios::basefield);
+  ss.fill('0');
+  ss << "0x" << std::setw(4) << ((bin >> 16) & 0xffff)
+     << "_" << std::setw(4) << (bin & 0xffff);
   return ss.str();
 }

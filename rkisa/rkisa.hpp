@@ -27,7 +27,7 @@ enum OP {
   CALCI = 0x1,
   LOAD = 0x2,
   STORE = 0x3,
-  CALLIF = 0x4,
+  CALIF = 0x4,
 };
 
 bool is_calc(std::string op);
@@ -41,13 +41,14 @@ enum Func {
   OR = 0x3,
   XOR = 0x4,
   NOT = 0x5,
-  RSS = 0x6,
-  RSU = 0x7,
-  LS = 0x8,
+  SRS = 0x6,
+  SRU = 0x7,
+  SL = 0x8,
   EQ = 0x9,
   LTS = 0xA,
   LTU = 0xB,
-  LNOT = 0xC
+  LNOT = 0xC,
+  LCAST = 0xD
 };
 
 uint16_t str_to_func(std::string op_s);

@@ -1,28 +1,49 @@
 # RISC-K ISA
 
-![](img/bit_format.png)
-
 ## 命令一覧
 
-| operation | arg1 | arg2        | arg3        |
-| --------- | ---- | ----------- | ----------- |
-| calc      | rd   | rs1         | rs2         |
-| calci     | rd   | rs          | imm (12bit) |
-| load      | rd   | rs          | imm/var     |
-| loadi     | rd   | imm/lab/var |             |
-| store     | rs   | rs          | imm/var     |
-| jump      | ra   | rs          | imm/lab     |
-| breq/brlt | rs1  | rs2         | imm/lab     |
+| operation | arg1                     | arg2            | arg3                 | arg4    |
+| --------- | ------------------------ | --------------- | -------------------- | ------- |
+| calc      | rd  (Destination)        | rs1 (Source)    | rs2 (Source)         |         |
+| calci     | rd  (Destination)        | rs1 (Source)    | imm (Source)         |         |
+| load      | rd  (Destination)        | rs1 (Offset)    | imm/var              |         |
+| store     | rs2 (Source)             | rs1 (Offset)    | imm/var              |         |
+| calif     | rd  (Set Return Address) | rs2 (Condition) | rs1 (Return Address) | imm/lab |
 
 - add / addi
 - sub / subi
 - and / andi
 - or / ori
+- xor / xori
 - not
-- rrot
-- lrot
+- srs (Shift Right Signed)
+- sru (Shift Right Unsigned)
+- sl (Shift Left)
+- eq / eqi (Equal)
+- lts / ltsi (Less Than Signed)
+- ltu / ltui (Less Than Unsigned)
+- lcast (Cast to boolean)
 
 ## レジスタ
+
+| addr | name |           |
+| ---- | ---- | --------- |
+| 0x00 | zero | Read Only |
+| 0x01 | pc   | Read Only |
+| 0x02 | ira  | Read Only |
+| 0x03 | csr  |           |
+| 0x04 | ra   |           |
+| 0x05 | sp   |           |
+| 0x06 | fp   |           |
+| 0x07 | cout |           |
+| 0x08 | s0   |           |
+| 0x09 | s1   |           |
+| 0x0A | s2   |           |
+| 0x0B | s3   |           |
+| 0x0C | t0   |           |
+| 0x0D | t1   |           |
+| 0x0E | t2   |           |
+| 0x0F | t3   |           |
 
 ## 特殊レジスタ
 
