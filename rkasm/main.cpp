@@ -1,7 +1,7 @@
 #include "../rkisa/rkisa.hpp"
 #include "../utils/utils.hpp"
-#include "code.hpp"
-#include "label.hpp"
+#include "label_table.hpp"
+#include "line.hpp"
 #include "reader.hpp"
 #include <fstream>
 #include <iomanip>
@@ -45,18 +45,17 @@ int main(int argc, char* argv[]) {
   }
   std::string fname = argv[optind];
   std::cout << "--------------------------------------------------" << std::endl
-            << "Assemble: " << fname << std::endl
-            << "--------------------------------------------------" << std::endl;
+            << "Assemble: " << fname << std::endl;
 
   // 一行ずつスキャンし、命令リストに格納
-  std::vector<ASMLine> asmlines;  // コードリスト
-  uint16_t operation_cnt = 0;     // 機械語命令カウンタ
+  std::vector<Line> asmlines;  // コードリスト
+  uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(Reader::init(fname); Reader::getline();) {
-    std::string line = trim_comment(Reader::line);        // コメント削除
-    if(is_empty(line)) continue;                          // 空行ならスキップ
-    ASMLine code(operation_cnt, split(line, ' '));        // 行を解釈
-    asmlines.push_back(code);                             // 行を追加
-    if(code.type == ASMLine::OPERATION) ++operation_cnt;  // 命令行の場合、PCのカウントアップ
+    std::string line = trim_comment(Reader::line);     // コメント削除
+    if(is_empty(line)) continue;                       // 空行ならスキップ
+    Line code(operation_cnt, split(line, ' '));        // 行を解釈
+    asmlines.push_back(code);                          // 行を追加
+    if(code.type == Line::OPERATION) ++operation_cnt;  // 命令行の場合、PCのカウントアップ
   }
 
   // ラベルテーブルの生成
@@ -64,22 +63,22 @@ int main(int argc, char* argv[]) {
   LabelTable var_lab;    // 変数ラベルテーブル
   LabelTable const_lab;  // 定数ラベルテーブル
   for(auto& asmline : asmlines) {
-    if(asmline.type == ASMLine::LABEL_DEF) {
-      if(asmline.label.type == LabelDef::OPR)
-        opr_lab.define(asmline.label.name, asmline.label.value);
-      if(asmline.label.type == LabelDef::VAR)
-        var_lab.define(asmline.label.name, asmline.label.value);
-      if(asmline.label.type == LabelDef::CONST)
-        const_lab.define(asmline.label.name, asmline.label.value);
+    if(asmline.type == Line::LABEL_DEF) {
+      if(asmline.label_def.type == LabelDef::OPR)
+        opr_lab.define(asmline.label_def.name, asmline.label_def.value);
+      if(asmline.label_def.type == LabelDef::VAR)
+        var_lab.define(asmline.label_def.name, asmline.label_def.value);
+      if(asmline.label_def.type == LabelDef::CONST)
+        const_lab.define(asmline.label_def.name, asmline.label_def.value);
     }
   }
 
   // ラベルの解決
   for(auto& code : asmlines) {
-    if(code.type == ASMLine::OPERATION) {
-      std::cout << "\r" << code.opr.print();  // デバッグ出力
-      if(code.opr.imm.type == Imm::LAB_REF) {
-        std::string lab = code.opr.imm.label;
+    if(code.type == Line::OPERATION) {
+      std::cout << "\r" << code.operation.print();  // デバッグ出力
+      if(code.operation.imm.type == Imm::LAB_REF) {
+        std::string lab = code.operation.imm.label;
         bool lab_is_opr = opr_lab.contains(lab);
         bool lab_is_var = var_lab.contains(lab);
         bool lab_is_const = const_lab.contains(lab);
@@ -87,14 +86,14 @@ int main(int argc, char* argv[]) {
         if(lab_is_opr + lab_is_var + lab_is_const > 1)
           error("Multiple defines of label: " + lab);
         else if(lab_is_opr) {
-          code.opr.imm.value = opr_lab.get_value(lab);
-          code.opr.imm.type = Imm::OPR_LAB_REF;
+          code.operation.imm.value = opr_lab.get_value(lab);
+          code.operation.imm.type = Imm::OPR_LAB_REF;
         } else if(lab_is_var) {
-          code.opr.imm.value = var_lab.get_value(lab);
-          code.opr.imm.type = Imm::VAR_LAB_REF;
+          code.operation.imm.value = var_lab.get_value(lab);
+          code.operation.imm.type = Imm::VAR_LAB_REF;
         } else if(lab_is_const) {
-          code.opr.imm.value = const_lab.get_value(lab);
-          code.opr.imm.type = Imm::CONST_LAB_REF;
+          code.operation.imm.value = const_lab.get_value(lab);
+          code.operation.imm.type = Imm::CONST_LAB_REF;
         } else {
           error("Cannot find def of label: " + lab);
         }
@@ -107,14 +106,16 @@ int main(int argc, char* argv[]) {
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) error("Can't open file: " + fname + ".bin");
   for(auto& code : asmlines) {
-    if(code.type == ASMLine::OPERATION) {
-      uint32_t bin = code.opr.get_bin();
+    if(code.type == Line::OPERATION) {
+      uint32_t bin = code.operation.get_bin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }
 
-  // 表示
-  std::cout << "\r";  // デバッグ出力をクリア
+  std::cout << "\r                                                  \r";  // デバッグ出力をクリア
+  std::cout << "Output  : " << fname + ".bin" << std::endl;
+  std::cout << "--------------------------------------------------" << std::endl;
+
   // ラベルの一覧表示
   if(opt_c) {
     for(auto var : const_lab.sort_by_value())
@@ -128,13 +129,13 @@ int main(int argc, char* argv[]) {
   }
   // アセンブラを表示
   for(auto code : asmlines) {
-    if(code.type == ASMLine::LABEL_DEF && code.label.type == LabelDef::OPR) {
-      std::cout << cprint(hex(true, code.label.value), GREEN, 0) << cprint(": " + code.label.name, GREEN, 0) << std::endl;
+    if(code.type == Line::LABEL_DEF && code.label_def.type == LabelDef::OPR) {
+      std::cout << cprint(hex(true, code.label_def.value), GREEN, 0) << cprint(": " + code.label_def.name, GREEN, 0) << std::endl;
     }
-    if(code.type == ASMLine::OPERATION) {
-      std::cout << hex(true, code.opr.addr)
-                << " | " << print_binary(code.opr.bin)
-                << " |" << code.opr.print() << std::endl;
+    if(code.type == Line::OPERATION) {
+      std::cout << hex(true, code.operation.address)
+                << " | " << print_binary(code.operation.get_bin())
+                << " |" << code.operation.print() << std::endl;
     }
   }
   return EXIT_SUCCESS;

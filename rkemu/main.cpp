@@ -45,18 +45,18 @@ int main(int argc, char* argv[]) {
   }
   cpu.load_rom(argv[optind]);
   // Print Emulation Conditions
-  std::cout << "+----------------------------------+" << std::endl
-            << "|                                  |\r"
+  std::cout << "+----------------------------------------+" << std::endl
+            << "|                                        |\r"
             << "| Emulate: " << cpu.fname << std::endl;
   if(dump_points.use)
-    std::cout << "|                                  |\r"
+    std::cout << "|                                        |\r"
               << "|  - Dump: " << dump_points.fname << std::endl;
   if(dump_points.all)
-    std::cout << "|  - Dump: All                     |" << std::endl;
+    std::cout << "|  - Dump: All                           |" << std::endl;
   if(intr_points.use)
-    std::cout << "|                                  |\r"
+    std::cout << "|                                        |\r"
               << "|  - Intr: " << intr_points.fname << std::endl;
-  std::cout << "+----------------------------------+" << std::endl;
+  std::cout << "+----------------------------------------+" << std::endl;
 
   // Run Emulator
   for(int t = 0;; ++t) {
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
     if(interval_time) usleep(10000);
   }
   std::cout << std::endl
-            << "====================================" << std::endl;
+            << "==========================================" << std::endl;
   return 0;
 }
 

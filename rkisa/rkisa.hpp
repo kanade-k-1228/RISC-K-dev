@@ -1,6 +1,23 @@
 #pragma once
 #include <string>
 
+const std::string mnemonic_calc = "add|sub|and|or|xor|not|srs|sru|ls|eq|lts|ltu|lcast";
+const std::string mnemonic_calci = "addi|subi|andi|ori|xori|eqi|ltsi|ltui";
+const std::string mnemonic = "add|sub|and|or|xor|not|srs|sru|sl|eq|lts|ltu|lcast|"
+                             "addi|subi|andi|ori|xori|eqi|ltsi|ltui|"
+                             "load|store|jmpif|fctrl";
+const std::string mnemonic_pseudo = "loadi|call|ret|iret";
+
+namespace OPCode {
+const uint8_t calc = 0b0000;
+const uint8_t calci = 0b0001;
+const uint8_t load = 0b0011;
+const uint8_t store = 0b0111;
+const uint8_t jmpif = 0b1111;
+const uint8_t fctrl = 0b1111;
+const uint8_t calif = 0b1111;
+}  // namespace OPCode
+
 enum Reg {
   ZERO = 0x0,
   PC = 0x1,
@@ -20,21 +37,6 @@ enum Reg {
   T3 = 0xF
 };
 
-uint16_t str_to_reg(std::string reg_name);
-
-enum OP {
-  CALC = 0x0,
-  CALCI = 0x1,
-  LOAD = 0x2,
-  STORE = 0x3,
-  JMPIF = 0x4,
-  FCALL = 0x5
-};
-
-bool is_calc(std::string op);
-bool is_calci(std::string op);
-uint16_t str_to_opc(std::string op_s);
-
 enum Func {
   ADD = 0x0,
   SUB = 0x1,
@@ -52,8 +54,6 @@ enum Func {
   LCAST = 0xD
 };
 
-uint16_t str_to_func(std::string op_s);
-
 enum CSRBit {
   IEN = 0b0000'0000'0001,
   INTR = 0b0000'0000'0010,
@@ -70,20 +70,20 @@ enum Addr {
   PC_INTR = 0x0001,
 };
 
-extern std::string mnemonic;
-extern std::string pseudo_mnemonic;
+// extern std::string mnemonic;
+// extern std::string mnemonic_pseudo;
 
-struct OPDecoder {
-  uint16_t opc;
-  uint16_t func;
-  uint16_t rs1;
-  uint16_t rs2;
-  uint16_t rd;
-  uint16_t imm;
-  OPDecoder(uint32_t code);
-};
+// struct OPDecoder {
+//   uint16_t opc;
+//   uint16_t func;
+//   uint16_t rs1;
+//   uint16_t rs2;
+//   uint16_t rd;
+//   uint16_t imm;
+//   OPDecoder(uint32_t code);
+// };
 
-struct OPEncoder {
-  uint32_t bin;
-  OPEncoder(uint16_t op, uint16_t func, uint16_t rs1, uint16_t rs2, uint16_t rd, uint16_t imm);
-};
+// struct OPEncoder {
+//   uint32_t bin;
+//   OPEncoder(uint16_t op, uint16_t func, uint16_t rs1, uint16_t rs2, uint16_t rd, uint16_t imm);
+// };

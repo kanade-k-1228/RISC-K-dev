@@ -4,4 +4,13 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -g -static")
 
 project(rkasm CXX)
 
-add_executable(rkasm main.cpp label.cpp code.cpp reader.cpp ../utils/utils.cpp ../rkisa/rkisa.cpp)
+add_executable(rkasm 
+    imm.cpp
+    label_def.cpp
+    label_table.cpp
+    line.cpp
+    main.cpp
+    operation.cpp
+    reader.cpp
+    utils.cpp
+)

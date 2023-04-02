@@ -63,7 +63,7 @@ bool DumpPoints::is_dump(uint16_t pc) {
 
 std::string Debug::print_code(uint32_t code) {
   OPDecoder op(code);
-  if(op.opc == CALC) {
+  if(op.opc == OPCode::calc) {
     if(op.func == ADD) return cprint("add", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
     if(op.func == SUB) return cprint("sub", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
     if(op.func == AND) return cprint("and", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6);
@@ -79,7 +79,7 @@ std::string Debug::print_code(uint32_t code) {
     if(op.func == LCAST) return cprint("lcast", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6);
     return "Unknown FuncCode" + hex(true, op.func);
   }
-  if(op.opc == CALCI) {
+  if(op.opc == OPCode::calci) {
     if(op.func == ADD) return cprint("addi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     if(op.func == SUB) return cprint("subi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     if(op.func == AND) return cprint("andi", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
@@ -90,9 +90,9 @@ std::string Debug::print_code(uint32_t code) {
     if(op.func == LTU) return cprint("ltui", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     return "Unknown FuncCode" + hex(true, op.func);
   }
-  if(op.opc == LOAD) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == STORE) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == JMPIF) return cprint("calif", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == OPCode::load) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == OPCode::store) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == OPCode::calif) return cprint("calif", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   return "Unknown Opecode" + hex(true, op.opc);
 }
 

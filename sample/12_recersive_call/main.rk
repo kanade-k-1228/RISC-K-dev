@@ -1,27 +1,43 @@
-zero:
-
 ; 再帰的にフィボナッチ数列を求める
 ; f(0) = 0
 ; f(1) = 1
 ; f(n>=2) = f(n-1) + f(n-2)
-; Arg : a0 = n
+; Arg : t0 = n
+; Ret : t0 = f(n)
 
+zero:
+    loadi  sp  0xffff
 fib:
     ; if n == 0
-    breq   a0  zero  fib0
-    ; if n == 1
-    loadi  t1  1
-    breq   a0  t1    fib1
+    jmpif t0 fib0
+    ; if n - 1 == 0
+    subi  t1 t0  1
+    jmpif t1 fib1
     ; else
-    addi a0 = 
+    addi  sp sp 1
+    store t0 sp zero
+    ; f(n-1)
+    subi  t0 t0 1
+    call  fib
+    mov   t1 t0
+    load  t0 sp zero
+    store t1 sp zero
+    ; f(n-2)
+    subi  t0 t0 2
+    call  fib
+    load  t1 sp zero
+    subi  sp sp 1
+    ; return f(n-1) + f(n-2)
+    add   t0 t0 t1
+    ret
 
 fib0:
     ; return 0
-    loadi  a0  0
-    jump zero ra zero
+    loadi  t0  0
+    ret
 
 fib1:
     ; return 1
-    loadi  a0  1
-    jump zero ra zero
+    loadi  t0  1
+    ret
 

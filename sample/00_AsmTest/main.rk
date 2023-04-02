@@ -21,11 +21,11 @@
     ltsi t2 t0 0xf000
     ltui t2 t0 0xf000
 ; CTRL
-    jmpif t0   zero a
+    jmpif t0   zero e
 a:
     jmpif zero zero b
 b:
-    fcnr  ra   zero c
+    fctrl ra   zero c
 c:
     ret
 d:

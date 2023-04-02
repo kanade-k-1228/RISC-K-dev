@@ -59,7 +59,7 @@ void CPU::jump_interrupt() {
 
 void CPU::execute(uint32_t code) {
   OPDecoder op(code);
-  if(op.opc == CALC) {
+  if(op.opc == OPCode::calc) {
     if(op.func == ADD) add(op.rd, op.rs1, op.rs2);
     if(op.func == SUB) sub(op.rd, op.rs1, op.rs2);
     if(op.func == AND) land(op.rd, op.rs1, op.rs2);
@@ -74,7 +74,7 @@ void CPU::execute(uint32_t code) {
     if(op.func == LTU) ltu(op.rd, op.rs1, op.rs2);
     if(op.func == LCAST) lcast(op.rd, op.rs1);
   }
-  if(op.opc == CALCI) {
+  if(op.opc == OPCode::calci) {
     if(op.func == ADD) addi(op.rd, op.rs1, op.imm);
     if(op.func == SUB) subi(op.rd, op.rs1, op.imm);
     if(op.func == AND) landi(op.rd, op.rs1, op.imm);
@@ -84,9 +84,9 @@ void CPU::execute(uint32_t code) {
     if(op.func == LTS) ltsi(op.rd, op.rs1, op.imm);
     if(op.func == LTU) ltui(op.rd, op.rs1, op.imm);
   }
-  if(op.opc == LOAD) load(op.rd, op.rs1, op.imm);
-  if(op.opc == STORE) store(op.rs1, op.rs2, op.imm);
-  if(op.opc == JMPIF) calif(op.rd, op.rs1, op.rs2, op.imm);
+  if(op.opc == OPCode::load) load(op.rd, op.rs1, op.imm);
+  if(op.opc == OPCode::store) store(op.rs1, op.rs2, op.imm);
+  if(op.opc == OPCode::calif) calif(op.rd, op.rs1, op.rs2, op.imm);
   return;
 }
 
