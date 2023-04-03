@@ -1,5 +1,5 @@
 #include "reader.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -24,26 +24,5 @@ bool getline() {
     std::cout << "\33[2K\r";
     return false;
   }
-}
-
-void error(std::string message) {
-  std::cout << std::endl
-            << "\033[31m------------------------------------\033[m\r"
-            << "\033[31m" << message << "\033[m " << std::endl
-            << "\033[31m|                                  |\033[m\r"
-            << "\033[31m|\033[m " << fname << ":" << line_cnt << std::endl
-            << "\033[31m|                                  |\033[m\r"
-            << "\033[31m|\033[m " << line << std::endl
-            << "\033[31m------------------------------------\033[m" << std::endl;
-  exit(EXIT_FAILURE);
-}
-
-void warn(std::string message) {
-  std::cout << std::endl
-            << "------------------------------------" << std::endl
-            << "\033[33m WARN \033[m " << fname << ":" << line_cnt << std::endl
-            << " " << line << std::endl
-            << " " << message << std::endl
-            << "------------------------------------" << std::endl;
 }
 }  // namespace Reader

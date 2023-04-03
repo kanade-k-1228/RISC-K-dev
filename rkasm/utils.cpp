@@ -1,5 +1,4 @@
 #include "utils.hpp"
-#include "../rkisa/rkisa.hpp"
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -7,17 +6,17 @@
 
 void error(std::string message) {
   std::cout << std::endl
-            << "------------------------------------" << std::endl
+            << "--------------------------------------------------" << std::endl
             << "\033[31m ERROR! \033[m " << message << std::endl
-            << "------------------------------------" << std::endl;
+            << "--------------------------------------------------" << std::endl;
   exit(EXIT_FAILURE);
 }
 
 void warn(std::string message) {
   std::cout << std::endl
-            << "------------------------------------" << std::endl
+            << "--------------------------------------------------" << std::endl
             << "\033[33m WARN \033[m " << message << std::endl
-            << "------------------------------------" << std::endl;
+            << "--------------------------------------------------" << std::endl;
 }
 
 std::string cprint(const std::string str, Collor collor, int width) {
