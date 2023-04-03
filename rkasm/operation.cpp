@@ -61,17 +61,40 @@ Operation::Operation(
     const uint16_t address,
     const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
-  if(is_calc(mnemonic)) rd = str.at(1), rs1 = str.at(2), rs2 = str.at(3);
-  if(mnemonic == "mov") rd = str.at(1), rs1 = str.at(2), rs2 = "zero";
-  if(is_calci(mnemonic)) rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  if(mnemonic == "loadi") rd = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
-  if(mnemonic == "load") rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  if(mnemonic == "store") rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  if(mnemonic == "if") rd = "zero", rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  if(mnemonic == "jmp") rd = "zero", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
-  if(mnemonic == "call") rd = "ra", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
-  if(mnemonic == "ret") rd = "zero", rs2 = "zero", rs1 = "ra", imm = Imm("0");
-  if(mnemonic == "iret") rd = "zero", rs2 = "zero", rs1 = "ira", imm = Imm("0");
+  if(is_calc(mnemonic)) {
+    if(str.size() <= 3) error("Require 3 Operand");
+    rd = str.at(1), rs1 = str.at(2), rs2 = str.at(3);
+  } else if(mnemonic == "mov") {
+    if(str.size() <= 2) error("Require 2 Operand");
+    rd = str.at(1), rs1 = str.at(2), rs2 = "zero";
+  } else if(is_calci(mnemonic)) {
+    if(str.size() <= 3) error("Require 3 Operand");
+    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+  } else if(mnemonic == "loadi") {
+    if(str.size() <= 2) error("Require 2 Operand");
+    rd = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
+  } else if(mnemonic == "load") {
+    if(str.size() <= 3) error("Require 3 Operand");
+    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+  } else if(mnemonic == "store") {
+    if(str.size() <= 3) error("Require 3 Operand");
+    rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+  } else if(mnemonic == "if") {
+    if(str.size() <= 3) error("Require 3 Operand");
+    rd = "zero", rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+  } else if(mnemonic == "jmp") {
+    if(str.size() <= 1) error("Require 1 Operand");
+    rd = "zero", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
+  } else if(mnemonic == "call") {
+    if(str.size() <= 1) error("Require 1 Operand");
+    rd = "ra", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
+  } else if(mnemonic == "ret") {
+    rd = "zero", rs2 = "zero", rs1 = "ra", imm = Imm("0");
+  } else if(mnemonic == "iret") {
+    rd = "zero", rs2 = "zero", rs1 = "ira", imm = Imm("0");
+  } else {
+    error("Unknown mnemonic");
+  }
 }
 
 uint32_t pack(uint8_t u4_0, uint8_t u4_1, uint8_t u4_2, uint8_t u4_3, uint16_t u16) {
