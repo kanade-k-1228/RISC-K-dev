@@ -7,13 +7,13 @@
 struct OPDecoder {
   uint16_t opc, func, rs1, rs2, rd, imm;
   OPDecoder(uint32_t code) {
-    opc = (code >> 12) & 0x000F;
+    opc = (code)&0x000F;
     func = opc == OPCode::calc    ? (code >> 16) & 0x000F
-           : opc == OPCode::calci ? (code >> 4) & 0x000F
+           : opc == OPCode::calci ? (code >> 8) & 0x000F
                                   : 0;
-    rs1 = (code >> 0) & 0x000F;
-    rs2 = (code >> 4) & 0x000F;
-    rd = (code >> 8) & 0x000F;
+    rs1 = (code >> 4) & 0x000F;
+    rs2 = (code >> 8) & 0x000F;
+    rd = (code >> 12) & 0x000F;
     imm = (code >> 16) & 0xFFFF;
   }
 };
