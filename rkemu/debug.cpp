@@ -98,7 +98,7 @@ std::string Debug::print_code(uint32_t code) {
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-    ss << " +------------+-------------------------+" << std::endl
+  ss << " +------------+-------------------------+" << std::endl
      << " |  " << cprint("PC: " + hex(false, cpu.ram.get(Reg::pc)), GREEN, 0) << "  |  CSR: " << std::bitset<16>(cpu.ram.get(Reg::csr)) << "  |" << std::endl
      << " |  RA: " << hex(false, cpu.ram.get(Reg::ra)) << "  |  S0: " << hex(false, cpu.ram.get(Reg::s0)) << "  |  T0: " << hex(false, cpu.ram.get(Reg::t0)) << "  |" << std::endl
      << " | IRA: " << hex(false, cpu.ram.get(Reg::ira)) << "  |  S1: " << hex(false, cpu.ram.get(Reg::s1)) << "  |  T1: " << hex(false, cpu.ram.get(Reg::t1)) << "  |" << std::endl
@@ -117,7 +117,7 @@ std::string Debug::dump(CPU& cpu, DumpOption& opt) {
 
 std::string Debug::dump(CPU& cpu) {
   std::stringstream ss;
-    ss << " +------------+-------------------------+" << std::endl
+  ss << " +------------+-------------------------+" << std::endl
      << " |  " << cprint("PC: " + hex(false, cpu.ram.get(Reg::pc)), GREEN, 0) << "  |  CSR: " << std::bitset<16>(cpu.ram.get(Reg::csr)) << "  |" << std::endl
      << " |  RA: " << hex(false, cpu.ram.get(Reg::ra)) << "  |  S0: " << hex(false, cpu.ram.get(Reg::s0)) << "  |  T0: " << hex(false, cpu.ram.get(Reg::t0)) << "  |" << std::endl
      << " | IRA: " << hex(false, cpu.ram.get(Reg::ira)) << "  |  S1: " << hex(false, cpu.ram.get(Reg::s1)) << "  |  T1: " << hex(false, cpu.ram.get(Reg::t1)) << "  |" << std::endl

@@ -51,9 +51,11 @@ uint16_t alu_stoi(std::string s) {
   if(s == "lts" || s == "ltsi") return ALUCode::LTS;
   if(s == "ltu" || s == "ltui") return ALUCode::LTU;
   if(s == "lcast") return ALUCode::LCAST;
+  // Pseudo Operation
+  if(s == "nop") return ALUCode::ADD;
   if(s == "mov") return ALUCode::ADD;
   if(s == "loadi") return ALUCode::ADD;
-  error("Thisi operation doesn't have ALUCode: " + s);
+  error("This operation doesn't have ALUCode: " + s);
   return 0;
 }
 
@@ -64,6 +66,8 @@ Operation::Operation(
   if(is_calc(mnemonic)) {
     if(str.size() <= 3) error("Require 3 Operand");
     rd = str.at(1), rs1 = str.at(2), rs2 = str.at(3);
+  } else if(mnemonic == "nop") {
+    rd = "zero", rs1 = "zero", rs2 = "zero";
   } else if(mnemonic == "mov") {
     if(str.size() <= 2) error("Require 2 Operand");
     rd = str.at(1), rs1 = str.at(2), rs2 = "zero";
@@ -107,7 +111,7 @@ uint32_t pack(uint8_t u4_0, uint8_t u4_1, uint8_t u4_2, uint8_t u4_3, uint16_t u
 
 uint32_t Operation::get_bin() {
   uint32_t ret = 0;
-  if(is_calc(mnemonic) || mnemonic == "mov")
+  if(is_calc(mnemonic) || mnemonic == "nop" || mnemonic == "mov")
     return pack(OPCode::calc, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), alu_stoi(mnemonic));
   if(is_calci(mnemonic) || mnemonic == "loadi")
     return pack(OPCode::calci, reg_stoi(rs1), alu_stoi(mnemonic), reg_stoi(rd), imm.value);

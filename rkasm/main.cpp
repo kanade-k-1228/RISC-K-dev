@@ -1,8 +1,8 @@
 #include "isa.hpp"
-#include "utils.hpp"
 #include "label_table.hpp"
 #include "line.hpp"
 #include "reader.hpp"
+#include "utils.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>

@@ -1,7 +1,7 @@
-#include "isa.hpp"
-#include "utils.hpp"
 #include "cpu.hpp"
 #include "debug.hpp"
+#include "isa.hpp"
+#include "utils.hpp"
 #include <fstream>
 #include <iostream>
 #include <set>

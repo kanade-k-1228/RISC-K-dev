@@ -6,7 +6,7 @@ const std::string mnemonic_calci = "addi|subi|andi|ori|xori|eqi|ltsi|ltui";
 const std::string mnemonic_calif = "if|jump|call|ret|iret";
 const std::string mnemonic = "add|sub|and|or|xor|not|srs|sru|sl|eq|lts|ltu|lcast|"
                              "addi|subi|andi|ori|xori|eqi|ltsi|ltui|"
-                             "mov|loadi|load|store|if|jump|call|ret|iret";
+                             "nop|mov|loadi|load|store|if|jump|call|ret|iret";
 
 namespace OPCode {
 const uint8_t calc = 0b0000;
@@ -49,21 +49,21 @@ const uint8_t t0 = 0xC;
 const uint8_t t1 = 0xD;
 const uint8_t t2 = 0xE;
 const uint8_t t3 = 0xF;
-}  // namespace REG
+}  // namespace Reg
 
 
 namespace CSRBit {
-  const uint16_t IEN = 0b0000'0000'0001;
-  const uint16_t INTR = 0b0000'0000'0010;
-  const uint16_t INTR0 = 0b0000'0000'0100;
-  const uint16_t INTR1 = 0b0000'0000'1000;
-  const uint16_t INTR2 = 0b0000'0001'0000;
-  const uint16_t INTR3 = 0b0000'0010'0000;
-  const uint16_t SRCV = 0b0000'0100'0000;
-  const uint16_t SSEND = 0b0000'1000'0000;
-  const uint16_t CSTOP = 0b0001'0000'0000;
-}
+const uint16_t IEN = 0b0000'0000'0001;
+const uint16_t INTR = 0b0000'0000'0010;
+const uint16_t INTR0 = 0b0000'0000'0100;
+const uint16_t INTR1 = 0b0000'0000'1000;
+const uint16_t INTR2 = 0b0000'0001'0000;
+const uint16_t INTR3 = 0b0000'0010'0000;
+const uint16_t SRCV = 0b0000'0100'0000;
+const uint16_t SSEND = 0b0000'1000'0000;
+const uint16_t CSTOP = 0b0001'0000'0000;
+}  // namespace CSRBit
 
 namespace Addr {
-  const uint16_t PC_INTR = 0x0001;
+const uint16_t PC_INTR = 0x0001;
 }
