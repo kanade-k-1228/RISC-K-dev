@@ -1,28 +1,22 @@
 zero:
+    loadi  sp 0xffff
 ; レジスタにダミーデータをセット
-    loadi  s0  0xc000
-    loadi  s1  0xc111
-    loadi  s2  0xc222
-    loadi  s3  0xc333
-    loadi  t0  0xb000
-    loadi  t1  0xb111
-    loadi  t2  0xb222
-    loadi  t3  0xb333
-    loadi  a0  0xa000
-    loadi  a1  0xa111
-    loadi  a2  0xa222
-    loadi  a3  0xa333
+    loadi  s0  0x0000
+    loadi  s1  0x1111
+    loadi  s2  0x2222
+    loadi  s3  0x3333
+    loadi  t0  0x4444
+    loadi  t1  0x5555
+    loadi  t2  0x6666
+    loadi  t3  0x7777
 ; スタックに退避
     subi   sp  sp  4
     store  t0  sp  1
     store  t1  sp  2
     store  t2  sp  3
     store  t3  sp  4
-; 引数をレジスタにセット
-    loadi  a0  0x0001
-    loadi  a1  0x0002
 ; Call
-    jump   ra  zero  func
+    call   func
 ; ここに戻ってくる
 ; Tレジスタを復元
     load   t3  sp  4
@@ -31,12 +25,11 @@ zero:
     load   t0  sp  1
     addi   sp  sp  4
 
-; 無限ループ
-here:
-    jump   ra  zero  here
+_exit:
+    ori  csr csr 0x100
 
 ; 足し算を計算する関数
-; a0 = a0 + a1
+; t0 = t0 + t1
 
 func:
 ; プロローグ
@@ -48,12 +41,8 @@ func:
     store  s3  sp  4
 
 ; 関数の本体
-    add    a0  a0  a1
-
+    add   t0  t0  t1
 ; レジスタを荒らす
-    loadi a1  0xffff
-    loadi a2  0xffff
-    loadi a3  0xffff
     loadi s0  0xffff
     loadi s1  0xffff
     loadi s2  0xffff
@@ -72,4 +61,4 @@ func:
     addi   sp  sp  4
 
 ; Return
-    jump  zero  ra  zero
+    ret

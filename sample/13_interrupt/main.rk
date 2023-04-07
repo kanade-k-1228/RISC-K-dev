@@ -20,14 +20,14 @@ _intr:
     store fp sp 2
     store ra sp 1
     ; 割込み先にジャンプ
-    andi t0 csr 0x004
+    andi t0 csr 0b0000'0000'0000'0100
     if   t0 intr0
-    andi t0 csr 0x008
-    brlt zero t0 intr1
-    andi t0 csr 0x010
-    brlt zero t0 intr2
-    andi t0 csr 0x020
-    brlt zero t0 intr3
+    andi t0 csr 0b0000'0000'0000'1000
+    if   t0 intr1
+    andi t0 csr 0b0000'0000'0001'0000
+    if   t0 intr2
+    andi t0 csr 0b0000'0000'0010'0000
+    if   t0 intr3
 _iret:
     ; レジスタの復元
     load ra sp 1
@@ -45,8 +45,8 @@ _iret:
     load s1 sp 13
     load s0 sp 14
     addi sp sp 14 ; スタックを解放
-    ori   csr csr 0x0001 ; 割り込み許可
-    jump zero ira 0      ; 割り込みから復帰
+    ori  csr csr 0x0001 ; 割り込み許可
+    iret                 ; 割り込みから復帰
 
 ; プログラム開始前処理
 _main:

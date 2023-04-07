@@ -98,15 +98,13 @@ std::string Debug::print_code(uint32_t code) {
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-  ss << " +-----------+------+------+------+" << std::endl
-     << " |  " << cprint("PC: " + hex(false, cpu.ram.get(PC)), GREEN, 0) << " | " << cprint("Save", BLUE, 0) << " | " << cprint("Temp", BLUE, 0) << " |" << std::endl
-     << " |  RA: " << hex(false, cpu.ram.get(RA)) << " | S0: " << hex(false, cpu.ram.get(S0)) << " | T0: " << hex(false, cpu.ram.get(T0)) << " |" << std::endl
-     << " | IRA: " << hex(false, cpu.ram.get(IRA)) << " | S1: " << hex(false, cpu.ram.get(S1)) << " | T1: " << hex(false, cpu.ram.get(T1)) << " |" << std::endl
-     << " |  SP: " << hex(false, cpu.ram.get(SP)) << " | S2: " << hex(false, cpu.ram.get(S2)) << " | T2: " << hex(false, cpu.ram.get(T2)) << " |" << std::endl
-     << " |  FP: " << hex(false, cpu.ram.get(FP)) << " | S3: " << hex(false, cpu.ram.get(S3)) << " | T3: " << hex(false, cpu.ram.get(T3)) << " |" << std::endl
-     << " +-----------+------+------+------+" << std::endl
-     << " | CSR: " << std::bitset<16>(cpu.ram.get(CSR)) << "          |" << std::endl;
-  if(opt.address.size() != 0) ss << " +--------------------------------+" << std::endl;
+    ss << " +------------+-------------------------+" << std::endl
+     << " |  " << cprint("PC: " + hex(false, cpu.ram.get(PC)), GREEN, 0) << "  |  CSR: " << std::bitset<16>(cpu.ram.get(CSR)) << "  |" << std::endl
+     << " |  RA: " << hex(false, cpu.ram.get(RA)) << "  |  S0: " << hex(false, cpu.ram.get(S0)) << "  |  T0: " << hex(false, cpu.ram.get(T0)) << "  |" << std::endl
+     << " | IRA: " << hex(false, cpu.ram.get(IRA)) << "  |  S1: " << hex(false, cpu.ram.get(S1)) << "  |  T1: " << hex(false, cpu.ram.get(T1)) << "  |" << std::endl
+     << " |  SP: " << hex(false, cpu.ram.get(SP)) << "  |  S2: " << hex(false, cpu.ram.get(S2)) << "  |  T2: " << hex(false, cpu.ram.get(T2)) << "  |" << std::endl
+     << " |  FP: " << hex(false, cpu.ram.get(FP)) << "  |  S3: " << hex(false, cpu.ram.get(S3)) << "  |  T3: " << hex(false, cpu.ram.get(T3)) << "  |" << std::endl
+     << " +------------+------------+------------+" << std::endl;
   for(uint16_t addr : opt.address)
     ss << " | " << hex(true, addr) << " : " << hex(false, cpu.ram.get(addr)) << "                  |" << std::endl;
   if(opt.stack) {
@@ -114,7 +112,6 @@ std::string Debug::dump(CPU& cpu, DumpOption& opt) {
     for(uint16_t sp = cpu.ram.get(SP); sp < cpu.ram.get(FP); sp++)
       ss << " | " << hex(true, (uint16_t)(sp + 1)) << " : " << hex(false, cpu.ram.get(sp + 1)) << "                  |" << std::endl;
   }
-  ss << " +--------------------------------+" << std::endl;
   return ss.str();
 }
 
