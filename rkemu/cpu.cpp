@@ -1,6 +1,6 @@
 #include "cpu.hpp"
-#include "../rkisa/rkisa.hpp"
-#include "../utils/utils.hpp"
+#include "isa.hpp"
+#include "utils.hpp"
 #include <bitset>
 #include <iomanip>
 #include <sstream>
@@ -22,13 +22,13 @@ void CPU::load_rom(std::string fname) {
 }
 
 bool CPU::cstop() {
-  return ram.get(CSR) & CSRBit::CSTOP;
+  return ram.get(Reg::csr) & CSRBit::CSTOP;
 }
 
 int CPU::serial() {
-  char cout = ram.get(COUT);
+  char cout = ram.get(Reg::cout);
   if(cout) {
-    ram.set(COUT, 0);
+    ram.set(Reg::cout, 0);
     return cout;
   } else {
     return -1;
@@ -40,49 +40,49 @@ void CPU::external_interrupt(int intr_no) {
 }
 
 void CPU::catch_interrupt() {
-  if(ram.get(CSR) & IEN) {  // 割り込み許可か
-    if(intr_latch[0]) ram.set(CSR, ram.get(CSR) | INTR0);
-    if(intr_latch[1]) ram.set(CSR, ram.get(CSR) | INTR1);
-    if(intr_latch[2]) ram.set(CSR, ram.get(CSR) | INTR2);
-    if(intr_latch[3]) ram.set(CSR, ram.get(CSR) | INTR3);
+  if(ram.get(Reg::csr) & CSRBit::IEN) {  // 割り込み許可か
+    if(intr_latch[0]) ram.set(Reg::csr, ram.get(Reg::csr) | CSRBit::INTR0);
+    if(intr_latch[1]) ram.set(Reg::csr, ram.get(Reg::csr) | CSRBit::INTR1);
+    if(intr_latch[2]) ram.set(Reg::csr, ram.get(Reg::csr) | CSRBit::INTR2);
+    if(intr_latch[3]) ram.set(Reg::csr, ram.get(Reg::csr) | CSRBit::INTR3);
   }
 }
 
 void CPU::jump_interrupt() {
-  if(ram.get(CSR) & IEN) {  // 割り込み許可か
-    if(ram.get(CSR) & INTR0) intr_latch[0] = false, ram.set_ira(), ram.set_pc(PC_INTR);
-    if(ram.get(CSR) & INTR1) intr_latch[1] = false, ram.set_ira(), ram.set_pc(PC_INTR);
-    if(ram.get(CSR) & INTR2) intr_latch[2] = false, ram.set_ira(), ram.set_pc(PC_INTR);
-    if(ram.get(CSR) & INTR3) intr_latch[3] = false, ram.set_ira(), ram.set_pc(PC_INTR);
+  if(ram.get(Reg::csr) & CSRBit::IEN) {  // 割り込み許可か
+    if(ram.get(Reg::csr) & CSRBit::INTR0) intr_latch[0] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
+    if(ram.get(Reg::csr) & CSRBit::INTR1) intr_latch[1] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
+    if(ram.get(Reg::csr) & CSRBit::INTR2) intr_latch[2] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
+    if(ram.get(Reg::csr) & CSRBit::INTR3) intr_latch[3] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
   }
 }
 
 void CPU::execute(uint32_t code) {
   OPDecoder op(code);
   if(op.opc == OPCode::calc) {
-    if(op.func == ADD) add(op.rd, op.rs1, op.rs2);
-    if(op.func == SUB) sub(op.rd, op.rs1, op.rs2);
-    if(op.func == AND) land(op.rd, op.rs1, op.rs2);
-    if(op.func == OR) lor(op.rd, op.rs1, op.rs2);
-    if(op.func == XOR) lxor(op.rd, op.rs1, op.rs2);
-    if(op.func == NOT) lnot(op.rd, op.rs1);
-    if(op.func == SRS) srs(op.rd, op.rs1);
-    if(op.func == SRU) sru(op.rd, op.rs1);
-    if(op.func == SL) sl(op.rd, op.rs1);
-    if(op.func == EQ) eq(op.rd, op.rs1, op.rs2);
-    if(op.func == LTS) lts(op.rd, op.rs1, op.rs2);
-    if(op.func == LTU) ltu(op.rd, op.rs1, op.rs2);
-    if(op.func == LCAST) lcast(op.rd, op.rs1);
+    if(op.func == ALUCode::ADD) add(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::SUB) sub(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::AND) land(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::OR) lor(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::XOR) lxor(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::NOT) lnot(op.rd, op.rs1);
+    if(op.func == ALUCode::SRS) srs(op.rd, op.rs1);
+    if(op.func == ALUCode::SRU) sru(op.rd, op.rs1);
+    if(op.func == ALUCode::SL) sl(op.rd, op.rs1);
+    if(op.func == ALUCode::EQ) eq(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::LTS) lts(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::LTU) ltu(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::LCAST) lcast(op.rd, op.rs1);
   }
   if(op.opc == OPCode::calci) {
-    if(op.func == ADD) addi(op.rd, op.rs1, op.imm);
-    if(op.func == SUB) subi(op.rd, op.rs1, op.imm);
-    if(op.func == AND) landi(op.rd, op.rs1, op.imm);
-    if(op.func == OR) lori(op.rd, op.rs1, op.imm);
-    if(op.func == XOR) lxori(op.rd, op.rs1, op.imm);
-    if(op.func == EQ) eqi(op.rd, op.rs1, op.rs2);
-    if(op.func == LTS) ltsi(op.rd, op.rs1, op.imm);
-    if(op.func == LTU) ltui(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::ADD) addi(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::SUB) subi(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::AND) landi(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::OR) lori(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::XOR) lxori(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::EQ) eqi(op.rd, op.rs1, op.rs2);
+    if(op.func == ALUCode::LTS) ltsi(op.rd, op.rs1, op.imm);
+    if(op.func == ALUCode::LTU) ltui(op.rd, op.rs1, op.imm);
   }
   if(op.opc == OPCode::load) load(op.rd, op.rs1, op.imm);
   if(op.opc == OPCode::store) store(op.rs1, op.rs2, op.imm);
@@ -256,7 +256,7 @@ void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
 // if(rs2==0) pc = rs1 + imm
 // else       pc = pc + 1
 void CPU::calif(uint16_t rd, uint16_t rs1, uint16_t rs2, uint16_t imm) {
-  ram.set(rd, ram.get(PC) + 1);
+  ram.set(rd, ram.get(Reg::pc) + 1);
   if(ram.get(rs2) == 0)
     ram.set_pc(ram.get(rs1) + imm);
   else

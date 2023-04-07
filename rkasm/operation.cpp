@@ -17,22 +17,22 @@ bool is_calif(std::string s) {
 }
 
 uint16_t reg_stoi(std::string name) {
-  if(name == "zero") return REG::zero;
-  if(name == "pc") return REG::pc;
-  if(name == "ira") return REG::ira;
-  if(name == "csr") return REG::csr;
-  if(name == "ra") return REG::ra;
-  if(name == "sp") return REG::sp;
-  if(name == "fp") return REG::fp;
-  if(name == "cout") return REG::cout;
-  if(name == "s0") return REG::s0;
-  if(name == "s1") return REG::s1;
-  if(name == "s2") return REG::s2;
-  if(name == "s3") return REG::s3;
-  if(name == "t0") return REG::t0;
-  if(name == "t1") return REG::t1;
-  if(name == "t2") return REG::t2;
-  if(name == "t3") return REG::t3;
+  if(name == "zero") return Reg::zero;
+  if(name == "pc") return Reg::pc;
+  if(name == "ira") return Reg::ira;
+  if(name == "csr") return Reg::csr;
+  if(name == "ra") return Reg::ra;
+  if(name == "sp") return Reg::sp;
+  if(name == "fp") return Reg::fp;
+  if(name == "cout") return Reg::cout;
+  if(name == "s0") return Reg::s0;
+  if(name == "s1") return Reg::s1;
+  if(name == "s2") return Reg::s2;
+  if(name == "s3") return Reg::s3;
+  if(name == "t0") return Reg::t0;
+  if(name == "t1") return Reg::t1;
+  if(name == "t2") return Reg::t2;
+  if(name == "t3") return Reg::t3;
   error("Invalid Registor Name: " + name);
   return 0;
 }
@@ -106,7 +106,7 @@ uint32_t pack(uint8_t u4_0, uint8_t u4_1, uint8_t u4_2, uint8_t u4_3, uint16_t u
 }
 
 uint32_t Operation::get_bin() {
-  uint32_t ret;
+  uint32_t ret = 0;
   if(is_calc(mnemonic) || mnemonic == "mov")
     return pack(OPCode::calc, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), alu_stoi(mnemonic));
   if(is_calci(mnemonic) || mnemonic == "loadi")

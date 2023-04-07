@@ -1,5 +1,5 @@
 #pragma once
-#include "../rkisa/rkisa.hpp"
+#include "isa.hpp"
 #include <array>
 #include <fstream>
 #include <string>
@@ -24,7 +24,7 @@ public:
   RAM() : mem{0} {}
   bool set(uint16_t addr, uint16_t value) {
     // Read Only
-    if(addr == ZERO || addr == PC || addr == IRA) {
+    if(addr == Reg::zero || addr == Reg::pc || addr == Reg::ira) {
       return false;
     } else {
       mem.at(addr) = value;
@@ -32,9 +32,9 @@ public:
     }
   };
   uint16_t get(uint16_t addr) { return mem.at(addr); }
-  void set_pc(uint16_t value) { mem.at(PC) = value; }
-  void inc_pc() { mem.at(PC) += 1; }
-  void set_ira() { mem.at(IRA) = mem.at(PC); }
+  void set_pc(uint16_t value) { mem.at(Reg::pc) = value; }
+  void inc_pc() { mem.at(Reg::pc) += 1; }
+  void set_ira() { mem.at(Reg::ira) = mem.at(Reg::pc); }
 };
 
 class CPU {

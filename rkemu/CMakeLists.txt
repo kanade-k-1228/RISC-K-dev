@@ -4,4 +4,4 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -g -static")
 
 project(rkemu CXX)
 
-add_executable(rkemu main.cpp debug.cpp cpu.cpp ../utils/utils.cpp ../rkisa/rkisa.cpp)
+add_executable(rkemu main.cpp debug.cpp cpu.cpp utils.cpp)

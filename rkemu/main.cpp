@@ -1,5 +1,5 @@
-#include "../rkisa/rkisa.hpp"
-#include "../utils/utils.hpp"
+#include "isa.hpp"
+#include "utils.hpp"
 #include "cpu.hpp"
 #include "debug.hpp"
 #include <fstream>
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
   // Run Emulator
   for(int t = 0;; ++t) {
-    uint16_t pc = cpu.ram.get(PC);
+    uint16_t pc = cpu.ram.get(Reg::pc);
     uint32_t code = cpu.rom.at(pc);
 
     // Execute

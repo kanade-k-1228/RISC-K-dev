@@ -1,5 +1,5 @@
-#include "../rkisa/rkisa.hpp"
-#include "../utils/utils.hpp"
+#include "isa.hpp"
+#include "utils.hpp"
 #include "label_table.hpp"
 #include "line.hpp"
 #include "reader.hpp"
