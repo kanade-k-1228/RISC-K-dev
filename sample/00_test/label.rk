@@ -1,4 +1,4 @@
-    jmp  here
+    jump  here
     nop
     nop
 here:

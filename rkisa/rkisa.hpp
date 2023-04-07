@@ -5,7 +5,7 @@ const std::string mnemonic_calc = "add|sub|and|or|xor|not|srs|sru|ls|eq|lts|ltu|
 const std::string mnemonic_calci = "addi|subi|andi|ori|xori|eqi|ltsi|ltui|loadi";
 const std::string mnemonic = "add|sub|and|or|xor|not|srs|sru|sl|eq|lts|ltu|lcast|mov|"
                              "addi|subi|andi|ori|xori|eqi|ltsi|ltui|loadi|"
-                             "load|store|if|jmp|call|ret|iret";
+                             "load|store|if|jump|call|ret|iret";
 const std::string mnemonic_pseudo = "loadi|call|ret|iret";
 
 namespace OPCode {

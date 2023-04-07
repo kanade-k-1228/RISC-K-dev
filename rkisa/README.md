@@ -8,7 +8,7 @@
 | calci     | rd  (Destination)        | rs1 (Source) | imm/const (Source)    |
 | load      | rd  (Destination)        | rs1 (Offset) | imm/var (RAM Address) |
 | store     | rs2 (Source)             | rs1 (Offset) | imm/var (RAM Address) |
-| jmpif     | rs2 (Condition)          | rs1 (Offset) | imm/lab (ROM Address) |
+| jumpif    | rs2 (Condition)          | rs1 (Offset) | imm/lab (ROM Address) |
 | fcall     | rd  (Set Return Address) | rs1 (Offset) | imm/lab (ROM Address) |
 
 - add / addi

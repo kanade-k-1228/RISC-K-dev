@@ -3,10 +3,10 @@
 
 const std::string mnemonic_calc = "add|sub|and|or|xor|not|srs|sru|sl|eq|lts|ltu|lcast";
 const std::string mnemonic_calci = "addi|subi|andi|ori|xori|eqi|ltsi|ltui";
-const std::string mnemonic_calif = "if|jmp|call|ret|iret";
+const std::string mnemonic_calif = "if|jump|call|ret|iret";
 const std::string mnemonic = "add|sub|and|or|xor|not|srs|sru|sl|eq|lts|ltu|lcast|"
                              "addi|subi|andi|ori|xori|eqi|ltsi|ltui|"
-                             "mov|loadi|load|store|if|jmp|call|ret|iret";
+                             "mov|loadi|load|store|if|jump|call|ret|iret";
 
 namespace OPCode {
 const uint8_t calc = 0b0000;

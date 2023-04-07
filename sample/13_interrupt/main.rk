@@ -1,5 +1,5 @@
 _reset:
-    jmp  zero zero _main
+    jump  zero zero _main
 
 _intr:
     andi  csr csr 0xfffe ; 二重割り込み禁止

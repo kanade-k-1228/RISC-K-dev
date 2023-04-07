@@ -82,7 +82,7 @@ Operation::Operation(
   } else if(mnemonic == "if") {
     if(str.size() <= 3) error("Require 3 Operand");
     rd = "zero", rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  } else if(mnemonic == "jmp") {
+  } else if(mnemonic == "jump") {
     if(str.size() <= 1) error("Require 1 Operand");
     rd = "zero", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
   } else if(mnemonic == "call") {
@@ -135,7 +135,7 @@ std::string Operation::print() {
     ss << cprint(rd, BLUE, 6) << "        " << cprint(rs1, BLUE, 8);
   else if(mnemonic == "loadi" || mnemonic == "if")
     ss << cprint(rd, BLUE, 6) << "        " << imm.print();
-  else if(mnemonic == "jmp" || mnemonic == "call")
+  else if(mnemonic == "jump" || mnemonic == "call")
     ss << "              " << imm.print();
   return ss.str();
 }

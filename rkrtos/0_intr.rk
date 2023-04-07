@@ -58,7 +58,7 @@ _intr:
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
-    jmp   zero zero os_init
+    jump   zero zero os_init
 
 ; プログラム終了後処理
 _exit:
