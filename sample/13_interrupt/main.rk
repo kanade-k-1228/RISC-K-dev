@@ -1,5 +1,5 @@
 _reset:
-    jump zero zero _main
+    jmp  zero zero _main
 
 _intr:
     andi  csr csr 0xfffe ; 二重割り込み禁止
@@ -20,14 +20,14 @@ _intr:
     store fp sp 2
     store ra sp 1
     ; 割込み先にジャンプ
-    andi  t0 csr 0x004
-    brlt  zero t0 intr0
-    andi  t0 csr 0x008
-    brlt  zero t0 intr1
-    andi  t0 csr 0x010
-    brlt  zero t0 intr2
-    andi  t0 csr 0x020
-    brlt  zero t0 intr3
+    andi t0 csr 0x004
+    if   t0 intr0
+    andi t0 csr 0x008
+    brlt zero t0 intr1
+    andi t0 csr 0x010
+    brlt zero t0 intr2
+    andi t0 csr 0x020
+    brlt zero t0 intr3
 _iret:
     ; レジスタの復元
     load ra sp 1
