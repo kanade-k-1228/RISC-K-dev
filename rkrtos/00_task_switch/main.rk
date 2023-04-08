@@ -7,7 +7,6 @@
 @0x0045 task_id_b
 @0x0046 task_id_c
 
-
 ; 各割り込みの処理
 intr0:
     loadi cout ''
@@ -21,7 +20,7 @@ intr0:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr0_flag_clear
-    jump zero zero os_task_scheduler
+    jump  os_task_scheduler
 
 intr1:
     loadi cout ''
@@ -35,7 +34,7 @@ intr1:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr1_flag_clear
-    jump zero zero os_task_scheduler
+    jump  os_task_scheduler
 
 intr2:
     loadi cout ''
@@ -49,7 +48,7 @@ intr2:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr2_flag_clear
-    jump zero zero os_task_scheduler
+    jump  os_task_scheduler
 
 intr3:
     loadi cout ''
@@ -63,31 +62,31 @@ intr3:
     loadi cout '>'
     loadi cout ''
     andi  csr csr intr3_flag_clear
-    jump zero zero os_task_scheduler
+    jump  os_task_scheduler
 
 init_tasks:
-    add  s0 ra zero ; s0 <= ra
-    ; setup task A
-    loadi a0 task_state_ready
-    loadi a1 0x1000 ; stack_size
-    loadi a2 task_a ; entry address
-    jump ra zero os_task_setup
-    store a0 zero task_id_a
-    ; setup task B
-    loadi a0 task_state_ready
-    loadi a1 0x1000 ; stack_size
-    loadi a2 task_b ; entry address
-    jump ra zero os_task_setup
-    store a0 zero task_id_b
-    ; setup task C
-    loadi a0 task_state_ready
-    loadi a1 0x1000 ; stack_size
-    loadi a2 task_c ; entry address
-    jump ra zero os_task_setup
-    store a0 zero task_id_c
-    ; os start
-    add  ra s0 zero ; ra <= s0 
-    jump zero ra 0
+    mov  s0 ra
+    ; task_id_a = task_setup(ready, 0x1000, task_a)
+    loadi t0 task_state_ready
+    loadi t1 0x1000
+    loadi t2 task_a
+    call  os_task_setup
+    store t0 zero task_id_a
+    ; task_id_b = task_setup(ready, 0x1000, task_b)
+    loadi t0 task_state_ready
+    loadi t1 0x1000
+    loadi t2 task_b
+    call  os_task_setup
+    store t0 zero task_id_b
+    ; task_id_c = task_setup(ready, 0x1000, task_c)
+    loadi t0 task_state_ready
+    loadi t1 0x1000
+    loadi t2 task_c
+    call  os_task_setup
+    store t0 zero task_id_c
+    ; start os
+    mov  ra s0 
+    ret
 
 task_a:
     loadi cout 'S'
@@ -102,14 +101,10 @@ task_a:
     loadi s1 0xAAA1
     loadi s2 0xAAA2
     loadi s3 0xAAA3
-    loadi t0 0xAAB0
-    loadi t1 0xAAB1
-    loadi t2 0xAAB2
-    loadi t3 0xAAB3
-    loadi a0 0xAAC0
-    loadi a1 0xAAC1
-    loadi a2 0xAAC2
-    loadi a3 0xAAC3
+    loadi t0 0xAAA4
+    loadi t1 0xAAA5
+    loadi t2 0xAAA6
+    loadi t3 0xAAA7
     jump  ra zero os_task_wait
     loadi cout 'R'
     loadi cout 'e'
@@ -121,7 +116,7 @@ task_a:
     loadi cout 'A'
     loadi cout '\n'
     ; ready B
-    load  a0 zero task_id_b
+    load  t0 zero task_id_b
     jump  ra zero os_task_ready
     jump  ra zero os_task_exit
     
@@ -134,18 +129,14 @@ task_b:
     loadi cout ''
     loadi cout 'B'
     loadi cout '\n'
-    loadi s0 0xBBA0
-    loadi s1 0xBBA1
-    loadi s2 0xBBA2
-    loadi s3 0xBBA3
-    loadi t0 0xBBB0
-    loadi t1 0xBBB1
-    loadi t2 0xBBB2
-    loadi t3 0xBBB3
-    loadi a0 0xBBC0
-    loadi a1 0xBBC1
-    loadi a2 0xBBC2
-    loadi a3 0xBBC3
+    loadi s0 0xBBB0
+    loadi s1 0xBBB1
+    loadi s2 0xBBB2
+    loadi s3 0xBBB3
+    loadi t0 0xBBB4
+    loadi t1 0xBBB5
+    loadi t2 0xBBB6
+    loadi t3 0xBBB7
     jump  ra zero os_task_wait
     loadi cout 'R'
     loadi cout 'e'
@@ -167,20 +158,16 @@ task_c:
     loadi cout ''
     loadi cout 'C'
     loadi cout '\n'
-    loadi s0 0xCCA0
-    loadi s1 0xCCA1
-    loadi s2 0xCCA2
-    loadi s3 0xCCA3
-    loadi t0 0xCCB0
-    loadi t1 0xCCB1
-    loadi t2 0xCCB2
-    loadi t3 0xCCB3
-    loadi a0 0xCCC0
-    loadi a1 0xCCC1
-    loadi a2 0xCCC2
-    loadi a3 0xCCC3
+    loadi s0 0xCCC0
+    loadi s1 0xCCC1
+    loadi s2 0xCCC2
+    loadi s3 0xCCC3
+    loadi t0 0xCCC4
+    loadi t1 0xCCC5
+    loadi t2 0xCCC6
+    loadi t3 0xCCC7
     ; ready A
-    load  a0 zero task_id_a
+    load  t0 zero task_id_a
     jump  ra zero os_task_ready
     loadi cout 'R'
     loadi cout 'e'

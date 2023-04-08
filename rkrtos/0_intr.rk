@@ -25,40 +25,37 @@ _reset:
 _intr:
     andi  csr csr intr_disable ; 二重割り込み禁止
     ; コンテキストの保存
-    subi  sp sp 14 ; スタックを確保
-    store s0 sp 14
-    store s1 sp 13
-    store s2 sp 12
-    store s3 sp 11
-    store t0 sp 10
-    store t1 sp 9
-    store t2 sp 8
-    store t3 sp 7
-    store a0 sp 6
-    store a1 sp 5
-    store a2 sp 4
-    store a3 sp 3
+    subi  sp sp 10 ; スタックを確保
+    store s0 sp 10
+    store s1 sp 9
+    store s2 sp 8
+    store s3 sp 7
+    store t0 sp 6
+    store t1 sp 5
+    store t2 sp 4
+    store t3 sp 3
     store fp sp 2
     store ra sp 1
+    ; 実行中のタスクのTCBに保存
     load  t0 zero task_running
     store ira t0 .ra ; 戻りアドレスの保存
-    store sp t0 .sp  ; スタックポインタの保存
+    store sp  t0 .sp ; スタックポインタの保存
     ; 割り込みフラグが立っている場合
     ; 割り込み番号の処理にジャンプ
     andi  t0 csr intr0_flag
-    brlt  zero t0 intr0
+    if    t0 intr0
     andi  t0 csr intr1_flag
-    brlt  zero t0 intr1
+    if    t0 intr1
     andi  t0 csr intr2_flag
-    brlt  zero t0 intr2
+    if    t0 intr2
     andi  t0 csr intr3_flag
-    brlt  zero t0 intr3
+    if    t0 intr3
 
 ; プログラム開始前処理
 _main:
     loadi sp 0xffff
     loadi fp 0xffff
-    jump   zero zero os_init
+    call  os_init
 
 ; プログラム終了後処理
 _exit:

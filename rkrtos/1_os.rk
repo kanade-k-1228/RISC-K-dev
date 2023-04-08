@@ -23,7 +23,7 @@ os_init:
     store zero zero task_running
     store zero zero task_list
     ; 各種オブジェクトの初期化
-    jump  ra zero init_tasks
+    call init_tasks
     ; jump  ra zero os_heap_init
     jump  zero zero os_task_scheduler
 
@@ -43,14 +43,14 @@ os_init:
 #2 task_state_exit
 
 ; タスクの初期化
-; a0 > initial_state
-; a1 > stack_size
-; a2 > entry_address
-; a0 < task_pointer
+; t0 > initial_state
+; t1 > stack_size
+; t2 > entry_address
+; t0 < task_pointer
 os_task_setup:
     loadi t1 task_list
 os_task_setup_next:
-    add   t0 t1 zero  ; t0 <= t1 
+    mov   t0 t1       ; t0 <= t1 
     load  t1 t0 .next ; t0 の次のアイテムのアドレスを、t1に格納する
     brlt  zero t1 os_task_setup_next
     ; t0 が、リストの末尾のアドレスを指している
