@@ -41,3 +41,4 @@ fib1:
     loadi  t0  1
     ret
 
+_exit:
