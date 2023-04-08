@@ -82,7 +82,6 @@ int main(int argc, char* argv[]) {
         bool lab_is_opr = opr_lab.contains(lab);
         bool lab_is_var = var_lab.contains(lab);
         bool lab_is_const = const_lab.contains(lab);
-
         if(lab_is_opr + lab_is_var + lab_is_const > 1)
           error("Multiple defines of label: " + lab);
         else if(lab_is_opr) {

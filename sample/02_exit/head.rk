@@ -1,6 +1,6 @@
 zero:
     loadi sp 0xffff
-    loadi ra _exit:
-    jump  main:
+    loadi ra _exit
+    jump  main
 _exit:
     ori csr csr 0x0100
