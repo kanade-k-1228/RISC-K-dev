@@ -1,4 +1,8 @@
 {
+  "editor.formatOnSave": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "cmake.configureOnOpen": false,
   "files.associations": {
     "array": "cpp",
     "atomic": "cpp",
