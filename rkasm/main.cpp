@@ -1,7 +1,6 @@
 #include "isa.hpp"
 #include "label_table.hpp"
 #include "line.hpp"
-#include "reader.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <iomanip>
@@ -47,16 +46,23 @@ int main(int argc, char* argv[]) {
   std::cout << "--------------------------------------------------" << std::endl
             << "Assemble: " << fname << std::endl;
 
+  // ファイルを開く
+  std::ifstream fin(fname, std::ios::in);
+  if(!fin) error("Can't open input file: " + fname);
+
   // 一行ずつスキャンし、命令リストに格納
+  std::string line;
   std::vector<Line> asmlines;  // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
-  for(Reader::init(fname); Reader::getline();) {
-    std::string line = trim_comment(Reader::line);     // コメント削除
-    if(is_empty(line)) continue;                       // 空行ならスキップ
-    Line code(operation_cnt, split(line, ' '));        // 行を解釈
+  for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
+    std::cout << "\33[2K\r" << fname << ":" << line_cnt << ":" << line;
+    std::string trimmed = trim_comment(line);          // コメント削除
+    if(is_empty(trimmed)) continue;                    // 空行ならスキップ
+    Line code(operation_cnt, split(trimmed, ' '));     // 行を解釈
     asmlines.push_back(code);                          // 行を追加
     if(code.type == Line::OPERATION) ++operation_cnt;  // 命令行の場合、PCのカウントアップ
   }
+  std::cout << "\33[2K\r";
 
   // ラベルテーブルの生成
   LabelTable opr_lab;    // 命令ラベルテーブル

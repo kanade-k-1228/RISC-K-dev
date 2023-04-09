@@ -19,8 +19,6 @@
     eqi  t2 t0 0x1100
     ltsi t2 t0 0xf000
     ltui t2 t0 0xf000
-    load
-    store
     jump e
 a:
     if zero zero b

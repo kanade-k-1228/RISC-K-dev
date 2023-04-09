@@ -11,6 +11,5 @@ add_executable(rkasm
     line.cpp
     main.cpp
     operation.cpp
-    reader.cpp
     utils.cpp
 )

@@ -22,9 +22,6 @@ int main(int argc, char* argv[]) {
 
   // トークン化
   // 先頭から読み取っていく
-  const std::regex reserved("^(\\+|-|\\*|/|\\(|\\))");
-  const std::regex num("^([0-9]+)");
-  const std::regex blank("^(\\s)");
   std::string line;
   std::smatch match;
   Tokens tokens;
@@ -33,7 +30,7 @@ int main(int argc, char* argv[]) {
   // for(auto t : tokens.tokens) std::cout << t;
   // std::cout << std::endl;
 
-  // 構文木
+  // 構文木の構築
   Node* root = program(tokens);
   // std::cout << root << std::endl;
   // シンボルテーブル生成
