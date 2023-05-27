@@ -12,11 +12,11 @@ print_hex:
     loadi a3 4
     loadi a2 10
 print_hex_for:
-    breq a3 zero print_hex_break
-    lrot a0 a0 zero
-    lrot a0 a0 zero
-    lrot a0 a0 zero
-    lrot a0 a0 zero
+    if a3 print_hex_break
+    sl a0 a0
+    sl a0 a0
+    sl a0 a0
+    sl a0 a0
     andi a1 a0 0x00F ; a1 = a0 & f
 ; cout = a1 < 10 ? a1 + '0' : a1 + ('A' - 10)
     brlt a1 a2 print_hex_number

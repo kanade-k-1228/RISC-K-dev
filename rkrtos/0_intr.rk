@@ -50,6 +50,8 @@ _intr:
     if    t0 intr2
     andi  t0 csr intr3_flag
     if    t0 intr3
+    ; マッチしなかった場合
+    ; 元の処理に戻る
 
 ; プログラム開始前処理
 _main:
