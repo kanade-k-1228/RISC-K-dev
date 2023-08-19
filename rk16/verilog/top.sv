@@ -78,4 +78,6 @@ module top (
       .out(alu_out)
   );
 
+  mem mem (.addr(addr));
+
 endmodule
