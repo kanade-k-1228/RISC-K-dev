@@ -1,3 +1,4 @@
 *.rk.bin
 build
 bin
+*.gtkw
