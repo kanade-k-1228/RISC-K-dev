@@ -30,8 +30,8 @@ module id (
   assign s2_sel = opc == CALC ? 0 : 1;
 
   localparam DIN_SR2 = 3'b001, DIN_ALU = 3'b010, DIN_RA = 3'b100;
-  assign din_sel = (opc == CALC || opc == CALCI) ? DIN_SR2
-                 : (opc == LOAD || opc == STORE) ? DIN_ALU
+  assign din_sel = (opc == CALC || opc == CALCI) ? DIN_ALU
+                 : (opc == LOAD || opc == STORE) ? DIN_SR2
                  :                                 DIN_RA;
 
   localparam ADDR_ALU = 5'b00001, ADDR_SA1 = 5'b00010, ADDR_SA2 = 5'b00100, ADDR_DA=5'b01000, ADDR_DBG=5'b10000;

@@ -1,4 +1,12 @@
     nop
+    loadi t0 0x0000
+    loadi t1 0x0000
+    loadi t2 0x0000
+    loadi t3 0x0000
+    loadi s0 0x0000
+    loadi s1 0x0000
+    loadi s2 0x0000
+    loadi s3 0x0000
     add  t2 t0 t1
     sub  t2 t0 t1
     and  t2 t0 t1
