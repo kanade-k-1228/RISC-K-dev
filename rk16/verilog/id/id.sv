@@ -23,7 +23,7 @@ module id (
 
   assign {imm, da, sa2, sa1, opc} = inst;
 
-  assign alu_ctrl = opc == CALC ? inst[19:16] : opc == CALCI ? inst[7:4] : 4'b0000;
+  assign alu_ctrl = opc == CALC ? inst[19:16] : opc == CALCI ? inst[11:8] : 4'b0000;
 
   assign pfc_ctrl = opc == CALIF;
 
@@ -39,5 +39,16 @@ module id (
                   : (stage == STG1) ? (opc == LOAD  ? ADDR_ALU : ADDR_SA2)
                   : (stage == STG2) ? (opc == STORE ? ADDR_ALU : ADDR_DA )
                   : 5'b00000;
+
+  logic [63:0] ascii_opc;
+  always_comb
+    case (opc)
+      CALC: ascii_opc = "CALC";
+      CALCI: ascii_opc = "CALC_IMM";
+      LOAD: ascii_opc = "LOAD";
+      STORE: ascii_opc = "STORE";
+      CALIF: ascii_opc = "CTRL";
+      default: ;
+    endcase
 
 endmodule

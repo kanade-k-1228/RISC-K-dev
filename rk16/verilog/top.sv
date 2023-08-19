@@ -19,7 +19,7 @@ module top (
       .clk_pc(rst_clk | stg_clk[3]),
       .cond(16'b0),
       .alu(16'b0),
-      .pfc_ctrl(1'b0),
+      .pfc_ctrl(pfc_ctrl),
       .pc(pc)
   );
 
@@ -35,19 +35,41 @@ module top (
   id id (
       .inst(data),
       .stage(stage),
-      .s2_sel(s2_sel),
+      .sa1(sa1),
+      .sa2(sa2),
+      .da(da),
       .imm(imm),
-      .alu_ctrl(alu_ctrl)
+
+      .alu_ctrl(alu_ctrl),
+
+      .pfc_ctrl(pfc_ctrl),
+
+      .s2_sel  (s2_sel),
+      .din_sel (din_sel),
+      .addr_sel(addr_sel),
+      .sp_ctrl (sp_ctrl)
   );
+
+  wire pfc_ctrl;
+
+  wire [4:0] addr_sel;
+  wire [3:0] sa1;
+  wire [3:0] sa2;
+  wire [3:0] da;
+  wire [15:0] addr = addr_sel == 5'b00001 ? alu_out
+                   : addr_sel == 5'b00010 ? {12'b0, sa1}
+                   : addr_sel == 5'b00100 ? {12'b0, sa2}
+                   : addr_sel == 5'b01000 ? {12'b0, da}
+                   : 16'b0;
+
+  wire [2:0] din_sel;
 
   wire [15:0] imm;
   wire s2_sel;
-
   wire [3:0] alu_ctrl;
+  wire [15:0] alu_out;
 
   reg [15:0] rs1, rs2;
-
-  wire [15:0] alu_out;
 
   alu alu (
       .a  (rs1),
