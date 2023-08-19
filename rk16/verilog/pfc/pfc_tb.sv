@@ -26,7 +26,7 @@ module pfc_tb;
   integer i;
   initial begin
     $dumpfile("build/pfc_tb.vcd");
-    $dumpvars(0, pfc_tb);
+    $dumpvars(0, pfc);
     $monitor("%16b", pc);
 
     clk_pc = 0;

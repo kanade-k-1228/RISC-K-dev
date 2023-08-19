@@ -1,44 +1,27 @@
 module id_tb;
+  logic [31:0] inst;
+  logic [ 3:0] stage = 0;
+  wire  [15:0] imm;
   id id (
-      .a  (a),
-      .b  (b),
-      .sel(sel),
-      .out(out)
+      .inst (inst),
+      .stage(stage),
+      .imm  (imm)
   );
 
   localparam period = 1;
-  integer i;
   initial begin
-    $dumpfile("id_tb.vcd");
-    $monitor("%4b, %16b, %16b, %16b", sel, a, b, out);
+    $dumpfile("build/id_tb.vcd");
+    $dumpvars(0, id);
 
-    for (i = 0; i <= 4'hf; i = i + 1) begin
-
-      sel = i;
-
-      a   = 16'h0000;
-      b   = 16'h0000;
-      #period;
-
-      a = 16'hffff;
-      b = 16'h0000;
-      #period;
-
-      a = 16'h0000;
-      b = 16'hffff;
-      #period;
-
-      a = 16'hffff;
-      b = 16'hffff;
-      #period;
-
-      a = 16'h1234;
-      b = 16'h5678;
-      #period;
-
-      $display("");
-
-    end
+    inst = 32'h0000_0000;
+    #period;
+    inst = 32'h1234_1234;
+    #period;
+    inst = 32'h4567_4567;
+    #period;
+    inst = 32'h89AB_89AB;
+    #period;
+    inst = 32'hCDEF_CDEF;
 
   end
 
