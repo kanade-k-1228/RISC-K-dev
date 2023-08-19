@@ -2,7 +2,10 @@
   "editor.formatOnSave": true,
   "git.enableSmartCommit": true,
   "git.confirmSync": false,
-  "cmake.configureOnOpen": false,
+  "workbench.editorAssociations": {
+    "*.rkbin": "hexEditor.hexedit",
+    "*.bin": "hexEditor.hexedit"
+  },
   "files.associations": {
     "array": "cpp",
     "atomic": "cpp",
