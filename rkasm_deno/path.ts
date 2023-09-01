@@ -1,3 +1,5 @@
+import { Token } from "./type.ts";
+
 export const trim = (s: string) => {
   const idx = s.indexOf(";");
   return idx === -1 ? s : s.substring(0, idx);
@@ -7,40 +9,9 @@ export const slice = (s: string) => {
   return s.split(/\s/).filter((s) => s !== "");
 };
 
-interface TokenOp {
-  line: number;
-  kind: "opr";
-  op: string;
-  args: string[];
-  pc?: number;
-  func?: string;
-}
-
-interface TokenLabPc {
-  line: number;
-  kind: "lab_pc";
-  name: string;
-  value?: number;
-}
-
-interface TokenLabVar {
-  line: number;
-  kind: "lab_var";
-  name: string;
-  value: number;
-}
-
-interface TokenLabConst {
-  line: number;
-  kind: "lab_const";
-  name: string;
-  value: number;
-}
-
-export type Token = TokenOp | TokenLabPc | TokenLabVar | TokenLabConst;
-
 export const tokenize = (s: string[], idx: number): Token[] => {
   if (s.length === 0) return [];
+  const s0 = s.at(0);
   if (s.at(0)?.endsWith(":")) {
     const name = s[0].slice(0, -1);
     return [{ line: idx, kind: "lab_pc", name }];
@@ -62,15 +33,14 @@ export const tokenize = (s: string[], idx: number): Token[] => {
   }
 };
 
-export const fill_label = (toks: Token[]) => {
+export const fill_pc = (toks: Token[]) => {
   let pc = 0;
   const ret: Token[] = [];
   for (const t of toks) {
     if (t.kind === "opr") {
-      ++pc;
-      ret.push({ ...t, pc });
+      ret.push({ ...t, pc: pc++ });
     } else if (t.kind === "lab_pc") {
-      ret.push({ ...t, value: pc + 1 });
+      ret.push({ ...t, value: pc });
     } else {
       ret.push(t);
     }

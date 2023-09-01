@@ -1,3 +1,5 @@
+@0x0200 hoge
+#0x0100 const
     nop
     loadi t0 0x0000
     loadi t1 0x0000
