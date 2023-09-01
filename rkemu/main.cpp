@@ -4,6 +4,7 @@
 #include "utils.hpp"
 #include <fstream>
 #include <iostream>
+#include <ncurses.h>
 #include <set>
 #include <unistd.h>
 
@@ -12,6 +13,7 @@ std::string esc_char(char);
 std::string man
     = "rkemu [-o] [-t] [-s] [-a] [-d .dump] [-i .intr] .rk.bin\n"
       "  -t:      set interval Time     命令実行の間で少し待ちます\n"
+      "  -s:      Step by step          命令を逐次実行します\n"
       "  -o:      print Operatioin      命令を表示します\n"
       "  -a:      dump All operation    全命令でダンプします\n"
       "  -d FILE: Dump points file      ダンプ時刻ファイル\n"
@@ -25,15 +27,17 @@ int main(int argc, char* argv[]) {
   bool print_opr = false;
   bool interval_time = false;
   bool dump_all = false;
+  bool step_by_step = false;
 
   // Init Emulator with Comandline options
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "d:i:ota")) != -1;) {
+  for(int opt; (opt = getopt(argc, argv, "d:i:otas")) != -1;) {
     if(opt == 'd') dump_points.init(optarg);
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'o') print_opr = true;
     if(opt == 't') interval_time = true;
     if(opt == 'a') dump_all = true;
+    if(opt == 's') step_by_step = true;
     if(opt == '?') {
       std::cout << man << std::endl;
       return EXIT_FAILURE;
@@ -89,6 +93,21 @@ int main(int argc, char* argv[]) {
     cpu.catch_interrupt();
     if(intr_points.is_intr(t))
       cpu.external_interrupt(intr_points.at(t).ino);
+
+    // Goto Next Operation
+    if(step_by_step) {
+      char cmd = getch();
+      while(!cmd) {
+        if(cmd == '\n') continue;
+        if(cmd == '\e') break;
+        if(cmd == 'i') {
+          std::cout << "Interrupt No ? ";
+          std::cin >> cmd;
+          int intr_no = cmd - '0';
+          cpu.external_interrupt(intr_no);
+        }
+      }
+    }
 
     // Exit Emulator
     if(exit) break;
