@@ -1,4 +1,4 @@
-import { Arg, Statement, ConstLabel, VarLabel, Operation } from "./type.ts";
+import { Arg, Statement, ConstLabel, VarLabel } from "./type.ts";
 import {
   blue,
   cyan,
@@ -7,23 +7,15 @@ import {
   yellow,
 } from "https://deno.land/std@0.170.0/fmt/colors.ts";
 
-export const print = (toks: Statement[]) => {
-  console.log("--------------------------------------------------");
-  print_lab_vars(toks);
-  console.log("--------------------------------------------------");
-  print_lab_const(toks);
-  console.log("--------------------------------------------------");
-  print_bin(toks);
-};
-
-const print_bin = (toks: Statement[]) => {
-  for (const t of toks) {
-    if (t.kind === "opr")
+export const print_bin = (stmts: Statement[]) => {
+  for (const t of stmts) {
+    if (t.kind === "opr") {
+      const pc = hex(4, t.pc ?? 0);
+      const bin = str_ins(hex(8, t.bin ?? 0), 6, "_");
       console.log(
-        `${hex(4, t.pc ?? 0)} | ${hex(8, t.bin ?? 0)} | ${red(
-          left(5, t.op)
-        )} ${print_arg(t.args)}`
+        `${pc} | ${bin} | ${red(left(5, t.op))} ${print_arg(t.args)}`
       );
+    }
     if (t.kind === "lab_pc")
       console.log(green(`${hex(4, t.value ?? 0)}: ${t.label}`));
   }
@@ -59,20 +51,16 @@ const print_imm = (imm: Arg) => {
   }
 };
 
-const print_lab_vars = (toks: Statement[]) => {
-  for (const l of toks.filter((t) => t.kind === "lab_var") as VarLabel[]) {
+export const print_var_labels = (stmts: Statement[]) => {
+  for (const l of stmts.filter((t) => t.kind === "lab_var") as VarLabel[]) {
     console.log(`${hex(4, l.value)} <- ${cyan(l.label)}`);
   }
 };
 
-const print_lab_const = (toks: Statement[]) => {
-  for (const l of toks.filter((t) => t.kind === "lab_const") as ConstLabel[]) {
+export const print_const_labels = (stmts: Statement[]) => {
+  for (const l of stmts.filter((t) => t.kind === "lab_const") as ConstLabel[]) {
     console.log(`${hex(4, l.value)} =: ${yellow(l.label)}`);
   }
-};
-
-export const format = (stmt: Statement) => {
-  if (stmt.kind === "opr") return `    ${left(5, stmt.op)}`;
 };
 
 const hex = (w: number, n: number) =>
@@ -87,3 +75,6 @@ const left = (n: number, s: string, fill = " ") => {
   const offset = n - s.length;
   return offset >= 0 ? s + fill.repeat(n - s.length) : s;
 };
+
+const str_ins = (str: string, idx: number, ins: string) =>
+  str.slice(0, idx) + ins + str.slice(idx);

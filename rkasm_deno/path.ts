@@ -85,5 +85,24 @@ export const build_op_arg = (
 };
 
 export const build_op_bin = (opr: Operation): Operation => {
-  return { ...opr, bin: 0x0000 };
+  return { ...opr, bin: to_bin(opr.op) };
 };
+
+const to_bin = (op: string): number => {
+  if (["add", "sub"].includes(op)) pack(0, 0, 0, 0, 0);
+  if (op === "sub") return 0;
+  return 0;
+};
+
+const pack = (
+  u4_0: number,
+  u4_1: number,
+  u4_2: number,
+  u4_3: number,
+  u16: number
+) =>
+  (u4_0 & 0x0f) |
+  ((u4_1 & 0x0f) << 4) |
+  ((u4_2 & 0x0f) << 8) |
+  ((u4_3 & 0x0f) << 12) |
+  ((u16 & 0xffff) << 16);

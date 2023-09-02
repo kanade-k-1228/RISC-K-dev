@@ -6,7 +6,6 @@ export interface Operation {
   op: string;
   args: Arg[];
   pc?: number;
-  func?: string;
   bin?: number;
 }
 
