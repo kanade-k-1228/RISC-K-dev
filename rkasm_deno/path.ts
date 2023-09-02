@@ -16,11 +16,11 @@ export const interpret = (str: string[], idx: number): Statement[] => {
     return [{ line: idx, kind: "lab_pc", label }];
   } else if (str0.startsWith("#")) {
     const label = str[1];
-    const value = parseInt(str[0].slice(1, -1));
+    const value = parseInt(str[0].slice(1));
     return [{ line: idx, kind: "lab_const", label, value }];
   } else if (str0.startsWith("@")) {
     const label = str[1];
-    const value = parseInt(str[0].slice(1, -1));
+    const value = parseInt(str[0].slice(1));
     return [{ line: idx, kind: "lab_var", label, value }];
   } else {
     const op = str0;

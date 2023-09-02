@@ -33,9 +33,9 @@
     eq   t2 t0 t1
     lts  t2 t0 t1
     ltu  t2 t0 t1
-    addi t2 t0 0x0011
-    subi t2 t0 0x0100
-    andi t2 t0 0x1111
+    addi t2 t0 const
+    subi t2 t0 hoge
+    andi t2 t0 fuga
     ori  t2 t0 0x0000
     xori t2 t0 0x0110
     eqi  t2 t0 0x1100

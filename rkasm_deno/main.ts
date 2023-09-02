@@ -35,6 +35,7 @@ await new Command()
     const pc_filled = fill_pc(statements);
     // console.table(pc_filled);
 
+    // ラベル一覧
     const labels = pc_filled.filter(
       (l) =>
         l.kind === "lab_const" || l.kind === "lab_pc" || l.kind === "lab_var"
@@ -45,6 +46,7 @@ await new Command()
       .map((stmt) => (stmt.kind === "opr" ? build_op_arg(stmt, labels) : stmt)) // 引数のレジスタ名とラベルの解決
       .map((stmt) => (stmt.kind === "opr" ? build_op_bin(stmt) : stmt));
 
+    // きれいに表示
     print(built);
   })
 
