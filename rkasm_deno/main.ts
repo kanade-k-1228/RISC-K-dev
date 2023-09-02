@@ -7,9 +7,7 @@ import { ConstLabel, PCLabel, VarLabel } from "./type.ts";
 await new Command()
   .name("rkasm")
   .version("v0.0.0")
-  .description(
-    "Asembler for RK16 ISA \n https://github.com/kanade-k-1228/RISC-K"
-  )
+  .description("Asembler for RK16 ISA \n https://github.com/kanade-k-1228/RISC-K")
   .arguments("<rkasm_file>")
   .option("-w, --warn", "print Warning : 警告を表示")
   .option("-c, --consts", "print Const list : 定数リストを表示")
@@ -30,13 +28,7 @@ await new Command()
       .map((s) => s.split(/\s/).filter((s) => s !== "")); // 空白文字で分割
     // console.table(preproc);
 
-    const comments = rkasm_text
-      .split("\n")
-      .flatMap((s, i) =>
-        s.indexOf(";") === -1
-          ? []
-          : [{ line: i, comment: s.slice(s.indexOf(";")) }]
-      );
+    const comments = rkasm_text.split("\n").flatMap((s, i) => (s.indexOf(";") === -1 ? [] : [{ line: i, comment: s.slice(s.indexOf(";")) }]));
     console.log(comments);
 
     // 各文を解釈
@@ -48,10 +40,7 @@ await new Command()
     // console.table(pc_filled);
 
     // ラベル一覧
-    const labels = pc_filled.filter(
-      (l) =>
-        l.kind === "lab_const" || l.kind === "lab_pc" || l.kind === "lab_var"
-    ) as (PCLabel | VarLabel | ConstLabel)[];
+    const labels = pc_filled.filter((l) => l.kind === "lab_const" || l.kind === "lab_pc" || l.kind === "lab_var") as (PCLabel | VarLabel | ConstLabel)[];
 
     // 命令文をビルド
     const built = pc_filled

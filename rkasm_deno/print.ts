@@ -1,23 +1,14 @@
 import { Arg, Statement, ConstLabel, VarLabel } from "./type.ts";
-import {
-  blue,
-  cyan,
-  green,
-  red,
-  yellow,
-} from "https://deno.land/std@0.170.0/fmt/colors.ts";
+import { blue, cyan, green, red, yellow } from "https://deno.land/std@0.170.0/fmt/colors.ts";
 
 export const print_bin = (stmts: Statement[]) => {
   for (const t of stmts) {
     if (t.kind === "opr") {
       const pc = hex(4, t.pc ?? 0);
       const bin = str_ins(hex(8, t.bin ?? 0), 6, "_");
-      console.log(
-        `${pc} | ${bin} | ${red(left(5, t.op))} ${print_arg(t.args)}`
-      );
+      console.log(`${pc} | ${bin} | ${red(left(5, t.op))} ${print_arg(t.args)}`);
     }
-    if (t.kind === "lab_pc")
-      console.log(green(`${hex(4, t.value ?? 0)}: ${t.label}`));
+    if (t.kind === "lab_pc") console.log(green(`${hex(4, t.value ?? 0)}: ${t.label}`));
   }
 };
 
@@ -63,8 +54,7 @@ export const print_const_labels = (stmts: Statement[]) => {
   }
 };
 
-const hex = (w: number, n: number) =>
-  "0x" + right(w, n.toString(16).toUpperCase(), "0");
+const hex = (w: number, n: number) => "0x" + right(w, n.toString(16).toUpperCase(), "0");
 
 const right = (n: number, s: string, fill = " ") => {
   const offset = n - s.length;
@@ -76,5 +66,4 @@ const left = (n: number, s: string, fill = " ") => {
   return offset >= 0 ? s + fill.repeat(n - s.length) : s;
 };
 
-const str_ins = (str: string, idx: number, ins: string) =>
-  str.slice(0, idx) + ins + str.slice(idx);
+const str_ins = (str: string, idx: number, ins: string) => str.slice(0, idx) + ins + str.slice(idx);
