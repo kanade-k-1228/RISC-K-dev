@@ -16,9 +16,7 @@ export enum ALU {
   rrot,
 }
 
-type op = Record<string, { func?: number; arg: string }>;
-
-export const mnemonics: op = {
+export const mnemonics: Record<string, { func?: number; arg: string }> = {
   nop: { func: ALU.add, arg: "" },
   mov: { func: ALU.add, arg: "r.r" },
   loadi: { func: ALU.add, arg: "r.i" },
@@ -68,7 +66,7 @@ export const mnemonics: op = {
   iret: { arg: "" },
 };
 
-const regs: Record<string, number> = {
+export const regs: Record<string, number> = {
   zero: 0,
   ira: 1,
   pc: 2,
@@ -86,27 +84,3 @@ const regs: Record<string, number> = {
   s2: 14,
   s3: 15,
 };
-
-export const read = (op: string, arg: string[]) => {
-  const opinfo = mnemonics[op];
-  const arg_format = opinfo.arg.split(".");
-  const arg_int = arg_format.map((f, i) => {
-    const arg_str = arg.at(i);
-    if (!arg_str) throw "argument required";
-    if (f === "r") {
-      return resolute_reg(arg_str);
-    }
-    if (f === "i") {
-      const int = parseInt(arg_str);
-      return isNaN(int) ? resolute_label(arg_str) : int;
-    }
-  });
-};
-
-const resolute_reg = (s: string) => {
-  const ret = regs[s];
-  if (ret === undefined) throw "Undefined register name";
-  return ret;
-};
-
-const resolute_label = (s: string) => 0;

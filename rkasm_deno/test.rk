@@ -1,5 +1,17 @@
 @0x0200 hoge
+@0x0123 fuga
+@0x4567 piyo
+@0x89AB foo
+@0xcdef bar
+
 #0x0100 const
+#0x0030 '0'
+#0x0031 '1'
+#0x0032 '2'
+#0x0033 '3'
+#0x0034 '4'
+#0x0035 '5'
+
     nop
     loadi t0 0x0000
     loadi t1 0x0000
@@ -39,4 +51,5 @@ c:
 d:
     iret
 e:
-    ori  csr csr 0x100 ; exit
+    ori  zero zero 0x100 ; exit
+;    ori  csr csr 0x100 ; exit

@@ -1,31 +1,38 @@
-export type Token = TokenOp | TokenLabPc | TokenLabVar | TokenLabConst;
+export type Statement = Operation | PCLabel | VarLabel | ConstLabel;
 
-export interface TokenOp {
+export interface Operation {
   line: number;
   kind: "opr";
   op: string;
-  args: string[];
+  args: Arg[];
   pc?: number;
   func?: string;
+  bin?: number;
 }
 
-export interface TokenLabPc {
+export interface Arg {
+  str: string;
+  kind?: "reg" | "imm" | "lab_pc" | "lab_var" | "lab_const";
+  val?: number;
+}
+
+export interface PCLabel {
   line: number;
   kind: "lab_pc";
-  name: string;
+  label: string;
   value?: number;
 }
 
-export interface TokenLabVar {
+export interface VarLabel {
   line: number;
   kind: "lab_var";
-  name: string;
+  label: string;
   value: number;
 }
 
-export interface TokenLabConst {
+export interface ConstLabel {
   line: number;
   kind: "lab_const";
-  name: string;
+  label: string;
   value: number;
 }
