@@ -74,13 +74,27 @@ export const build_op_arg = (opr: Operation, label: (PCLabel | VarLabel | ConstL
 };
 
 export const build_op_bin = (opr: Operation): Operation => {
-  return { ...opr, bin: to_bin(opr.op) };
+  return { ...opr, bin: to_bin(opr) };
 };
 
-const to_bin = (op: string): number => {
-  if (["add", "sub"].includes(op)) pack(0, 0, 0, 0, 0);
-  if (op === "sub") return 0;
-  return 0;
-};
+const to_bin = (opr: Operation): number => {
+  const opinfo = mnemonics[opr.op];
+  if (opinfo === undefined) throw `Undefined mnemonic @${opr.line} : ${opr.op}`;
 
-const pack = (u4_0: number, u4_1: number, u4_2: number, u4_3: number, u16: number) => (u4_0 & 0x0f) | ((u4_1 & 0x0f) << 4) | ((u4_2 & 0x0f) << 8) | ((u4_3 & 0x0f) << 12) | ((u16 & 0xffff) << 16);
+  const encode = opinfo[1];
+  const bits = encode.map((e) => {
+    if (typeof e === "number") {
+      return e;
+    } else {
+      const val = opr.args.at(parseInt(e))?.val;
+      if (val === undefined) {
+        console.log(opr);
+        throw `Argument required @${opr.line}`;
+      }
+      return val;
+    }
+  });
+
+  return ((bits[0] & 0xf) | ((bits[1] & 0xf) << 4) | ((bits[2] & 0xf) << 8) | ((bits[3] & 0xf) << 12) | ((bits[4] & 0xffff) << 16)) >>> 0;
+  // >>> 0 : cast to uint32
+};

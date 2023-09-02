@@ -29,7 +29,7 @@ await new Command()
     // console.table(preproc);
 
     const comments = rkasm_text.split("\n").flatMap((s, i) => (s.indexOf(";") === -1 ? [] : [{ line: i, comment: s.slice(s.indexOf(";")) }]));
-    console.log(comments);
+    // console.log(comments);
 
     // 各文を解釈
     const statements = preproc.flatMap(interpret);
