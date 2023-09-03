@@ -1,5 +1,5 @@
 export const alu: Record<string, number> = { add: 0, not: 1, sl: 2, lrot: 3, and: 4, xor: 5, or: 6, sub: 7, eq: 8, neq: 9, ltu: 10, lts: 11, sru: 12, srs: 13, rrot: 14 };
-export const opc: Record<string, number> = { calc: 0b0000, calci: 0b0001, load: 0b0011, store: 0b0111, calif: 0b1111 };
+export const opc: Record<string, number> = { calc: 0b0000, calci: 0b0001, load: 0b0011, store: 0b0111, ctrl: 0b1111 };
 export const regs: Record<string, number> = { zero: 0, ira: 1, pc: 2, sp: 3, ra: 4, fp: 5, a0: 6, a1: 7, t0: 8, t1: 9, t2: 10, t3: 11, s0: 12, s1: 13, s2: 14, s3: 15 };
 
 type Encode<T = number | "0" | "1" | "2"> = [T, T, T, T, T];
@@ -55,9 +55,11 @@ export const mnemonics: Record<string, [string, Encode]> = {
   push: ["r", [opc.store, "1", "0", alu.sub, 0]],
 
   // 制御
-  if: ["r.r.i", [opc.calif, "1", "0", regs.zero, "2"]],
-  jump: ["i", [opc.calif, regs.zero, regs.zero, regs.zero, "0"]],
-  call: ["i", [opc.calif, regs.zero, regs.zero, regs.ra, "0"]],
-  ret: ["", [opc.calif, regs.ra, regs.zero, regs.zero, 0]],
-  iret: ["", [opc.calif, regs.ira, regs.zero, regs.zero, 0]],
+  if: ["r.i", [opc.ctrl, regs.zero, "0", regs.zero, "1"]], // 絶対アドレス
+  ifr: ["r.i", [opc.ctrl, regs.pc, "0", regs.zero, "1"]], // 相対アドレス
+  jump: ["i", [opc.ctrl, regs.zero, regs.zero, regs.zero, "0"]], // 絶対アドレス
+  jumpr: ["i", [opc.ctrl, regs.pc, regs.zero, regs.zero, "0"]], // 相対アドレス
+  call: ["i", [opc.ctrl, regs.zero, regs.zero, regs.ra, "0"]],
+  ret: ["", [opc.ctrl, regs.ra, regs.zero, regs.zero, 0]],
+  iret: ["", [opc.ctrl, regs.ira, regs.zero, regs.zero, 0]],
 };
