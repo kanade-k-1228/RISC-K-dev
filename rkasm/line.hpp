@@ -2,7 +2,9 @@
 #include "imm.hpp"
 #include "label_def.hpp"
 #include "operation.hpp"
+#include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 class Line {
@@ -11,6 +13,7 @@ class Line {
     OPERATION,
     LABEL
   };
+  std::string file;
   int line;
   std::string str;
   std::string comment;
@@ -19,9 +22,10 @@ class Line {
   Operation operation;  // 命令文
   Label label_def;      // ラベル文
 public:
-  Line(const int line_no, const std::string str, const uint16_t pc);
+  Line(const std::string file, const int line_no, const std::string str, const uint16_t pc);
   bool isOperation() { return type == Type::OPERATION; }
   bool isLabel() { return type == Type::LABEL; }
   Operation& getOperation() { return operation; }
   Label& getLabel() { return label_def; }
+  std::tuple<std::string, int, std::string> getError() { return {file, line, str}; }
 };

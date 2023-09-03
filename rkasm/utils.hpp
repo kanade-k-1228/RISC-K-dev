@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
+#include <tuple>
 #include <vector>
+
+extern std::tuple<std::string, int, std::string> error_notation;
 
 void error(std::string message);
 void warn(std::string message);

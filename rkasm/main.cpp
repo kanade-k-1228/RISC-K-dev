@@ -44,30 +44,33 @@ int main(int argc, char* argv[]) {
 
   // ファイルを開く
   std::ifstream fin(fname, std::ios::in);
-  if(!fin) error("Can't open input file: " + fname);
+  if(!fin) error("Cannot open input file: " + fname);
 
   // 一行ずつスキャンし、命令リストに格納
+  std::cout << " ... Parse" << std::endl;
   std::string line;
   std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
-    std::cout << "\33[2K\r" << fname << ":" << line_cnt << ":" << line;  // デバッグ出力
-    Line stmt(line_cnt, line, operation_cnt);                            // 行を解釈
-    stmts.push_back(stmt);                                               // 行を追加
-    if(stmt.isOperation()) ++operation_cnt;                              // 命令行の場合、PCのカウントアップ
+    error_notation = {fname, line_cnt, line};
+    Line stmt(fname, line_cnt, line, operation_cnt);  // 行を解釈
+    stmts.push_back(stmt);                            // 行を追加
+    if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
   }
-  std::cout << "\33[2K\r";  // デバッグ出力をクリア
 
   // ラベルを集める
+  std::cout << " ... Collect label" << std::endl;
   LabelTable labels;
-  for(auto& stmt : stmts)
-    if(stmt.isLabel())
-      labels.push_back(stmt.getLabel());
+  for(auto& stmt : stmts) {
+    error_notation = stmt.getError();
+    if(stmt.isLabel()) labels.push_back(stmt.getLabel());
+  }
 
   // ラベルの解決
+  std::cout << " ... Resolute label" << std::endl;
   for(auto& stmt : stmts) {
+    error_notation = stmt.getError();
     if(stmt.isOperation()) {
-      std::cout << "\r" << stmt.getOperation().print();  // デバッグ出力
       if(stmt.getOperation().imm.isLabRef()) {
         std::string lab = stmt.getOperation().imm.label;
         Label* labref = labels.get(lab);
@@ -88,20 +91,20 @@ int main(int argc, char* argv[]) {
       }
     }
   }
-  std::cout << "\33[2K\r";  // デバッグ出力をクリア
 
   // コードを出力
   std::ofstream fout;
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) error("Can't open file: " + fname + ".bin");
   for(auto& stmt : stmts) {
+    error_notation = stmt.getError();
     if(stmt.isOperation()) {
       uint32_t bin = stmt.getOperation().getBin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }
   std::cout << "\r                                                  \r";  // デバッグ出力をクリア
-  std::cout << "Output  : " << fname + ".bin" << std::endl;
+  std::cout << " -> " << fname + ".bin" << std::endl;
   std::cout << "--------------------------------------------------" << std::endl;
 
   // ラベルの一覧表示

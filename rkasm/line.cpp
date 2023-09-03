@@ -3,8 +3,8 @@
 #include "utils.hpp"
 #include <regex>
 
-Line::Line(const int line_no, const std::string str, const uint16_t pc)
-    : line(line_no), str(str) {
+Line::Line(const std::string file, const int line_no, const std::string str, const uint16_t pc)
+    : file(file), line(line_no), str(str) {
 
   // コメントを分離
   const auto pos = str.find(";");  // 最初にヒットした ; の位置
@@ -26,6 +26,6 @@ Line::Line(const int line_no, const std::string str, const uint16_t pc)
     type = LABEL;  // ラベル定義
     label_def = Label(pc, splited);
   } else {
-    error("Unknown Code");
+    error("Undefined statement");
   }
 }
