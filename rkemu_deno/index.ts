@@ -1,5 +1,5 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
-import { interactive } from "./main.ts";
+import { step } from "./main.ts";
 
 await new Command()
   .name("rkemu")
@@ -9,5 +9,5 @@ await new Command()
   .option("-b, --break", "Break point : 停止するPCを指定")
   .option("-c, --consts", "print Const list : 定数リストを表示")
   .option("-v, --vars", "print Var list : 変数リストを表示")
-  .action(() => interactive())
+  .action(() => step())
   .parse(Deno.args);
