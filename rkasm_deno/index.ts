@@ -1,6 +1,8 @@
 import { Command } from "https://deno.land/x/cliffy@v0.25.7/command/mod.ts";
 import { main } from "./main.ts";
 
+export const hl = "---------------------------------------------";
+
 await new Command()
   .name("rkasm")
   .version("v0.0.0")
@@ -12,9 +14,7 @@ await new Command()
   .action(({ consts, vars }, rkasm_file) =>
     main({ consts, vars }, rkasm_file).catch((e) => {
       if (e.name === "AsemblerError") {
-        console.log("---------------------------------------------");
-        console.log(e.print());
-        console.log("---------------------------------------------");
+        console.log(`${hl}\n${e.print()}\n${hl}`);
         Deno.exit(-1);
       }
     })

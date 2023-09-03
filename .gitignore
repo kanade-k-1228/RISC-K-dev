@@ -1,4 +1,5 @@
 *.rk.bin
+*.hex
 build
 bin
 *.gtkw

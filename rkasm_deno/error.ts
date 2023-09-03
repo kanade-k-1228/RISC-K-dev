@@ -1,4 +1,4 @@
-import { bold, red } from "https://deno.land/std/fmt/colors.ts";
+import { red } from "https://deno.land/std@0.199.0/fmt/colors.ts";
 import { Statement } from "./type.ts";
 
 export class StatementError extends Error {

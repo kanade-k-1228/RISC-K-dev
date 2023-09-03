@@ -1,16 +1,15 @@
+import { hl } from "./index.ts";
 import { interpret, fill_pc, build_op_arg, build_op_bin } from "./path.ts";
-import { print_var_labels, print_const_labels, print_bin } from "./print.ts";
-import { PCLabel, VarLabel, ConstLabel } from "./type.ts";
+import { print_var_labels, print_const_labels, print_asm, print_hex } from "./print.ts";
+import { PCLabel, VarLabel, ConstLabel, Statement } from "./type.ts";
 
 export const main = async (
   { consts, vars }: Record<"consts" | "vars", true | undefined>,
   rkasm_file: string
 ) => {
-  console.log("---------------------------------------------");
-  console.log(`Assemble: ${rkasm_file}`);
+  console.log(`${hl}\nAssemble: ${rkasm_file}`);
   const rkasm_text = await Deno.readTextFile(rkasm_file).catch(() => {
-    console.log(`Cannot open input file: ${rkasm_file}`);
-    console.log("---------------------------------------------");
+    console.log(`Cannot open input file: ${rkasm_file}\n${hl}`);
     Deno.exit(-1);
   });
 
@@ -42,20 +41,15 @@ export const main = async (
   ) as (PCLabel | VarLabel | ConstLabel)[];
 
   // 命令文をビルド
-  const built = pc_filled
+  const built: Statement[] = pc_filled
     .map((stmt) => (stmt.kind === "opr" ? build_op_arg(stmt, labels) : stmt)) // 引数のレジスタ名とラベルの解決
     .map((stmt) => (stmt.kind === "opr" ? build_op_bin(stmt) : stmt));
 
   // きれいに表示
-  if (vars) {
-    console.log("---------------------------------------------");
-    print_var_labels(built);
-  }
-  if (consts) {
-    console.log("---------------------------------------------");
-    print_const_labels(built);
-  }
-  console.log("---------------------------------------------");
-  print_bin(built);
-  console.log("---------------------------------------------");
+  if (vars) console.log(hl + "\n" + print_var_labels(built));
+  if (consts) console.log(hl + "\n" + print_const_labels(built));
+  console.log(hl + "\n" + print_asm(built) + "\n" + hl);
+
+  // バイナリ出力
+  Deno.writeTextFileSync(rkasm_file + ".hex", print_hex(built));
 };
