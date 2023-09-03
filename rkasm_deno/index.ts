@@ -12,9 +12,9 @@ await new Command()
   .action(({ consts, vars }, rkasm_file) =>
     main({ consts, vars }, rkasm_file).catch((e) => {
       if (e.name === "AsemblerError") {
-        console.log("--------------------------------------------------");
+        console.log("---------------------------------------------");
         console.log(e.print());
-        console.log("--------------------------------------------------");
+        console.log("---------------------------------------------");
         Deno.exit(-1);
       }
     })

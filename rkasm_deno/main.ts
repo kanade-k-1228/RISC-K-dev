@@ -6,11 +6,11 @@ export const main = async (
   { consts, vars }: Record<"consts" | "vars", true | undefined>,
   rkasm_file: string
 ) => {
-  console.log("--------------------------------------------------");
+  console.log("---------------------------------------------");
   console.log(`Assemble: ${rkasm_file}`);
   const rkasm_text = await Deno.readTextFile(rkasm_file).catch(() => {
     console.log(`Cannot open input file: ${rkasm_file}`);
-    console.log("--------------------------------------------------");
+    console.log("---------------------------------------------");
     Deno.exit(-1);
   });
 
@@ -48,14 +48,14 @@ export const main = async (
 
   // きれいに表示
   if (vars) {
-    console.log("--------------------------------------------------");
+    console.log("---------------------------------------------");
     print_var_labels(built);
   }
   if (consts) {
-    console.log("--------------------------------------------------");
+    console.log("---------------------------------------------");
     print_const_labels(built);
   }
-  console.log("--------------------------------------------------");
+  console.log("---------------------------------------------");
   print_bin(built);
-  console.log("--------------------------------------------------");
+  console.log("---------------------------------------------");
 };
