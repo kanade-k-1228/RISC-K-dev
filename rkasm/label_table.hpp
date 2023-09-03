@@ -5,5 +5,5 @@
 
 class LabelTable : public std::vector<Label> {
 public:
-  Label& get(std::string label);
+  Label* get(std::string label);
 };

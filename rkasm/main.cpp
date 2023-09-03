@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <unistd.h>
 #include <vector>
@@ -52,12 +51,12 @@ int main(int argc, char* argv[]) {
   std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
-    std::cout << "\33[2K\r" << fname << ":" << line_cnt << ":" << line;
-    Line code(line_cnt, line, operation_cnt);  // 行を解釈
-    stmts.push_back(code);                     // 行を追加
-    if(code.isOperation()) ++operation_cnt;    // 命令行の場合、PCのカウントアップ
+    std::cout << "\33[2K\r" << fname << ":" << line_cnt << ":" << line;  // デバッグ出力
+    Line stmt(line_cnt, line, operation_cnt);                            // 行を解釈
+    stmts.push_back(stmt);                                               // 行を追加
+    if(stmt.isOperation()) ++operation_cnt;                              // 命令行の場合、PCのカウントアップ
   }
-  std::cout << "\33[2K\r";
+  std::cout << "\33[2K\r";  // デバッグ出力をクリア
 
   // ラベルを集める
   LabelTable labels;
@@ -71,22 +70,25 @@ int main(int argc, char* argv[]) {
       std::cout << "\r" << stmt.getOperation().print();  // デバッグ出力
       if(stmt.getOperation().imm.isLabRef()) {
         std::string lab = stmt.getOperation().imm.label;
-        Label& labref = labels.get(lab);
-        if(labref.isOpr()) {
-          stmt.getOperation().imm.value = labref.value;
-          stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
-        } else if(labref.isVar()) {
-          stmt.getOperation().imm.value = labref.value;
-          stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
-        } else if(labref.isConst()) {
-          stmt.getOperation().imm.value = labref.value;
-          stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
-        } else {
+        Label* labref = labels.get(lab);
+        if(labref == nullptr) {
           error("Cannot find def of label: " + lab);
+        } else {
+          if(labref->isOpr()) {
+            stmt.getOperation().imm.value = labref->value;
+            stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
+          } else if(labref->isVar()) {
+            stmt.getOperation().imm.value = labref->value;
+            stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
+          } else if(labref->isConst()) {
+            stmt.getOperation().imm.value = labref->value;
+            stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
+          }
         }
       }
     }
   }
+  std::cout << "\33[2K\r";  // デバッグ出力をクリア
 
   // コードを出力
   std::ofstream fout;
@@ -94,7 +96,7 @@ int main(int argc, char* argv[]) {
   if(!fout) error("Can't open file: " + fname + ".bin");
   for(auto& stmt : stmts) {
     if(stmt.isOperation()) {
-      uint32_t bin = stmt.getOperation().get_bin();
+      uint32_t bin = stmt.getOperation().getBin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }
@@ -127,7 +129,7 @@ int main(int argc, char* argv[]) {
     }
     if(stmt.isOperation()) {
       std::cout << hex(true, stmt.getOperation().address)
-                << " | " << print_binary(stmt.getOperation().get_bin())
+                << " | " << print_binary(stmt.getOperation().getBin())
                 << " |" << stmt.getOperation().print() << std::endl;
     }
   }

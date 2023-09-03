@@ -53,33 +53,42 @@ uint16_t alu_stoi(std::string s) {
 Operation::Operation(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
   if(is_calc(mnemonic)) {
-    if(str.size() <= 3) error("Require 3 Operand");
+    if(str.size() != 4) error("Require 3 Operand");
     rd = str.at(1), rs1 = str.at(2), rs2 = str.at(3);
   } else if(mnemonic == "nop") {
     rd = "zero", rs1 = "zero", rs2 = "zero";
   } else if(mnemonic == "mov") {
-    if(str.size() <= 2) error("Require 2 Operand");
+    if(str.size() != 3) error("Require 2 Operand");
     rd = str.at(1), rs1 = str.at(2), rs2 = "zero";
   } else if(is_calci(mnemonic)) {
-    if(str.size() <= 3) error("Require 3 Operand");
+    if(str.size() != 4) error("Require 3 Operand");
     rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
   } else if(mnemonic == "loadi") {
-    if(str.size() <= 2) error("Require 2 Operand");
+    if(str.size() != 3) error("Require 2 Operand");
     rd = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
   } else if(mnemonic == "load") {
-    if(str.size() <= 3) error("Require 3 Operand");
+    if(str.size() != 4) error("Require 3 Operand");
+    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+  } else if(mnemonic == "pop") {
+    if(str.size() != 2) error("Require 1 Operand");
     rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
   } else if(mnemonic == "store") {
-    if(str.size() <= 3) error("Require 3 Operand");
+    if(str.size() != 4) error("Require 3 Operand");
     rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
   } else if(mnemonic == "if") {
-    if(str.size() <= 3) error("Require 3 Operand");
-    rd = "zero", rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
+    if(str.size() != 3) error("Require 2 Operand");
+    rd = "zero", rs2 = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
+  } else if(mnemonic == "ifr") {
+    if(str.size() != 3) error("Require 2 Operand");
+    rd = "zero", rs2 = str.at(1), rs1 = "pc", imm = Imm(str.at(2));
   } else if(mnemonic == "jump") {
-    if(str.size() <= 1) error("Require 1 Operand");
+    if(str.size() != 2) error("Require 1 Operand");
     rd = "zero", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
+  } else if(mnemonic == "jumpr") {
+    if(str.size() != 2) error("Require 1 Operand");
+    rd = "zero", rs2 = "zero", rs1 = "pc", imm = Imm(str.at(1));
   } else if(mnemonic == "call") {
-    if(str.size() <= 1) error("Require 1 Operand");
+    if(str.size() != 2) error("Require 1 Operand");
     rd = "ra", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
   } else if(mnemonic == "ret") {
     rd = "zero", rs2 = "zero", rs1 = "ra", imm = Imm("0");
@@ -91,14 +100,10 @@ Operation::Operation(const uint16_t address, const std::vector<std::string> str)
 }
 
 uint32_t pack(uint8_t u4_0, uint8_t u4_1, uint8_t u4_2, uint8_t u4_3, uint16_t u16) {
-  return (u4_0 & 0x0F)
-         | ((u4_1 & 0x0F) << 4)
-         | ((u4_2 & 0x0F) << 8)
-         | ((u4_3 & 0x0F) << 12)
-         | ((u16 & 0xFFFF) << 16);
+  return (u4_0 & 0x0F) | ((u4_1 & 0x0F) << 4) | ((u4_2 & 0x0F) << 8) | ((u4_3 & 0x0F) << 12) | ((u16 & 0xFFFF) << 16);
 }
 
-uint32_t Operation::get_bin() {
+uint32_t Operation::getBin() {
   uint32_t ret = 0;
   if(is_calc(mnemonic))
     return pack(OPCode::calc, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), alu_stoi(mnemonic));
@@ -130,5 +135,7 @@ std::string Operation::print() {
     ss << cprint(rd, BLUE, 6) << "        " << imm.print();
   else if(mnemonic == "jump" || mnemonic == "call")
     ss << "              " << imm.print();
+  else if(mnemonic == "nop")
+    ss << "";
   return ss.str();
 }

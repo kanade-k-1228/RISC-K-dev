@@ -2,10 +2,11 @@
 #include "../utils/utils.hpp"
 #include <algorithm>
 
-Label& LabelTable::get(std::string label) {
-  for(auto l : *this) {
+Label* LabelTable::get(std::string label) {
+  for(auto& l : *this) {
     if(l.name == label) {
-      return l;
+      return &l;
     }
   }
+  return nullptr;
 }

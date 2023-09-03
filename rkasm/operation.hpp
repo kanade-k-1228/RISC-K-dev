@@ -9,6 +9,6 @@ struct Operation {
   Imm imm;
   Operation(){};
   Operation(const uint16_t address, const std::vector<std::string> str);
-  uint32_t get_bin();
+  uint32_t getBin();
   std::string print();
 };
