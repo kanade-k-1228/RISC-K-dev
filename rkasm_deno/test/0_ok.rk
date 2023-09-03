@@ -43,7 +43,7 @@
     ltui t2 t0 0xf000
     jump e
 a:
-    if zero zero b
+    if zero b
 b:
     call c
 c:

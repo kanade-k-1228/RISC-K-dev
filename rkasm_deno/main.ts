@@ -2,7 +2,10 @@ import { interpret, fill_pc, build_op_arg, build_op_bin } from "./path.ts";
 import { print_var_labels, print_const_labels, print_bin } from "./print.ts";
 import { PCLabel, VarLabel, ConstLabel } from "./type.ts";
 
-export const main = async ({ consts, vars }: Record<"consts" | "vars", true | undefined>, rkasm_file: string) => {
+export const main = async (
+  { consts, vars }: Record<"consts" | "vars", true | undefined>,
+  rkasm_file: string
+) => {
   console.log("--------------------------------------------------");
   console.log(`Assemble: ${rkasm_file}`);
   const rkasm_text = await Deno.readTextFile(rkasm_file).catch(() => {
@@ -18,7 +21,11 @@ export const main = async ({ consts, vars }: Record<"consts" | "vars", true | un
     .map((s) => s.split(/\s/).filter((s) => s !== "")); // 空白文字で分割
   // console.table(preproc);
 
-  const comments = rkasm_text.split("\n").flatMap((s, i) => (s.indexOf(";") === -1 ? [] : [{ line: i, comment: s.slice(s.indexOf(";")) }]));
+  const comments = rkasm_text
+    .split("\n")
+    .flatMap((s, i) =>
+      s.indexOf(";") === -1 ? [] : [{ line: i, comment: s.slice(s.indexOf(";")) }]
+    );
   // console.log(comments);
 
   // 各文を解釈
@@ -30,7 +37,9 @@ export const main = async ({ consts, vars }: Record<"consts" | "vars", true | un
   // console.table(pc_filled);
 
   // ラベル一覧
-  const labels = pc_filled.filter((l) => l.kind === "lab_const" || l.kind === "lab_pc" || l.kind === "lab_var") as (PCLabel | VarLabel | ConstLabel)[];
+  const labels = pc_filled.filter(
+    (l) => l.kind === "lab_const" || l.kind === "lab_pc" || l.kind === "lab_var"
+  ) as (PCLabel | VarLabel | ConstLabel)[];
 
   // 命令文をビルド
   const built = pc_filled

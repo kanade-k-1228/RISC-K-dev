@@ -1,15 +1,35 @@
-import { red } from "https://deno.land/std/fmt/colors.ts";
+import { bold, red } from "https://deno.land/std/fmt/colors.ts";
+import { Statement } from "./type.ts";
 
-export class AsemblerError extends Error {
-  file: string;
-  line: number;
-  constructor(message: string, file: string, line: number) {
+export class StatementError extends Error {
+  stmt: Statement;
+  highlight: string;
+  constructor(stmt: Statement, message: string, highlight = "") {
     super(message);
+    this.stmt = stmt;
     this.name = "AsemblerError";
-    this.file = file;
-    this.line = line;
+    this.highlight = highlight;
   }
   print = () => {
-    return `${red("ERROR")} at ${this.file}:${this.line}\n${this.message}`;
+    const raw = this.stmt.str.join(" ");
+    const idx = raw.indexOf(this.highlight);
+    const highlighted = this.stmt.str.map((s) => (s === this.highlight ? red(s) : s)).join(" ");
+    const underline =
+      idx === -1
+        ? red("~".repeat(raw.length))
+        : " ".repeat(idx) + red("~".repeat(this.highlight.length));
+    const comment = " ".repeat(idx === -1 ? 0 : idx) + "^ " + this.message;
+
+    return [
+      ``,
+      ` ${red(`ERROR`)} at ${this.stmt.file}:${this.stmt.line}`,
+      "",
+      `    ${highlighted}`,
+      `    ${underline}`,
+      `    ${comment}`,
+      "",
+    ]
+      .map((s) => red("|") + s)
+      .join("\n");
   };
 }
