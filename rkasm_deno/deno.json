@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "compile": "deno compile --unstable --allow-net --allow-read --allow-write --allow-run ./main.ts --output ./bin/rkasm"
+    "compile": "deno compile --unstable --allow-net --allow-read --allow-write --allow-run ./index.ts --output ./bin/rkasm"
   }
 }

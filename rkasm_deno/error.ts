@@ -1,9 +1,15 @@
 import { red } from "https://deno.land/std/fmt/colors.ts";
 
-export const print_err = (file: string, line: number, msg: string) => {
-  console.log("--------------------------------------------------");
-  console.log(`${red("ERROR!")} @${file}:${line}`);
-  console.log(msg);
-  console.log("--------------------------------------------------");
-  Deno.exit(-1);
-};
+export class AsemblerError extends Error {
+  file: string;
+  line: number;
+  constructor(message: string, file: string, line: number) {
+    super(message);
+    this.name = "AsemblerError";
+    this.file = file;
+    this.line = line;
+  }
+  print = () => {
+    return `${red("ERROR")} at ${this.file}:${this.line}\n${this.message}`;
+  };
+}

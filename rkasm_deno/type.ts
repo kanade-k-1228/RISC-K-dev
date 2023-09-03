@@ -1,7 +1,9 @@
 export type Statement = Operation | PCLabel | VarLabel | ConstLabel;
 
 export interface Operation {
+  file: string;
   line: number;
+  raw: string;
   kind: "opr";
   op: string;
   args: Arg[];
@@ -16,21 +18,27 @@ export interface Arg {
 }
 
 export interface PCLabel {
+  file: string;
   line: number;
+  raw: string;
   kind: "lab_pc";
   label: string;
   value?: number;
 }
 
 export interface VarLabel {
+  file: string;
   line: number;
+  raw: string;
   kind: "lab_var";
   label: string;
   value: number;
 }
 
 export interface ConstLabel {
+  file: string;
   line: number;
+  raw: string;
   kind: "lab_const";
   label: string;
   value: number;
