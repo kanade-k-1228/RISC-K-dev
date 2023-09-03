@@ -1,9 +1,9 @@
+#include "label_def.hpp"
 #include <map>
+#include <string>
 #include <vector>
 
-class LabelTable : public std::map<std::string, uint16_t> {
+class LabelTable : public std::vector<Label> {
 public:
-  void define(std::string, uint16_t);
-  uint16_t get_value(std::string);
-  std::vector<std::pair<uint16_t, std::string>> sort_by_value();
+  Label& get(std::string label);
 };

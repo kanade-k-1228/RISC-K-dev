@@ -76,6 +76,12 @@
     "typeindex": "cpp",
     "variant": "cpp",
     "*.ipp": "cpp",
-    "future": "cpp"
+    "future": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "unordered_set": "cpp",
+    "numbers": "cpp",
+    "semaphore": "cpp",
+    "stop_token": "cpp"
   }
 }

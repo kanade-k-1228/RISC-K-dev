@@ -54,3 +54,7 @@ std::vector<std::string> split(const std::string& str, const char sep) {
   }
   return v;
 }
+
+bool include(std::vector<std::string> list, std::string find) {
+  return std::find(list.begin(), list.end(), find) != list.end();
+}

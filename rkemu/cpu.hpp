@@ -81,5 +81,5 @@ public:
 
   void load(uint16_t, uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);
-  void calif(uint16_t, uint16_t, uint16_t, uint16_t);
+  void ctrl(uint16_t, uint16_t, uint16_t, uint16_t);
 };

@@ -4,13 +4,24 @@
 #include "operation.hpp"
 #include <string>
 #include <vector>
-struct Line {
+
+class Line {
   enum Type {
+    VOID,
     OPERATION,
-    LABEL_DEF
+    LABEL
   };
+  int line;
+  std::string str;
+  std::string comment;
+  std::vector<std::string> splited;
   Type type;
-  Operation operation;  // 命令行
-  LabelDef label_def;   // ラベル行
-  Line(const uint16_t address, const std::vector<std::string> str);
+  Operation operation;  // 命令文
+  Label label_def;      // ラベル文
+public:
+  Line(const int line_no, const std::string str, const uint16_t pc);
+  bool isOperation() { return type == Type::OPERATION; }
+  bool isLabel() { return type == Type::LABEL; }
+  Operation& getOperation() { return operation; }
+  Label& getLabel() { return label_def; }
 };

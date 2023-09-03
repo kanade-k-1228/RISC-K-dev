@@ -92,7 +92,7 @@ std::string Debug::print_code(uint32_t code) {
   }
   if(op.opc == OPCode::load) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   if(op.opc == OPCode::store) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
-  if(op.opc == OPCode::calif) return cprint("calif", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == OPCode::ctrl) return cprint("ctrl", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   return "Unknown Opecode" + hex(true, op.opc);
 }
 

@@ -14,4 +14,5 @@ struct Imm {
   Imm() {}
   Imm(std::string str);
   std::string print();
+  bool isLabRef() { return type == LAB_REF; };
 };

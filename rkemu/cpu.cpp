@@ -86,7 +86,7 @@ void CPU::execute(uint32_t code) {
   }
   if(op.opc == OPCode::load) load(op.rd, op.rs1, op.imm);
   if(op.opc == OPCode::store) store(op.rs1, op.rs2, op.imm);
-  if(op.opc == OPCode::calif) calif(op.rd, op.rs1, op.rs2, op.imm);
+  if(op.opc == OPCode::ctrl) ctrl(op.rd, op.rs1, op.rs2, op.imm);
   return;
 }
 
@@ -251,11 +251,11 @@ void CPU::store(uint16_t rs1, uint16_t rs2, uint16_t imm) {
   ram.inc_pc();
 }
 
-// calif rd rs2 rs1 imm
+// ctrl rd rs2 rs1 imm
 // rd = pc + 1
 // if(rs2==0) pc = rs1 + imm
 // else       pc = pc + 1
-void CPU::calif(uint16_t rd, uint16_t rs1, uint16_t rs2, uint16_t imm) {
+void CPU::ctrl(uint16_t rd, uint16_t rs1, uint16_t rs2, uint16_t imm) {
   ram.set(rd, ram.get(Reg::pc) + 1);
   if(ram.get(rs2) == 0)
     ram.set_pc(ram.get(rs1) + imm);

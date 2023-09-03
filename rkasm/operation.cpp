@@ -4,35 +4,27 @@
 #include <regex>
 #include <sstream>
 
-bool is_calc(std::string s) {
-  return std::regex_search(s, std::regex("^(" + mnemonic_calc + ")$"));
-}
-
-bool is_calci(std::string s) {
-  return std::regex_search(s, std::regex("^(" + mnemonic_calci + ")$"));
-}
-
-bool is_calif(std::string s) {
-  return std::regex_search(s, std::regex("^(" + mnemonic_calif + ")$"));
-}
+bool is_calc(std::string s) { return include(mnemonics_calc, s); }
+bool is_calci(std::string s) { return include(mnemonics_calci, s); }
+bool is_ctrl(std::string s) { return include(mnemonics_ctrl, s); }
 
 uint16_t reg_stoi(std::string name) {
   if(name == "zero") return Reg::zero;
   if(name == "pc") return Reg::pc;
   if(name == "ira") return Reg::ira;
-  if(name == "csr") return Reg::csr;
-  if(name == "ra") return Reg::ra;
   if(name == "sp") return Reg::sp;
+  if(name == "ra") return Reg::ra;
   if(name == "fp") return Reg::fp;
-  if(name == "cout") return Reg::cout;
-  if(name == "s0") return Reg::s0;
-  if(name == "s1") return Reg::s1;
-  if(name == "s2") return Reg::s2;
-  if(name == "s3") return Reg::s3;
+  if(name == "a0") return Reg::a0;
+  if(name == "a1") return Reg::a1;
   if(name == "t0") return Reg::t0;
   if(name == "t1") return Reg::t1;
   if(name == "t2") return Reg::t2;
   if(name == "t3") return Reg::t3;
+  if(name == "s0") return Reg::s0;
+  if(name == "s1") return Reg::s1;
+  if(name == "s2") return Reg::s2;
+  if(name == "s3") return Reg::s3;
   error("Invalid Registor Name: " + name);
   return 0;
 }
@@ -50,7 +42,6 @@ uint16_t alu_stoi(std::string s) {
   if(s == "eq" || s == "eqi") return ALUCode::EQ;
   if(s == "lts" || s == "ltsi") return ALUCode::LTS;
   if(s == "ltu" || s == "ltui") return ALUCode::LTU;
-  if(s == "lcast") return ALUCode::LCAST;
   // Pseudo Operation
   if(s == "nop") return ALUCode::ADD;
   if(s == "mov") return ALUCode::ADD;
@@ -59,9 +50,7 @@ uint16_t alu_stoi(std::string s) {
   return 0;
 }
 
-Operation::Operation(
-    const uint16_t address,
-    const std::vector<std::string> str)
+Operation::Operation(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
   if(is_calc(mnemonic)) {
     if(str.size() <= 3) error("Require 3 Operand");
@@ -111,16 +100,16 @@ uint32_t pack(uint8_t u4_0, uint8_t u4_1, uint8_t u4_2, uint8_t u4_3, uint16_t u
 
 uint32_t Operation::get_bin() {
   uint32_t ret = 0;
-  if(is_calc(mnemonic) || mnemonic == "nop" || mnemonic == "mov")
+  if(is_calc(mnemonic))
     return pack(OPCode::calc, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), alu_stoi(mnemonic));
-  if(is_calci(mnemonic) || mnemonic == "loadi")
+  if(is_calci(mnemonic))
     return pack(OPCode::calci, reg_stoi(rs1), alu_stoi(mnemonic), reg_stoi(rd), imm.value);
   if(mnemonic == "load")
     return pack(OPCode::load, reg_stoi(rs1), 0, reg_stoi(rd), imm.value);
   if(mnemonic == "store")
     return pack(OPCode::store, reg_stoi(rs1), reg_stoi(rs2), 0, imm.value);
-  if(is_calif(mnemonic))
-    return pack(OPCode::calif, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), imm.value);
+  if(is_ctrl(mnemonic))
+    return pack(OPCode::ctrl, reg_stoi(rs1), reg_stoi(rs2), reg_stoi(rd), imm.value);
   return ret;
 }
 

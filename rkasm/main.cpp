@@ -6,13 +6,10 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <regex>
 #include <sstream>
 #include <unistd.h>
 #include <vector>
 
-std::string trim_comment(std::string);
-bool is_empty(const std::string&);
 std::string print_binary(uint32_t);
 
 std::string man
@@ -52,53 +49,38 @@ int main(int argc, char* argv[]) {
 
   // 一行ずつスキャンし、命令リストに格納
   std::string line;
-  std::vector<Line> asmlines;  // コードリスト
+  std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
     std::cout << "\33[2K\r" << fname << ":" << line_cnt << ":" << line;
-    std::string trimmed = trim_comment(line);          // コメント削除
-    if(is_empty(trimmed)) continue;                    // 空行ならスキップ
-    Line code(operation_cnt, split(trimmed, ' '));     // 行を解釈
-    asmlines.push_back(code);                          // 行を追加
-    if(code.type == Line::OPERATION) ++operation_cnt;  // 命令行の場合、PCのカウントアップ
+    Line code(line_cnt, line, operation_cnt);  // 行を解釈
+    stmts.push_back(code);                     // 行を追加
+    if(code.isOperation()) ++operation_cnt;    // 命令行の場合、PCのカウントアップ
   }
   std::cout << "\33[2K\r";
 
-  // ラベルテーブルの生成
-  LabelTable opr_lab;    // 命令ラベルテーブル
-  LabelTable var_lab;    // 変数ラベルテーブル
-  LabelTable const_lab;  // 定数ラベルテーブル
-  for(auto& asmline : asmlines) {
-    if(asmline.type == Line::LABEL_DEF) {
-      if(asmline.label_def.type == LabelDef::OPR)
-        opr_lab.define(asmline.label_def.name, asmline.label_def.value);
-      if(asmline.label_def.type == LabelDef::VAR)
-        var_lab.define(asmline.label_def.name, asmline.label_def.value);
-      if(asmline.label_def.type == LabelDef::CONST)
-        const_lab.define(asmline.label_def.name, asmline.label_def.value);
-    }
-  }
+  // ラベルを集める
+  LabelTable labels;
+  for(auto& stmt : stmts)
+    if(stmt.isLabel())
+      labels.push_back(stmt.getLabel());
 
   // ラベルの解決
-  for(auto& code : asmlines) {
-    if(code.type == Line::OPERATION) {
-      std::cout << "\r" << code.operation.print();  // デバッグ出力
-      if(code.operation.imm.type == Imm::LAB_REF) {
-        std::string lab = code.operation.imm.label;
-        bool lab_is_opr = opr_lab.contains(lab);
-        bool lab_is_var = var_lab.contains(lab);
-        bool lab_is_const = const_lab.contains(lab);
-        if(lab_is_opr + lab_is_var + lab_is_const > 1)
-          error("Multiple defines of label: " + lab);
-        else if(lab_is_opr) {
-          code.operation.imm.value = opr_lab.get_value(lab);
-          code.operation.imm.type = Imm::OPR_LAB_REF;
-        } else if(lab_is_var) {
-          code.operation.imm.value = var_lab.get_value(lab);
-          code.operation.imm.type = Imm::VAR_LAB_REF;
-        } else if(lab_is_const) {
-          code.operation.imm.value = const_lab.get_value(lab);
-          code.operation.imm.type = Imm::CONST_LAB_REF;
+  for(auto& stmt : stmts) {
+    if(stmt.isOperation()) {
+      std::cout << "\r" << stmt.getOperation().print();  // デバッグ出力
+      if(stmt.getOperation().imm.isLabRef()) {
+        std::string lab = stmt.getOperation().imm.label;
+        Label& labref = labels.get(lab);
+        if(labref.isOpr()) {
+          stmt.getOperation().imm.value = labref.value;
+          stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
+        } else if(labref.isVar()) {
+          stmt.getOperation().imm.value = labref.value;
+          stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
+        } else if(labref.isConst()) {
+          stmt.getOperation().imm.value = labref.value;
+          stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
         } else {
           error("Cannot find def of label: " + lab);
         }
@@ -110,53 +92,46 @@ int main(int argc, char* argv[]) {
   std::ofstream fout;
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) error("Can't open file: " + fname + ".bin");
-  for(auto& code : asmlines) {
-    if(code.type == Line::OPERATION) {
-      uint32_t bin = code.operation.get_bin();
+  for(auto& stmt : stmts) {
+    if(stmt.isOperation()) {
+      uint32_t bin = stmt.getOperation().get_bin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }
-
   std::cout << "\r                                                  \r";  // デバッグ出力をクリア
   std::cout << "Output  : " << fname + ".bin" << std::endl;
   std::cout << "--------------------------------------------------" << std::endl;
 
   // ラベルの一覧表示
   if(opt_c) {
-    for(auto var : const_lab.sort_by_value())
-      std::cout << cprint(hex(true, var.first), YELLOW, 0) << " == " << var.second << std::endl;
+    for(auto lab : labels) {
+      if(lab.isConst()) {
+        std::cout << cprint(hex(true, lab.value), YELLOW, 0) << " == " << lab.name << std::endl;
+      }
+    }
     std::cout << "--------------------------------------------------" << std::endl;
   }
   if(opt_v) {
-    for(auto var : var_lab.sort_by_value())
-      std::cout << cprint(hex(true, var.first), BLUE, 0) << " <- " << var.second << std::endl;
+    for(auto lab : labels) {
+      if(lab.isVar()) {
+        std::cout << cprint(hex(true, lab.value), BLUE, 0) << " <- " << lab.name << std::endl;
+      }
+    }
     std::cout << "--------------------------------------------------" << std::endl;
   }
+
   // アセンブラを表示
-  for(auto code : asmlines) {
-    if(code.type == Line::LABEL_DEF && code.label_def.type == LabelDef::OPR) {
-      std::cout << cprint(hex(true, code.label_def.value), GREEN, 0) << cprint(": " + code.label_def.name, GREEN, 0) << std::endl;
+  for(auto stmt : stmts) {
+    if(stmt.isLabel() && stmt.getLabel().isOpr()) {
+      std::cout << cprint(hex(true, stmt.getLabel().value), GREEN, 0) << cprint(": " + stmt.getLabel().name, GREEN, 0) << std::endl;
     }
-    if(code.type == Line::OPERATION) {
-      std::cout << hex(true, code.operation.address)
-                << " | " << print_binary(code.operation.get_bin())
-                << " |" << code.operation.print() << std::endl;
+    if(stmt.isOperation()) {
+      std::cout << hex(true, stmt.getOperation().address)
+                << " | " << print_binary(stmt.getOperation().get_bin())
+                << " |" << stmt.getOperation().print() << std::endl;
     }
   }
   return EXIT_SUCCESS;
-}
-
-
-std::string trim_comment(std::string str) {
-  const auto pos = str.find(";");  // 最初にヒットした ; の位置
-  if(pos != std::string::npos)     // npos はヒットしなかった場合の pos の値
-    str = str.erase(pos);          // pos 以降を削除
-  return str;
-}
-
-bool is_empty(const std::string& str) {
-  const std::regex non_empty(R"(\S)");  // 空でない文字にヒットする正規表現
-  return !std::regex_search(str, non_empty);
 }
 
 std::string print_binary(uint32_t bin) {

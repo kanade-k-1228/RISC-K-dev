@@ -2,13 +2,29 @@
 #include "isa.hpp"
 #include "utils.hpp"
 #include <regex>
-Line::Line(const uint16_t address, const std::vector<std::string> str) {
-  if(std::regex_search(str.at(0), std::regex("^(" + mnemonic + ")$"))) {
-    type = OPERATION;  // 命令
-    operation = Operation(address, str);
-  } else if(std::regex_search(str.at(0), std::regex("(:$)|(^@)|(^#)"))) {
-    type = LABEL_DEF;  // ラベル定義
-    label_def = LabelDef(address, str);
+
+Line::Line(const int line_no, const std::string str, const uint16_t pc)
+    : line(line_no), str(str) {
+
+  // コメントを分離
+  const auto pos = str.find(";");  // 最初にヒットした ; の位置
+  if(pos != std::string::npos) {
+    this->comment = str.substr(pos);
+    this->splited = split(str.substr(0, pos), ' ');
+  } else {
+    this->comment = "";
+    this->splited = split(str, ' ');
+  }
+
+  // 行の分類
+  if(this->splited.size() == 0) {
+    this->type = VOID;
+  } else if(include(mnemonics, this->splited.at(0))) {
+    this->type = OPERATION;
+    this->operation = Operation(pc, splited);
+  } else if(this->splited.at(0).front() == '@' || this->splited.at(0).front() == '#' || this->splited.at(0).back() == ':') {
+    type = LABEL;  // ラベル定義
+    label_def = Label(pc, splited);
   } else {
     error("Unknown Code");
   }
