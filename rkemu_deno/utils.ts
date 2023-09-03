@@ -1,4 +1,4 @@
-export const hex = (w: number, n: number) => right(w, n.toString(16).toUpperCase(), "0");
+export const hex = (w: number, n: number) => right(w, (n >>> 0).toString(16).toUpperCase(), "0");
 
 export const right = (n: number, s: string, fill = " ") => {
   const offset = n - s.length;

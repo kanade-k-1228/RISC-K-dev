@@ -1,4 +1,31 @@
-export const alu: Record<string, number> = {
+export type OPCName = "calc" | "calci" | "load" | "store" | "ctrl";
+
+export const opc: Record<OPCName, number> = {
+  calc: 0b0000,
+  calci: 0b0001,
+  load: 0b0011,
+  store: 0b0111,
+  ctrl: 0b1111,
+};
+
+export type ALUFunc =
+  | "add"
+  | "not"
+  | "lrot"
+  | "and"
+  | "sl"
+  | "xor"
+  | "or"
+  | "sub"
+  | "eq"
+  | "neq"
+  | "ltu"
+  | "lts"
+  | "sru"
+  | "srs"
+  | "rrot";
+
+export const alu: Record<ALUFunc, number> = {
   add: 0,
   not: 1,
   sl: 2,
@@ -15,14 +42,26 @@ export const alu: Record<string, number> = {
   srs: 13,
   rrot: 14,
 };
-export const opc: Record<string, number> = {
-  calc: 0b0000,
-  calci: 0b0001,
-  load: 0b0011,
-  store: 0b0111,
-  ctrl: 0b1111,
-};
-export const regs: Record<string, number> = {
+
+export type RegName =
+  | "zero"
+  | "ira"
+  | "pc"
+  | "sp"
+  | "ra"
+  | "fp"
+  | "a0"
+  | "a1"
+  | "t0"
+  | "t1"
+  | "t2"
+  | "t3"
+  | "s0"
+  | "s1"
+  | "s2"
+  | "s3";
+
+export const regs: Record<RegName, number> = {
   zero: 0,
   ira: 1,
   pc: 2,
@@ -102,4 +141,98 @@ export const mnemonics: Record<string, [string, Encode]> = {
   call: ["i", [opc.ctrl, regs.zero, regs.zero, regs.ra, "0"]],
   ret: ["", [opc.ctrl, regs.ra, regs.zero, regs.zero, 0]],
   iret: ["", [opc.ctrl, regs.ira, regs.zero, regs.zero, 0]],
+};
+
+export interface Operation {
+  opc: OPCName;
+  func: ALUFunc;
+  rs1: RegName;
+  rs2: RegName;
+  rd: RegName;
+  imm: string;
+}
+
+export const encode = (op: Operation): string => {
+  return "00000000";
+};
+
+export const decode = (code: string): Operation => {
+  if (code.length !== 8) throw Error(`Decode error`);
+  const op = parseInt(code[7], 16);
+
+  const ret = {
+    rs1: decode_reg(code[6]),
+    rs2: decode_reg(code[5]),
+    rd: decode_reg(code[4]),
+    imm: code.slice(0, 4),
+  };
+
+  switch (op) {
+    case opc.calc:
+      return { ...ret, opc: "calc", func: decode_alu(code[3]) };
+
+    case opc.calci:
+      return { ...ret, opc: "calci", func: decode_alu(code[5]) };
+
+    case opc.load:
+      return { ...ret, opc: "load", func: "add" };
+
+    case opc.store:
+      return { ...ret, opc: "store", func: "add" };
+
+    case opc.ctrl:
+      return { ...ret, opc: "ctrl", func: "add" };
+
+    default:
+      throw Error(`Undefined opecode: ${op}`);
+  }
+};
+
+const decode_alu = (code: string) => {
+  const alu_code = parseInt(code, 16);
+  const alu_func = Object.entries(alu).find(([_, code]) => code === alu_code);
+  if (!alu_func) throw Error(`Undefined ALU code: ${alu_code}`);
+  return alu_func[0] as ALUFunc;
+};
+
+const decode_reg = (code: string) => {
+  const reg_code = parseInt(code, 16);
+  const reg = Object.entries(regs).find(([_, code]) => code === reg_code);
+  if (!reg) throw Error(`Undefined Registor code: ${reg_code}`);
+  return reg[0] as RegName;
+};
+
+export const alu_emu = (a: number, b: number, c: ALUFunc) => {
+  switch (c) {
+    case "add":
+      return a + b;
+    case "not":
+      return ~a;
+    case "lrot":
+      return ((a << 1) & 0xffff) | ((a >> 15) & 1);
+    case "and":
+      return a & b;
+    case "sl":
+      return (a << 1) & 0xffff;
+    case "xor":
+      return a ^ b;
+    case "or":
+      return a | b;
+    case "sub":
+      return a - b;
+    case "eq":
+      return a === b ? 0xffff : 0x0000;
+    case "neq":
+      return a !== b ? 0xffff : 0x0000;
+    case "ltu":
+      return a < b ? 0xffff : 0x0000;
+    case "lts":
+      return a < b ? 0xffff : 0x0000;
+    case "sru":
+      return a >>> 1;
+    case "srs":
+      return a >> 1;
+    case "rrot":
+      return a >>> 1;
+  }
 };
