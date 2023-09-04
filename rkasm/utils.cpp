@@ -4,8 +4,6 @@
 #include <regex>
 #include <sstream>
 
-std::tuple<std::string, int, std::string> error_notation;
-
 std::string cprint(const std::string str, Collor collor, int width) {
   std::ostringstream ss;
   ss << "\033[" << collor << "m" << std::setw(width) << str << "\033[m";
@@ -25,8 +23,9 @@ std::string hex(bool prefix, const uint32_t n) {
   std::ostringstream ss;
   ss.setf(std::ios::hex, std::ios::basefield);
   const char fill_save = ss.fill('0');
-  ss << (prefix ? "0x" : "") << std::setw(8) << n;
-  ss.fill(fill_save);
+  ss << (prefix ? "0x" : "")
+     << std::setw(4) << ((n >> 16) & 0xffff)
+     << "_" << std::setw(4) << (n & 0xffff);
   return ss.str();
 }
 
@@ -44,4 +43,14 @@ std::vector<std::string> split(const std::string& str, const char sep) {
 
 bool include(std::vector<std::string> list, std::string find) {
   return std::find(list.begin(), list.end(), find) != list.end();
+}
+
+template <typename T>
+T* find(std::vector<T> vec, std::function<bool(T)> cond) {
+  for(auto& item : vec) {
+    if(cond(item)) {
+      return &item;
+    }
+  }
+  return nullptr;
 }

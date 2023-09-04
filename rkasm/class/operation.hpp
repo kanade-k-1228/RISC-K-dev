@@ -1,6 +1,7 @@
 #pragma once
 #include "imm.hpp"
-#include "label_def.hpp"
+#include "label.hpp"
+
 struct Operation {
   uint16_t address;
   std::string mnemonic;

@@ -1,6 +1,5 @@
+#include "class/line.hpp"
 #include "isa.hpp"
-#include "label_table.hpp"
-#include "line.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <iomanip>
@@ -9,7 +8,14 @@
 #include <unistd.h>
 #include <vector>
 
-std::string print_binary(uint32_t);
+Label* find_label(std::vector<Label> vec, std::string name);
+
+void print_error(std::string fname, int line_cnt, std::string line, std::string msg) {
+  std::string place = fname + ":" + std::to_string(line_cnt);
+  std::cout << std::string(place.size(), ' ') << " | " << std::endl
+            << place << " | " << line << std::endl
+            << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << msg << std::endl;
+}
 
 std::string man
     = "rkasm [-w] [-c] [-v] .rkasm\n"
@@ -56,21 +62,17 @@ int main(int argc, char* argv[]) {
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
     try {
-      error_notation = {fname, line_cnt, line};
       Line stmt(fname, line_cnt, line, operation_cnt);  // 行を解釈
       stmts.push_back(stmt);                            // 行を追加
       if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
-    } catch(std::string* e) {
-      std::string place = fname + ":" + std::to_string(line_cnt);
-      std::cout << std::string(place.size(), ' ') << " | " << std::endl
-                << place << " | " << line << std::endl
-                << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << *e << std::endl;
+    } catch(std::string* msg) {
+      print_error(fname, line_cnt, line, *msg);
     }
   }
 
   // ラベルを集める
   std::cout << " ... Collect label" << std::endl;
-  LabelTable labels;
+  std::vector<Label> labels;
   for(auto& stmt : stmts) {
     if(stmt.isLabel()) labels.push_back(stmt.getLabel());
   }
@@ -82,9 +84,9 @@ int main(int argc, char* argv[]) {
       if(stmt.isOperation()) {
         if(stmt.getOperation().imm.isLabRef()) {
           std::string lab = stmt.getOperation().imm.label;
-          Label* labref = labels.get(lab);
+          Label* labref = find_label(labels, lab);
           if(labref == nullptr) {
-            throw new std::string("Cannot find def of label: " + lab);
+            throw new std::string("Undefined label: " + lab);
           } else {
             if(labref->isOpr()) {
               stmt.getOperation().imm.value = labref->value;
@@ -99,8 +101,8 @@ int main(int argc, char* argv[]) {
           }
         }
       }
-    } catch(std::string* e) {
-      std::cout << *e << std::endl;
+    } catch(std::string* msg) {
+      print_error(fname, 0, "hoge", *msg);
     }
   }
 
@@ -112,7 +114,6 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
   for(auto& stmt : stmts) {
-    error_notation = stmt.getError();
     if(stmt.isOperation()) {
       uint32_t bin = stmt.getOperation().getBin();
       fout.write((char*)&bin, sizeof(bin));
@@ -147,18 +148,18 @@ int main(int argc, char* argv[]) {
     }
     if(stmt.isOperation()) {
       std::cout << hex(true, stmt.getOperation().address)
-                << " | " << print_binary(stmt.getOperation().getBin())
+                << " | " << hex(true, stmt.getOperation().getBin())
                 << " |" << stmt.getOperation().print() << std::endl;
     }
   }
   return EXIT_SUCCESS;
 }
 
-std::string print_binary(uint32_t bin) {
-  std::stringstream ss;
-  ss.setf(std::ios::hex, std::ios::basefield);
-  ss.fill('0');
-  ss << "0x" << std::setw(4) << ((bin >> 16) & 0xffff)
-     << "_" << std::setw(4) << (bin & 0xffff);
-  return ss.str();
+Label* find_label(std::vector<Label> vec, std::string name) {
+  for(auto& item : vec) {
+    if(item.name == name) {
+      return &item;
+    }
+  }
+  return nullptr;
 }

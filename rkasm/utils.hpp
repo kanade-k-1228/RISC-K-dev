@@ -1,9 +1,8 @@
 #pragma once
+#include <functional>
 #include <string>
 #include <tuple>
 #include <vector>
-
-extern std::tuple<std::string, int, std::string> error_notation;
 
 enum Collor {
   RED = 31,
@@ -20,3 +19,6 @@ std::string hex(bool, const uint32_t);
 std::vector<std::string> split(const std::string&, const char);
 
 bool include(std::vector<std::string>, std::string);
+
+template <typename T>
+T* find(std::vector<T>, std::function<bool(T)>);

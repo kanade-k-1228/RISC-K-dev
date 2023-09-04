@@ -1,6 +1,6 @@
 #include "line.hpp"
-#include "isa.hpp"
-#include "utils.hpp"
+#include "../isa.hpp"
+#include "../utils.hpp"
 #include <regex>
 
 bool isMnemonic(std::string s) {

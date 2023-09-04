@@ -1,6 +1,6 @@
 #include "operation.hpp"
-#include "isa.hpp"
-#include "utils.hpp"
+#include "../isa.hpp"
+#include "../utils.hpp"
 #include <regex>
 #include <sstream>
 
