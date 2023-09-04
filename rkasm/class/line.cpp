@@ -31,7 +31,7 @@ Line::Line(const std::string file, const int line_no, const std::string str, con
     this->operation = Operation(pc, splited);
   } else if(this->splited.at(0).front() == '@' || this->splited.at(0).front() == '#' || this->splited.at(0).back() == ':') {
     type = LABEL;  // ラベル定義
-    label_def = Label(pc, splited);
+    label = Label(pc, splited);
   } else {
     throw new std::string("Undefined statement");
     return;

@@ -70,52 +70,6 @@ const std::vector<std::string> mnemonics_load = {"load", "pop"};
 const std::vector<std::string> mnemonics_store = {"store", "push"};
 const std::vector<std::string> mnemonics_ctrl = {"if", "ifr", "jump", "jumpr", "call", "ret", "iret"};
 
-const std::vector<std::string> mnemonics = {
-    "nop",
-    "mov",
-
-    "add",
-    "not",
-    "sl",
-    "lrot",
-    "and",
-    "xor",
-    "or",
-    "sub",
-    "eq",
-    "neq",
-    "ltu",
-    "lts",
-    "sru",
-    "srs",
-    "rrot",
-
-    "loadi",
-
-    "addi",
-    "andi",
-    "xori",
-    "ori",
-    "subi",
-    "eqi",
-    "neqi",
-    "ltui",
-    "ltsi",
-
-    "load",
-    "pop",
-
-    "store",
-    "push",
-
-    "if",
-    "ifr",
-    "jump",
-    "jumpr",
-    "call",
-    "ret",
-    "iret"};
-
 struct Mnemonic {
   std::string mnemonic;
   std::vector<std::string> arg;

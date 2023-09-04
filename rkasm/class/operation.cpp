@@ -29,57 +29,33 @@ uint16_t reg_stoi(std::string name) {
   return 0;
 }
 
-uint16_t alu_stoi(std::string s) {
-  if(s == "add" || s == "addi") return ALUCode::ADD;
-  if(s == "sub" || s == "subi") return ALUCode::SUB;
-  if(s == "and" || s == "andi") return ALUCode::AND;
-  if(s == "or" || s == "ori") return ALUCode::OR;
-  if(s == "xor" || s == "xori") return ALUCode::XOR;
-  if(s == "not") return ALUCode::NOT;
-  if(s == "srs") return ALUCode::SRS;
-  if(s == "sru") return ALUCode::SRU;
-  if(s == "sl") return ALUCode::SL;
-  if(s == "eq" || s == "eqi") return ALUCode::EQ;
-  if(s == "lts" || s == "ltsi") return ALUCode::LTS;
-  if(s == "ltu" || s == "ltui") return ALUCode::LTU;
-  // Pseudo Operation
-  if(s == "nop") return ALUCode::ADD;
-  if(s == "mov") return ALUCode::ADD;
-  if(s == "loadi") return ALUCode::ADD;
-  throw new std::string("This operation doesn't have ALUCode: " + s);
-  return 0;
+const Mnemonic& getMnemonic(std::string mnemonic) {
+  for(auto& format : isa)
+    if(format.mnemonic == mnemonic) return format;
+  throw new std::string("Invalid mnemonic" + mnemonic);
 }
 
-const Mnemonic* getMnemonic(std::string mnemonic) {
-  for(auto& format : isa) {
-    if(format.mnemonic == mnemonic) {
-      return &format;
-    }
-  }
-  return nullptr;
-}
+uint16_t alu_stoi(std::string s) { return getMnemonic(s).func; }
 
 Operation::Operation(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
 
-  const Mnemonic* info = getMnemonic(mnemonic);
-  if(info == nullptr)
-    throw new std::string("Invalid mnemonic" + mnemonic);
+  const Mnemonic info = getMnemonic(mnemonic);
 
-  const std::vector<std::string> arg;
-  if(str.size() - 1 != info->arg.size())
-    throw new std::string("Required " + std::to_string(info->arg.size()) + " Operand");
+  const std::vector<std::string> arg(str.begin() + 1, str.end());
+  if(arg.size() != info.arg.size())
+    throw new std::string("Required " + std::to_string(info.arg.size()) + " Operand");
 
   // Initiate with default value
   // TODO
 
   // Read arguments value
-  for(size_t i = 0; i < info->arg.size(); ++i) {
-    const std::string arg_type = info->arg.at(i);
-    if(arg_type == "rd") rd = str.at(i + 1);
-    if(arg_type == "rs1") rs1 = str.at(i + 1);
-    if(arg_type == "rs2") rs2 = str.at(i + 1);
-    if(arg_type == "imm") imm = Imm(str.at(i + 1));
+  for(size_t i = 0; i < info.arg.size(); ++i) {
+    const std::string arg_type = info.arg.at(i);
+    if(arg_type == "rd") rd = arg.at(i);
+    if(arg_type == "rs1") rs1 = arg.at(i);
+    if(arg_type == "rs2") rs2 = arg.at(i);
+    if(arg_type == "imm") imm = Imm(arg.at(i));
   }
 }
 
@@ -105,21 +81,16 @@ uint32_t Operation::getBin() {
 std::string Operation::print() {
   std::stringstream ss;
   ss << cprint(mnemonic, RED, 6);
-  if(is_calc(mnemonic))
-    ss << cprint(rd, BLUE, 6) << cprint(rs1, BLUE, 8) << cprint(rs2, BLUE, 8);
-  else if(is_calci(mnemonic))
-    ss << cprint(rd, BLUE, 6) << cprint(rs1, BLUE, 8) << imm.print();
-  else if(mnemonic == "load")
-    ss << cprint(rd, BLUE, 6) << cprint(rs1, BLUE, 8) << imm.print();
-  else if(mnemonic == "store")
-    ss << cprint(rs2, BLUE, 6) << cprint(rs1, BLUE, 8) << imm.print();
-  else if(mnemonic == "mov")
-    ss << cprint(rd, BLUE, 6) << "        " << cprint(rs1, BLUE, 8);
-  else if(mnemonic == "loadi" || mnemonic == "if")
-    ss << cprint(rd, BLUE, 6) << "        " << imm.print();
-  else if(mnemonic == "jump" || mnemonic == "call")
-    ss << "              " << imm.print();
-  else if(mnemonic == "nop")
-    ss << "";
+
+  const Mnemonic info = getMnemonic(mnemonic);
+
+  int reg_cnt = 0;
+  for(auto arg_type : info.arg) {
+    if(arg_type == "rd") ss << cprint(rd, BLUE, 8);
+    if(arg_type == "rs1") ss << cprint(rs1, BLUE, 8);
+    if(arg_type == "rs2") ss << cprint(rs2, BLUE, 8);
+    if(arg_type == "imm") ss << imm.print();
+  }
+
   return ss.str();
 }

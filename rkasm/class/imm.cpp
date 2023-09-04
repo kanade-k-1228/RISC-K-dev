@@ -17,7 +17,7 @@ Imm::Imm(std::string str) {
 std::string Imm::print() {
   if(type == Imm::LITERAL) return cprint(hex(true, value), YELLOW, 8);
   if(type == Imm::OPR_LAB_REF) return cprint(hex(true, value), GREEN, 8) + cprint(" = " + label, GREEN, 0);
-  if(type == Imm::VAR_LAB_REF) return cprint(hex(true, value), BLUE, 8) + cprint(" = " + label, BLUE, 0);
+  if(type == Imm::VAR_LAB_REF) return cprint(hex(true, value), CYAN, 8) + cprint(" = " + label, CYAN, 0);
   if(type == Imm::CONST_LAB_REF) return cprint(hex(true, value), YELLOW, 8) + cprint(" = " + label, YELLOW, 0);
   return "";
 }

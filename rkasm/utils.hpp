@@ -6,9 +6,11 @@
 
 enum Collor {
   RED = 31,
-  BLUE = 34,
   GREEN = 32,
   YELLOW = 33,
+  BLUE = 34,
+  MAGENTA = 35,
+  CYAN = 36,
 };
 
 std::string cprint(const std::string, Collor, int);
