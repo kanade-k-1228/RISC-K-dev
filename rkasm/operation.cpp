@@ -25,7 +25,7 @@ uint16_t reg_stoi(std::string name) {
   if(name == "s1") return Reg::s1;
   if(name == "s2") return Reg::s2;
   if(name == "s3") return Reg::s3;
-  error("Invalid Registor Name: " + name);
+  throw new std::string("Invalid Registor Name: " + name);
   return 0;
 }
 
@@ -46,56 +46,40 @@ uint16_t alu_stoi(std::string s) {
   if(s == "nop") return ALUCode::ADD;
   if(s == "mov") return ALUCode::ADD;
   if(s == "loadi") return ALUCode::ADD;
-  error("This operation doesn't have ALUCode: " + s);
+  throw new std::string("This operation doesn't have ALUCode: " + s);
   return 0;
+}
+
+const Mnemonic* getMnemonic(std::string mnemonic) {
+  for(auto& format : isa) {
+    if(format.mnemonic == mnemonic) {
+      return &format;
+    }
+  }
+  return nullptr;
 }
 
 Operation::Operation(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
-  if(is_calc(mnemonic)) {
-    if(str.size() != 4) error("Require 3 Operand");
-    rd = str.at(1), rs1 = str.at(2), rs2 = str.at(3);
-  } else if(mnemonic == "nop") {
-    rd = "zero", rs1 = "zero", rs2 = "zero";
-  } else if(mnemonic == "mov") {
-    if(str.size() != 3) error("Require 2 Operand");
-    rd = str.at(1), rs1 = str.at(2), rs2 = "zero";
-  } else if(is_calci(mnemonic)) {
-    if(str.size() != 4) error("Require 3 Operand");
-    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  } else if(mnemonic == "loadi") {
-    if(str.size() != 3) error("Require 2 Operand");
-    rd = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
-  } else if(mnemonic == "load") {
-    if(str.size() != 4) error("Require 3 Operand");
-    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  } else if(mnemonic == "pop") {
-    if(str.size() != 2) error("Require 1 Operand");
-    rd = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  } else if(mnemonic == "store") {
-    if(str.size() != 4) error("Require 3 Operand");
-    rs2 = str.at(1), rs1 = str.at(2), imm = Imm(str.at(3));
-  } else if(mnemonic == "if") {
-    if(str.size() != 3) error("Require 2 Operand");
-    rd = "zero", rs2 = str.at(1), rs1 = "zero", imm = Imm(str.at(2));
-  } else if(mnemonic == "ifr") {
-    if(str.size() != 3) error("Require 2 Operand");
-    rd = "zero", rs2 = str.at(1), rs1 = "pc", imm = Imm(str.at(2));
-  } else if(mnemonic == "jump") {
-    if(str.size() != 2) error("Require 1 Operand");
-    rd = "zero", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
-  } else if(mnemonic == "jumpr") {
-    if(str.size() != 2) error("Require 1 Operand");
-    rd = "zero", rs2 = "zero", rs1 = "pc", imm = Imm(str.at(1));
-  } else if(mnemonic == "call") {
-    if(str.size() != 2) error("Require 1 Operand");
-    rd = "ra", rs2 = "zero", rs1 = "zero", imm = Imm(str.at(1));
-  } else if(mnemonic == "ret") {
-    rd = "zero", rs2 = "zero", rs1 = "ra", imm = Imm("0");
-  } else if(mnemonic == "iret") {
-    rd = "zero", rs2 = "zero", rs1 = "ira", imm = Imm("0");
-  } else {
-    error("Unknown mnemonic");
+
+  const Mnemonic* info = getMnemonic(mnemonic);
+  if(info == nullptr)
+    throw new std::string("Invalid mnemonic" + mnemonic);
+
+  const std::vector<std::string> arg;
+  if(str.size() - 1 != info->arg.size())
+    throw new std::string("Required " + std::to_string(info->arg.size()) + " Operand");
+
+  // Initiate with default value
+  // TODO
+
+  // Read arguments value
+  for(size_t i = 0; i < info->arg.size(); ++i) {
+    const std::string arg_type = info->arg.at(i);
+    if(arg_type == "rd") rd = str.at(i + 1);
+    if(arg_type == "rs1") rs1 = str.at(i + 1);
+    if(arg_type == "rs2") rs2 = str.at(i + 1);
+    if(arg_type == "imm") imm = Imm(str.at(i + 1));
   }
 }
 

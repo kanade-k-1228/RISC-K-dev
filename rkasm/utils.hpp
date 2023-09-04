@@ -5,9 +5,6 @@
 
 extern std::tuple<std::string, int, std::string> error_notation;
 
-void error(std::string message);
-void warn(std::string message);
-
 enum Collor {
   RED = 31,
   BLUE = 34,

@@ -6,33 +6,6 @@
 
 std::tuple<std::string, int, std::string> error_notation;
 
-void error(std::string message) {
-  std::string file = std::get<0>(error_notation);
-  int line = std::get<1>(error_notation);
-  std::string code = std::get<2>(error_notation);
-  std::string place = file + ":" + std::to_string(line) + " | ";
-  std::cout
-      << "--------------------------------------------------" << std::endl
-      << place << code << std::endl
-      << std::string(place.length(), ' ') << std::string(code.length(), '~') << std::endl
-      << "\033[31m ERROR! \033[m " << message << std::endl
-      << "--------------------------------------------------" << std::endl;
-  exit(EXIT_FAILURE);
-}
-
-void warn(std::string message) {
-  std::string file = std::get<0>(error_notation);
-  int line = std::get<1>(error_notation);
-  std::string code = std::get<2>(error_notation);
-  std::string place = file + ":" + std::to_string(line) + " | ";
-  std::cout
-      << "--------------------------------------------------" << std::endl
-      << place << code << std::endl
-      << std::string(place.length(), ' ') << std::string(code.length(), '~') << std::endl
-      << "\033[33m WARN \033[m " << message << std::endl
-      << "--------------------------------------------------" << std::endl;
-}
-
 std::string cprint(const std::string str, Collor collor, int width) {
   std::ostringstream ss;
   ss << "\033[" << collor << "m" << std::setw(width) << str << "\033[m";

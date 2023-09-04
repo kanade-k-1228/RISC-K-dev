@@ -44,7 +44,10 @@ int main(int argc, char* argv[]) {
 
   // ファイルを開く
   std::ifstream fin(fname, std::ios::in);
-  if(!fin) error("Cannot open input file: " + fname);
+  if(!fin) {
+    std::cout << "Cannot open input file: " << fname << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   // 一行ずつスキャンし、命令リストに格納
   std::cout << " ... Parse" << std::endl;
@@ -52,30 +55,35 @@ int main(int argc, char* argv[]) {
   std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
-    error_notation = {fname, line_cnt, line};
-    Line stmt(fname, line_cnt, line, operation_cnt);  // 行を解釈
-    stmts.push_back(stmt);                            // 行を追加
-    if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
+    try {
+      error_notation = {fname, line_cnt, line};
+      Line stmt(fname, line_cnt, line, operation_cnt);  // 行を解釈
+      stmts.push_back(stmt);                            // 行を追加
+      if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
+    } catch(std::string* e) {
+      std::string place = fname + ":" + std::to_string(line_cnt);
+      std::cout << std::string(place.size(), ' ') << " | " << std::endl
+                << place << " | " << line << std::endl
+                << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << *e << std::endl;
+    }
   }
 
   // ラベルを集める
   std::cout << " ... Collect label" << std::endl;
   LabelTable labels;
   for(auto& stmt : stmts) {
-    error_notation = stmt.getError();
     if(stmt.isLabel()) labels.push_back(stmt.getLabel());
   }
 
   // ラベルの解決
   std::cout << " ... Resolute label" << std::endl;
   for(auto& stmt : stmts) {
-    error_notation = stmt.getError();
-    if(stmt.isOperation()) {
-      if(stmt.getOperation().imm.isLabRef()) {
+    try {
+      if(stmt.isOperation() && stmt.getOperation().imm.isLabRef()) {
         std::string lab = stmt.getOperation().imm.label;
         Label* labref = labels.get(lab);
         if(labref == nullptr) {
-          error("Cannot find def of label: " + lab);
+          throw new std::string("Cannot find def of label: " + lab);
         } else {
           if(labref->isOpr()) {
             stmt.getOperation().imm.value = labref->value;
@@ -89,13 +97,20 @@ int main(int argc, char* argv[]) {
           }
         }
       }
+    } catch(std::string* e) {
+      std::cout << *e << std::endl;
+    } catch(...) {
+      std::cout << "err" << std::endl;
     }
   }
 
   // コードを出力
   std::ofstream fout;
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
-  if(!fout) error("Can't open file: " + fname + ".bin");
+  if(!fout) {
+    std::cout << "Can't open file: " << fname << ".bin" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   for(auto& stmt : stmts) {
     error_notation = stmt.getError();
     if(stmt.isOperation()) {

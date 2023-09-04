@@ -3,6 +3,13 @@
 #include "utils.hpp"
 #include <regex>
 
+bool isMnemonic(std::string s) {
+  for(auto& code : isa) {
+    if(code.mnemonic == s) return true;
+  }
+  return false;
+}
+
 Line::Line(const std::string file, const int line_no, const std::string str, const uint16_t pc)
     : file(file), line(line_no), str(str) {
 
@@ -19,13 +26,14 @@ Line::Line(const std::string file, const int line_no, const std::string str, con
   // 行の分類
   if(this->splited.size() == 0) {
     this->type = VOID;
-  } else if(include(mnemonics, this->splited.at(0))) {
+  } else if(isMnemonic(this->splited.at(0))) {
     this->type = OPERATION;
     this->operation = Operation(pc, splited);
   } else if(this->splited.at(0).front() == '@' || this->splited.at(0).front() == '#' || this->splited.at(0).back() == ':') {
     type = LABEL;  // ラベル定義
     label_def = Label(pc, splited);
   } else {
-    error("Undefined statement");
+    throw new std::string("Undefined statement");
+    return;
   }
 }
