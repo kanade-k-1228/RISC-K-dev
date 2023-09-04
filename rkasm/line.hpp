@@ -28,4 +28,5 @@ public:
   Operation& getOperation() { return operation; }
   Label& getLabel() { return label_def; }
   std::tuple<std::string, int, std::string> getError() { return {file, line, str}; }
+  std::string getStr() { return str; }
 };

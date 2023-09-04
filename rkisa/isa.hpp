@@ -162,9 +162,10 @@ const std::vector<Mnemonic> isa = {
     {"store", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD},
     {"push", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD},
 
-    {"if", {"rd", "rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"ifr", {"rd", "rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"jump", {"rd", "rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"jumpr", {"rd", "rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
+    {"if", {"rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
+    {"ifr", {"rs1 ", " imm "}, OPCode::ctrl, ALUCode::ADD},
+    {"jump", {"imm"}, OPCode::ctrl, ALUCode::ADD},
+    {"jumpr", {"imm"}, OPCode::ctrl, ALUCode::ADD},
+    {"call", {"imm"}, OPCode::ctrl, ALUCode::ADD},
     {"ret", {}, OPCode::ctrl, ALUCode::ADD},
     {"iret", {}, OPCode::ctrl, ALUCode::ADD}};

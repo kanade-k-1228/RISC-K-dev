@@ -79,28 +79,28 @@ int main(int argc, char* argv[]) {
   std::cout << " ... Resolute label" << std::endl;
   for(auto& stmt : stmts) {
     try {
-      if(stmt.isOperation() && stmt.getOperation().imm.isLabRef()) {
-        std::string lab = stmt.getOperation().imm.label;
-        Label* labref = labels.get(lab);
-        if(labref == nullptr) {
-          throw new std::string("Cannot find def of label: " + lab);
-        } else {
-          if(labref->isOpr()) {
-            stmt.getOperation().imm.value = labref->value;
-            stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
-          } else if(labref->isVar()) {
-            stmt.getOperation().imm.value = labref->value;
-            stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
-          } else if(labref->isConst()) {
-            stmt.getOperation().imm.value = labref->value;
-            stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
+      if(stmt.isOperation()) {
+        if(stmt.getOperation().imm.isLabRef()) {
+          std::string lab = stmt.getOperation().imm.label;
+          Label* labref = labels.get(lab);
+          if(labref == nullptr) {
+            throw new std::string("Cannot find def of label: " + lab);
+          } else {
+            if(labref->isOpr()) {
+              stmt.getOperation().imm.value = labref->value;
+              stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
+            } else if(labref->isVar()) {
+              stmt.getOperation().imm.value = labref->value;
+              stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
+            } else if(labref->isConst()) {
+              stmt.getOperation().imm.value = labref->value;
+              stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
+            }
           }
         }
       }
     } catch(std::string* e) {
       std::cout << *e << std::endl;
-    } catch(...) {
-      std::cout << "err" << std::endl;
     }
   }
 
