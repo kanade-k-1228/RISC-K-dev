@@ -1,6 +1,7 @@
 #include "line.hpp"
 #include "../../rkisa/isa.hpp"
 #include "../utils.hpp"
+#include <iomanip>
 #include <regex>
 #include <sstream>
 
@@ -31,4 +32,14 @@ Line::Line(const std::string file, const int line_no, const std::string str, con
   } else {
     throw new std::string("Undefined statement");
   }
+}
+
+std::string Line::print() {
+  std::stringstream ss;
+  ss << std::setw(4) << line << " | ";
+  if(isOperation()) ss << operation.print();
+  if(isLabel()) ss << "     |           | " << label.print();
+  if(isVoid()) ss << "     |           | ";
+  ss << magenta(comment);
+  return ss.str();
 }

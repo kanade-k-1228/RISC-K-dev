@@ -24,6 +24,7 @@ class Line {
   Label label;          // ラベル文
 public:
   Line(const std::string file, const int line_no, const std::string str, const uint16_t pc);
+  bool isVoid() { return type == Type::VOID; }
   bool isOperation() { return type == Type::OPERATION; }
   bool isLabel() { return type == Type::LABEL; }
   Operation& getOperation() {
@@ -36,5 +37,6 @@ public:
       throw new std::string("This line is not Label");
     return label;
   }
+  std::string print();
   std::string printError(std::string msg) { return print_error(file, line, str, msg); }
 };

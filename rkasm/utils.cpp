@@ -4,27 +4,33 @@
 #include <regex>
 #include <sstream>
 
-std::string cprint(const std::string str, Collor collor, int width) {
-  std::ostringstream ss;
-  ss << "\033[" << collor << "m" << std::setw(width) << str << "\033[m";
+std::string red(const std::string str) { return "\e[31m" + str + "\e[m"; };
+std::string green(const std::string str) { return "\e[32m" + str + "\e[m"; };
+std::string yellow(const std::string str) { return "\e[33m" + str + "\e[m"; };
+std::string blue(const std::string str) { return "\e[34m" + str + "\e[m"; };
+std::string magenta(const std::string str) { return "\e[35m" + str + "\e[m"; };
+std::string cyan(const std::string str) { return "\e[36m" + str + "\e[m"; };
+
+std::string right(const std::string str, int spacing) {
+  std::stringstream ss;
+  ss << std::setw(spacing) << str;
   return ss.str();
 }
 
-std::string hex(bool prefix, const uint16_t n) {
+std::string hex(const uint16_t n) {
   std::ostringstream ss;
   ss.setf(std::ios::hex, std::ios::basefield);
   const char fill_save = ss.fill('0');
-  ss << (prefix ? "0x" : "") << std::setw(4) << n;
+  ss << std::setw(4) << n;
   ss.fill(fill_save);
   return ss.str();
 }
 
-std::string hex(bool prefix, const uint32_t n) {
+std::string hex(const uint32_t n) {
   std::ostringstream ss;
   ss.setf(std::ios::hex, std::ios::basefield);
   const char fill_save = ss.fill('0');
-  ss << (prefix ? "0x" : "")
-     << std::setw(4) << ((n >> 16) & 0xffff)
+  ss << std::setw(4) << ((n >> 16) & 0xffff)
      << "_" << std::setw(4) << (n & 0xffff);
   return ss.str();
 }
@@ -39,20 +45,6 @@ std::vector<std::string> split(const std::string& str, const char sep) {
     v.push_back(buffer);
   }
   return v;
-}
-
-bool include(std::vector<std::string> list, std::string find) {
-  return std::find(list.begin(), list.end(), find) != list.end();
-}
-
-template <typename T>
-T* find(std::vector<T> vec, std::function<bool(T)> cond) {
-  for(auto& item : vec) {
-    if(cond(item)) {
-      return &item;
-    }
-  }
-  return nullptr;
 }
 
 std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg) {

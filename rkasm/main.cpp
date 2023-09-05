@@ -104,32 +104,8 @@ int main(int argc, char* argv[]) {
   }
   std::cout << "--------------------------------------------------" << std::endl;
 
-  // ラベルの一覧表示
-  if(opt_c) {
-    for(auto lab : labels) {
-      if(lab.isConst()) {
-        std::cout << lab.print() << std::endl;
-      }
-    }
-    std::cout << "--------------------------------------------------" << std::endl;
-  }
-  if(opt_v) {
-    for(auto lab : labels)
-      if(lab.isVar()) std::cout << lab.print() << std::endl;
-    std::cout << "--------------------------------------------------" << std::endl;
-  }
-
   // アセンブラを表示
-  for(auto stmt : stmts) {
-    if(stmt.isLabel() && stmt.getLabel().isOpr()) {
-      std::cout << stmt.getLabel().print() << std::endl;
-    }
-    if(stmt.isOperation()) {
-      std::cout << hex(true, stmt.getOperation().address)
-                << " | " << hex(true, stmt.getOperation().getBin())
-                << " |" << stmt.getOperation().print() << std::endl;
-    }
-  }
+  for(auto stmt : stmts) std::cout << stmt.print() << std::endl;
   std::cout << "--------------------------------------------------" << std::endl;
 
   return EXIT_SUCCESS;

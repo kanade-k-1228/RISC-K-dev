@@ -50,7 +50,7 @@ uint32_t Operation::getBin() {
     if(arg_type == "rs1") slot.at(1) = reg_stoi(rs1);
     if(arg_type == "rs2") slot.at(2) = reg_stoi(rs2);
     if(arg_type == "rd") slot.at(3) = reg_stoi(rd);
-    if(arg_type == "imm") slot.at(4) = imm.value;
+    if(arg_type == "imm") slot.at(4) = imm.getValue();
   }
   return (slot.at(0) & 0x0F)
          | ((slot.at(1) & 0x0F) << 4)
@@ -61,12 +61,13 @@ uint32_t Operation::getBin() {
 
 std::string Operation::print() {
   std::stringstream ss;
-  ss << cprint(mnemonic, RED, 6);
+  ss << hex(address) << " | " << hex(getBin()) << " | ";
+  ss << red(right(mnemonic, 6));
   for(auto arg_type : format.operand) {
-    if(arg_type == "rd") ss << cprint(rd, BLUE, 8);
-    if(arg_type == "rs1") ss << cprint(rs1, BLUE, 8);
-    if(arg_type == "rs2") ss << cprint(rs2, BLUE, 8);
-    if(arg_type == "imm") ss << imm.print();
+    if(arg_type == "rd") ss << blue(right(rd, 6));
+    if(arg_type == "rs1") ss << blue(right(rs1, 6));
+    if(arg_type == "rs2") ss << blue(right(rs2, 6));
+    if(arg_type == "imm") ss << "  " << imm.print();
   }
   return ss.str();
 }
@@ -82,7 +83,7 @@ Label& findLabel(std::vector<Label> vec, std::string name) {
 
 void Operation::resoluteLabel(std::vector<Label> labels) {
   if(imm.isLabRef()) {
-    Label labref = findLabel(labels, imm.label);
+    Label labref = findLabel(labels, imm.getLabel());
 
     if(labref.isOpr()) {
       imm.resoluteAsOpr(labref.getValue());

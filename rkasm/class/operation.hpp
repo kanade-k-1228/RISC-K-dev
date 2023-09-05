@@ -3,13 +3,14 @@
 #include "imm.hpp"
 #include "label.hpp"
 
-struct Operation {
+class Operation {
   uint16_t address;
   std::string mnemonic;
   std::vector<std::string> operand;
   std::string func, rs1, rs2, rd;
   Imm imm;
   Format format;
+public:
   Operation(){};
   Operation(const uint16_t address, const std::vector<std::string> str);
   uint32_t getBin();

@@ -4,25 +4,18 @@
 #include <tuple>
 #include <vector>
 
-enum Collor {
-  RED = 31,
-  GREEN = 32,
-  YELLOW = 33,
-  BLUE = 34,
-  MAGENTA = 35,
-  CYAN = 36,
-};
+std::string red(const std::string str);
+std::string green(const std::string str);
+std::string yellow(const std::string str);
+std::string blue(const std::string str);
+std::string magenta(const std::string str);
+std::string cyan(const std::string str);
 
-std::string cprint(const std::string, Collor, int);
+std::string right(const std::string str, int spacing);
 
-std::string hex(bool, const uint16_t);
-std::string hex(bool, const uint32_t);
+std::string hex(const uint16_t);
+std::string hex(const uint32_t);
 
 std::vector<std::string> split(const std::string&, const char);
-
-bool include(std::vector<std::string>, std::string);
-
-template <typename T>
-T* find(std::vector<T>, std::function<bool(T)>);
 
 std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg);
