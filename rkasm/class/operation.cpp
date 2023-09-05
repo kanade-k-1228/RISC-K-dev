@@ -26,7 +26,7 @@ uint16_t reg_stoi(std::string name) {
 }
 
 Operation::Operation(const uint16_t address, const std::vector<std::string> str)
-    : address(address), mnemonic(str.at(0)), rd("zero"), rs1("zero"), rs2("zero") {
+    : address(address), mnemonic(str.at(0)), rs1("zero"), rs2("zero"), rd("zero") {
 
   format = getFormat(mnemonic);
 
@@ -75,18 +75,14 @@ std::string Operation::print() {
 }
 
 Label& findLabel(std::vector<Label> vec, std::string name) {
-  for(auto& label : vec) {
-    if(label.is(name)) {
-      return label;
-    }
-  }
+  for(auto& label : vec)
+    if(label.is(name)) return label;
   throw new std::string("Undefined label: " + name);
 }
 
 void Operation::resoluteLabel(std::vector<Label> labels) {
   if(imm.isLabRef()) {
     Label labref = findLabel(labels, imm.getLabel());
-
     if(labref.isOpr()) {
       imm.resoluteAsOpr(labref.getValue());
     } else if(labref.isVar()) {

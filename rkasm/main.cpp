@@ -15,17 +15,12 @@ std::string man
       "FILE: asembly file     アセンブリファイル";
 
 int main(int argc, char* argv[]) {
-  bool opt_w = false;
-  bool opt_c = false;
-  bool opt_v = false;
 
   bool error = false;
 
   // コマンドライン引数の処理
   opterr = 0;
   for(int opt; (opt = getopt(argc, argv, "cv")) != -1;) {
-    if(opt == 'c') opt_c = true;
-    if(opt == 'v') opt_v = true;
     if(opt == '?') {
       std::cout << man << std::endl;
       return EXIT_FAILURE;

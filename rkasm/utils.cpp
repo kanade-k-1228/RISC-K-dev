@@ -32,6 +32,7 @@ std::string hex(const uint32_t n) {
   const char fill_save = ss.fill('0');
   ss << std::setw(4) << ((n >> 16) & 0xffff)
      << "_" << std::setw(4) << (n & 0xffff);
+  ss.fill(fill_save);
   return ss.str();
 }
 

@@ -25,8 +25,8 @@ Label::Label(const uint16_t address, const std::vector<std::string> str) {
 
 std::string Label::print() {
   std::stringstream ss;
-  if(isConst()) ss << yellow(hex(value)) << " = " << yellow(name);
-  if(isVar()) ss << blue(hex(value)) << " = " << blue(name);
+  if(isConst()) ss << yellow(hex(value) + " = " + name);
+  if(isVar()) ss << blue(hex(value) + " = " + name);
   if(isOpr()) ss << green(name + ":");
   return ss.str();
 }
