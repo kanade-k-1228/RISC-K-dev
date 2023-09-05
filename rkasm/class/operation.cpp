@@ -44,7 +44,7 @@ Operation::Operation(const uint16_t address, const std::vector<std::string> str)
   }
 }
 
-uint32_t Operation::getBin() {
+void Operation::genBin() {
   std::array<int, 5> slot = format.binary;
   for(auto arg_type : format.operand) {
     if(arg_type == "rs1") slot.at(1) = reg_stoi(rs1);
@@ -52,11 +52,11 @@ uint32_t Operation::getBin() {
     if(arg_type == "rd") slot.at(3) = reg_stoi(rd);
     if(arg_type == "imm") slot.at(4) = imm.getValue();
   }
-  return (slot.at(0) & 0x0F)
-         | ((slot.at(1) & 0x0F) << 4)
-         | ((slot.at(2) & 0x0F) << 8)
-         | ((slot.at(3) & 0x0F) << 12)
-         | ((slot.at(4) & 0xFFFF) << 16);
+  bin = (slot.at(0) & 0x0F)
+        | ((slot.at(1) & 0x0F) << 4)
+        | ((slot.at(2) & 0x0F) << 8)
+        | ((slot.at(3) & 0x0F) << 12)
+        | ((slot.at(4) & 0xFFFF) << 16);
 }
 
 std::string Operation::print() {

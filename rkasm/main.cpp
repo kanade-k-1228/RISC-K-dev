@@ -9,18 +9,22 @@
 #include <vector>
 
 std::string man
-    = "rkasm [-w] [-c] [-v] .rkasm\n"
-      "  -c: print Const list 定数リストを表示\n"
-      "  -v: print Var list   変数リストを表示\n"
-      "FILE: asembly file     アセンブリファイル";
+    = "rkasm [-o] .rkasm\n"
+      "  -o: output file\n"
+      "FILE: asembly file";
 
 int main(int argc, char* argv[]) {
 
+  // エラー検出
   bool error = false;
 
   // コマンドライン引数の処理
+  std::string o_arg;
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "cv")) != -1;) {
+  for(int opt; (opt = getopt(argc, argv, "o:")) != -1;) {
+    if(opt == 'o') {
+      o_arg = optarg;
+    }
     if(opt == '?') {
       std::cout << man << std::endl;
       return EXIT_FAILURE;
@@ -30,15 +34,16 @@ int main(int argc, char* argv[]) {
     std::cout << man << std::endl;
     return EXIT_FAILURE;
   }
-  std::string fname = argv[optind];
+  std::string input_file = argv[optind];
+  std::string output_file = (o_arg == "") ? (input_file + ".bin") : o_arg;
   std::cout << "--------------------------------------------------" << std::endl
-            << "Assemble: " << fname << std::endl;
+            << "Assemble: " << input_file << std::endl;
 
   // ファイルを開く
-  std::ifstream fin(fname, std::ios::in);
+  std::ifstream fin(input_file, std::ios::in);
   if(!fin) {
-    std::cout << "Cannot open input file: " << fname << std::endl;
-    exit(EXIT_FAILURE);
+    std::cout << "Cannot open input file: " << input_file << std::endl;
+    return EXIT_FAILURE;
   }
 
   // 一行ずつスキャンし、命令リストに格納
@@ -48,11 +53,11 @@ int main(int argc, char* argv[]) {
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
   for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
     try {
-      Line stmt(fname, line_cnt, line, operation_cnt);  // 行を解釈
-      stmts.push_back(stmt);                            // 行を追加
-      if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
+      Line stmt(input_file, line_cnt, line, operation_cnt);  // 行を解釈
+      stmts.push_back(stmt);                                 // 行を追加
+      if(stmt.isOperation()) ++operation_cnt;                // 命令行の場合、PCのカウントアップ
     } catch(std::string* msg) {
-      std::cout << print_error(fname, line_cnt, line, *msg);
+      std::cout << print_error(input_file, line_cnt, line, *msg);
       error = true;
     }
   }
@@ -77,19 +82,31 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  // バイナリを生成
+  std::cout << " 4. Generate binary" << std::endl;
+  for(auto& stmt : stmts) {
+    try {
+      if(stmt.isOperation()) {
+        stmt.getOperation().genBin();
+      }
+    } catch(std::string* msg) {
+      std::cout << stmt.printError(*msg);
+      error = true;
+    }
+  }
+
+  // エラーが見つかったらコードを吐かない
   if(error) {
     std::cout << "--------------------------------------------------" << std::endl;
-    exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   // コードを出力
-  std::cout
-      << " 4. Generate binary : " << fname + ".bin" << std::endl;
-  std::ofstream fout;
-  fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
+  std::cout << " 5. Output file : " << output_file << std::endl;
+  std::ofstream fout(output_file, std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) {
-    std::cout << "Can't open file: " << fname << ".bin" << std::endl;
-    exit(EXIT_FAILURE);
+    std::cout << "Can't open file: " << output_file << std::endl;
+    return EXIT_FAILURE;
   }
   for(auto& stmt : stmts) {
     if(stmt.isOperation()) {

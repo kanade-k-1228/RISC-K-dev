@@ -10,10 +10,12 @@ class Operation {
   std::string func, rs1, rs2, rd;
   Imm imm;
   Format format;
+  uint32_t bin;
 public:
   Operation(){};
   Operation(const uint16_t address, const std::vector<std::string> str);
-  uint32_t getBin();
+  void genBin();
+  uint32_t getBin() { return bin; }
   std::string print();
   void resoluteLabel(std::vector<Label> labels);
 };
