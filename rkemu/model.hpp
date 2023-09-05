@@ -1,5 +1,5 @@
 #pragma once
-#include "isa.hpp"
+#include "../rkisa/isa.hpp"
 #include <array>
 #include <fstream>
 #include <string>
@@ -7,7 +7,7 @@
 struct OPDecoder {
   uint16_t opc, func, rs1, rs2, rd, imm;
   OPDecoder(uint32_t code) {
-    opc = (code)&0x000F;
+    opc = (code) & 0x000F;
     func = opc == OPCode::calc    ? (code >> 16) & 0x000F
            : opc == OPCode::calci ? (code >> 8) & 0x000F
                                   : 0;
@@ -23,7 +23,7 @@ class RAM {
 public:
   RAM() : mem{0} {}
   bool set(uint16_t addr, uint16_t value) {
-    // Read Only
+    // Read Only Address
     if(addr == Reg::zero || addr == Reg::pc || addr == Reg::ira) {
       return false;
     } else {
@@ -35,6 +35,8 @@ public:
   void set_pc(uint16_t value) { mem.at(Reg::pc) = value; }
   void inc_pc() { mem.at(Reg::pc) += 1; }
   void set_ira() { mem.at(Reg::ira) = mem.at(Reg::pc); }
+  void pop(uint16_t reg) { mem.at(reg) = mem.at(++mem.at(Reg::sp)); }
+  void push(uint16_t reg) { mem.at(mem.at(Reg::sp)--) = mem.at(reg); }
 };
 
 class CPU {
@@ -42,43 +44,22 @@ public:
   RAM ram;
   std::array<uint32_t, 0x10000> rom;
   std::string fname;
-  bool intr_latch[4] = {false};
+  bool irq_latch[4] = {false};
 
   CPU();
 
-  void load_rom(std::string);
+  void load_rom_file(std::string);
 
-  bool cstop();
+  bool is_shutdowned() { return ram.get(CSR::power); }
   int serial();
 
-  void external_interrupt(int);
+  void external_irq(int);
   void catch_interrupt();
   void jump_interrupt();
 
   void execute(uint32_t);
-
-  void add(uint16_t, uint16_t, uint16_t);
-  void addi(uint16_t, uint16_t, uint16_t);
-  void sub(uint16_t, uint16_t, uint16_t);
-  void subi(uint16_t, uint16_t, uint16_t);
-  void land(uint16_t, uint16_t, uint16_t);
-  void landi(uint16_t, uint16_t, uint16_t);
-  void lor(uint16_t, uint16_t, uint16_t);
-  void lori(uint16_t, uint16_t, uint16_t);
-  void lxor(uint16_t, uint16_t, uint16_t);
-  void lxori(uint16_t, uint16_t, uint16_t);
-  void lnot(uint16_t, uint16_t);
-  void srs(uint16_t, uint16_t);
-  void sru(uint16_t, uint16_t);
-  void sl(uint16_t, uint16_t);
-  void eq(uint16_t, uint16_t, uint16_t);
-  void eqi(uint16_t, uint16_t, uint16_t);
-  void lts(uint16_t, uint16_t, uint16_t);
-  void ltsi(uint16_t, uint16_t, uint16_t);
-  void ltu(uint16_t, uint16_t, uint16_t);
-  void ltui(uint16_t, uint16_t, uint16_t);
-  void lcast(uint16_t, uint16_t);
-
+  void calc(uint8_t alu_func, uint16_t rd, uint16_t rs1, uint16_t rs2);
+  void calci(uint8_t alu_func, uint16_t rd, uint16_t rs1, uint16_t imm);
   void load(uint16_t, uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);
   void ctrl(uint16_t, uint16_t, uint16_t, uint16_t);

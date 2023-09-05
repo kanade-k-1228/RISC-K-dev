@@ -1,6 +1,5 @@
-#include "cpu.hpp"
 #include "debug.hpp"
-#include "isa.hpp"
+#include "model.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <iostream>
@@ -47,7 +46,8 @@ int main(int argc, char* argv[]) {
     std::cout << man << std::endl;
     return EXIT_FAILURE;
   }
-  cpu.load_rom(argv[optind]);
+  cpu.load_rom_file(argv[optind]);
+
   // Print Emulation Conditions
   std::cout << "+----------------------------------------+" << std::endl
             << "|                                        |\r"
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     // Execute
     cpu.execute(code);
     int sout = cpu.serial();
-    bool exit = cpu.cstop();
+    bool exit = cpu.is_shutdowned();
 
     // Print Operation
     if(print_opr || dump_all || dump_points.is_dump(pc))
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     cpu.jump_interrupt();
     cpu.catch_interrupt();
     if(intr_points.is_intr(t))
-      cpu.external_interrupt(intr_points.at(t).ino);
+      cpu.external_irq(intr_points.at(t).ino);
 
     // Goto Next Operation
     if(step_by_step) {
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
           std::cout << "Interrupt No ? ";
           std::cin >> cmd;
           int intr_no = cmd - '0';
-          cpu.external_interrupt(intr_no);
+          cpu.external_irq(intr_no);
         }
       }
     }

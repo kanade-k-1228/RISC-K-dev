@@ -1,5 +1,6 @@
 #include "debug.hpp"
-#include "isa.hpp"
+#include "../rkisa/isa.hpp"
+#include "model.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <regex>
@@ -90,7 +91,7 @@ std::string Debug::print_code(uint32_t code) {
     if(op.func == ALUCode::LTU) return cprint("ltui", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
     return "Unknown FuncCode" + hex(true, op.func);
   }
-  if(op.opc == OPCode::load) return cprint("load", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
+  if(op.opc == OPCode::get) return cprint("get", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   if(op.opc == OPCode::store) return cprint("store", RED, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   if(op.opc == OPCode::ctrl) return cprint("ctrl", RED, 6) + cprint(hex(false, op.rd), BLUE, 6) + cprint(hex(false, op.rs2), BLUE, 6) + cprint(hex(false, op.rs1), BLUE, 6) + cprint(hex(false, op.imm), YELLOW, 6);
   return "Unknown Opecode" + hex(true, op.opc);

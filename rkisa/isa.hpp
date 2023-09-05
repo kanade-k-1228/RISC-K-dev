@@ -48,21 +48,23 @@ const uint8_t s2 = 0xE;
 const uint8_t s3 = 0xF;
 }  // namespace Reg
 
-namespace CSRBit {
-const uint16_t IEN = 0b0000'0000'0001;
-const uint16_t INTR = 0b0000'0000'0010;
-const uint16_t INTR0 = 0b0000'0000'0100;
-const uint16_t INTR1 = 0b0000'0000'1000;
-const uint16_t INTR2 = 0b0000'0001'0000;
-const uint16_t INTR3 = 0b0000'0010'0000;
-const uint16_t SRCV = 0b0000'0100'0000;
-const uint16_t SSEND = 0b0000'1000'0000;
-const uint16_t CSTOP = 0b0001'0000'0000;
-}  // namespace CSRBit
-
 namespace Addr {
 const uint16_t PC_INTR = 0x0001;
 }
+
+namespace CSR {
+const uint16_t power = 0x0020;
+const uint16_t irq_en = 0x0021;
+const uint16_t irq_0 = 0x0022;
+const uint16_t irq_1 = 0x0023;
+const uint16_t irq_2 = 0x0024;
+const uint16_t irq_3 = 0x0025;
+}  // namespace CSR
+
+namespace Serial {
+const uint16_t tx = 0x0020;
+const uint16_t rx = 0x0021;
+}  // namespace Serial
 
 const std::vector<std::string> mnemonics_calc = {"add", "not", "sl", "lrot", "and", "xor", "or", "sub", "eq", "neq", "ltu", "lts", "sru", "srs", "rrot"};
 const std::vector<std::string> mnemonics_calci = {"addi", "andi", "xori", "ori", "subi", "eqi", "neqi", "ltui", "ltsi"};
@@ -126,3 +128,5 @@ const std::vector<Format> isa = {
 
 const Format& getFormat(std::string mnemonic);
 bool is_mnemonic(std::string str);
+
+uint16_t alu(uint8_t code, uint16_t a, uint16_t b);

@@ -1,5 +1,5 @@
 #pragma once
-#include "cpu.hpp"
+#include "model.hpp"
 #include <array>
 #include <map>
 #include <set>
