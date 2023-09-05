@@ -94,3 +94,29 @@ std::string Operation::print() {
 
   return ss.str();
 }
+
+Label* find_label(std::vector<Label> vec, std::string name) {
+  for(auto& label : vec) {
+    if(label.is(name)) {
+      return &label;
+    }
+  }
+  return nullptr;
+}
+
+void Operation::resoluteLabel(std::vector<Label> labels) {
+  if(imm.isLabRef()) {
+    Label* labref = find_label(labels, imm.label);
+
+    if(labref == nullptr)
+      throw new std::string("Undefined label: " + imm.label);
+
+    if(labref->isOpr()) {
+      imm.resoluteAsOpr(labref->getValue());
+    } else if(labref->isVar()) {
+      imm.resoluteAsVar(labref->getValue());
+    } else if(labref->isConst()) {
+      imm.resoluteAsConst(labref->getValue());
+    }
+  }
+}

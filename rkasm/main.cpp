@@ -8,8 +8,6 @@
 #include <unistd.h>
 #include <vector>
 
-Label* find_label(std::vector<Label> vec, std::string name);
-
 void print_error(std::string fname, int line_cnt, std::string line, std::string msg) {
   std::string place = fname + ":" + std::to_string(line_cnt);
   std::cout << std::string(place.size(), ' ') << " | " << std::endl
@@ -28,6 +26,8 @@ int main(int argc, char* argv[]) {
   bool opt_w = false;
   bool opt_c = false;
   bool opt_v = false;
+
+  bool error = false;
 
   // コマンドライン引数の処理
   opterr = 0;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   }
 
   // 一行ずつスキャンし、命令リストに格納
-  std::cout << " ... Parse" << std::endl;
+  std::cout << " 1. Parse" << std::endl;
   std::string line;
   std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
@@ -67,44 +67,31 @@ int main(int argc, char* argv[]) {
       if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
     } catch(std::string* msg) {
       print_error(fname, line_cnt, line, *msg);
+      error = true;
     }
   }
+  if(error) exit(EXIT_FAILURE);
 
   // ラベルを集める
-  std::cout << " ... Collect label" << std::endl;
+  std::cout << " 2. Collect label" << std::endl;
   std::vector<Label> labels;
   for(auto& stmt : stmts) {
     if(stmt.isLabel()) labels.push_back(stmt.getLabel());
   }
 
   // ラベルの解決
-  std::cout << " ... Resolute label" << std::endl;
+  std::cout << " 3. Resolute label" << std::endl;
   for(auto& stmt : stmts) {
     try {
       if(stmt.isOperation()) {
-        if(stmt.getOperation().imm.isLabRef()) {
-          std::string lab = stmt.getOperation().imm.label;
-          Label* labref = find_label(labels, lab);
-          if(labref == nullptr) {
-            throw new std::string("Undefined label: " + lab);
-          } else {
-            if(labref->isOpr()) {
-              stmt.getOperation().imm.value = labref->value;
-              stmt.getOperation().imm.type = Imm::OPR_LAB_REF;
-            } else if(labref->isVar()) {
-              stmt.getOperation().imm.value = labref->value;
-              stmt.getOperation().imm.type = Imm::VAR_LAB_REF;
-            } else if(labref->isConst()) {
-              stmt.getOperation().imm.value = labref->value;
-              stmt.getOperation().imm.type = Imm::CONST_LAB_REF;
-            }
-          }
-        }
+        stmt.getOperation().resoluteLabel(labels);
       }
     } catch(std::string* msg) {
-      print_error(fname, 0, "hoge", *msg);
+      print_error(fname, 0, "", *msg);
+      error = true;
     }
   }
+  if(error) exit(EXIT_FAILURE);
 
   // コードを出力
   std::ofstream fout;
@@ -127,24 +114,21 @@ int main(int argc, char* argv[]) {
   if(opt_c) {
     for(auto lab : labels) {
       if(lab.isConst()) {
-        std::cout << cprint(hex(true, lab.value), YELLOW, 0) << " == " << lab.name << std::endl;
+        std::cout << lab.print() << std::endl;
       }
     }
     std::cout << "--------------------------------------------------" << std::endl;
   }
   if(opt_v) {
-    for(auto lab : labels) {
-      if(lab.isVar()) {
-        std::cout << cprint(hex(true, lab.value), BLUE, 0) << " <- " << lab.name << std::endl;
-      }
-    }
+    for(auto lab : labels)
+      if(lab.isVar()) std::cout << lab.print() << std::endl;
     std::cout << "--------------------------------------------------" << std::endl;
   }
 
   // アセンブラを表示
   for(auto stmt : stmts) {
     if(stmt.isLabel() && stmt.getLabel().isOpr()) {
-      std::cout << cprint(hex(true, stmt.getLabel().value), GREEN, 0) << cprint(": " + stmt.getLabel().name, GREEN, 0) << std::endl;
+      std::cout << stmt.getLabel().print() << std::endl;
     }
     if(stmt.isOperation()) {
       std::cout << hex(true, stmt.getOperation().address)
@@ -153,13 +137,4 @@ int main(int argc, char* argv[]) {
     }
   }
   return EXIT_SUCCESS;
-}
-
-Label* find_label(std::vector<Label> vec, std::string name) {
-  for(auto& item : vec) {
-    if(item.name == name) {
-      return &item;
-    }
-  }
-  return nullptr;
 }

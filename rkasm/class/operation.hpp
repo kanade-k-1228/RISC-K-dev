@@ -12,4 +12,5 @@ struct Operation {
   Operation(const uint16_t address, const std::vector<std::string> str);
   uint32_t getBin();
   std::string print();
+  void resoluteLabel(std::vector<Label> labels);
 };
