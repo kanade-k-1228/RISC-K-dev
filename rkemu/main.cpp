@@ -74,8 +74,8 @@ int main(int argc, char* argv[]) {
 
     // Print Operation
     if(print_opr || dump_all || dump_points.is_dump(pc))
-      std::cout << "[" << hex(false, (uint16_t)t) << "]  "
-                << cprint(hex(false, pc), GREEN, 0)
+      std::cout << "[" << hex((uint16_t)t) << "]  "
+                << green(hex(pc))
                 << Debug::print_code(code)
                 << ((sout != -1) ? " > " + esc_char((char)sout) : "")
                 << std::endl;

@@ -6,6 +6,15 @@ const Format& getFormat(std::string mnemonic) {
   throw new std::string("Invalid mnemonic" + mnemonic);
 }
 
+uint8_t get_opcode(uint32_t bin) { return bin & 0xf; }
+
+const Format& getFormat(uint32_t bin) {
+  Decoder decoded(bin);
+  for(auto& itr : isa)
+    if(itr.opc == decoded.opc) return itr;
+  throw new std::string("Invalid opecode: " + std::to_string(decoded.opc));
+}
+
 bool is_mnemonic(std::string str) {
   for(auto& code : isa)
     if(code.mnemonic == str) return true;

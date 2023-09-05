@@ -13,7 +13,7 @@ CPU::CPU() : rom{0} {}
 void CPU::load_rom_file(std::string fname) {
   this->fname = fname;
   std::ifstream f(fname);
-  if(!f) error("Cant Open File: " + fname);
+  if(!f) throw new std::string("Cant Open File: " + fname);
   uint32_t buf;
   for(int op_cnt = 0; !f.eof(); op_cnt++) {
     f.read((char*)&buf, sizeof(uint32_t));

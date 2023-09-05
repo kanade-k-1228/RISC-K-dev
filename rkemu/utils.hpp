@@ -1,20 +1,21 @@
 #pragma once
+#include <functional>
 #include <string>
+#include <tuple>
 #include <vector>
 
-void error(std::string message);
-void warn(std::string message);
+std::string red(const std::string str);
+std::string green(const std::string str);
+std::string yellow(const std::string str);
+std::string blue(const std::string str);
+std::string magenta(const std::string str);
+std::string cyan(const std::string str);
 
-enum Collor {
-  RED = 31,
-  BLUE = 34,
-  GREEN = 32,
-  YELLOW = 33,
-};
+std::string right(const std::string str, int spacing);
 
-std::string cprint(const std::string, Collor, int);
-
-std::string hex(bool, const uint16_t);
-std::string hex(bool, const uint32_t);
+std::string hex(const uint16_t);
+std::string hex(const uint32_t);
 
 std::vector<std::string> split(const std::string&, const char);
+
+std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg);

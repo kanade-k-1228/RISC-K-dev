@@ -116,15 +116,18 @@ const std::vector<Format> isa = {
     {"neqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::NEQ, {OPCode::calci, 0, ALUCode::NEQ, 0, 0}},
     {"ltui", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTU, {OPCode::calci, 0, ALUCode::LTU, 0, 0}},
     {"ltsi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTS, {OPCode::calci, 0, ALUCode::LTS, 0, 0}},
-
+    // Psudo
     {"loadi", {"rd", "imm"}, OPCode::calci, ALUCode::ADD, {OPCode::calci, 0, ALUCode::ADD, 0, 0}},
 
+    // Load
     {"load", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD, {OPCode::load, 0, ALUCode::ADD, 0, 0}},
     {"pop", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD, {OPCode::load, 0, ALUCode::ADD, 0, 1}},
 
+    // Store
     {"store", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
     {"push", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
 
+    // Control
     {"if", {"rs1", "imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, 0, Reg::zero, 0}},
     {"ifr", {"rs1 ", " imm "}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
     {"jump", {"imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::zero, 0}},
@@ -137,3 +140,15 @@ const Format& getFormat(std::string mnemonic);
 bool is_mnemonic(std::string str);
 
 uint16_t alu(uint8_t code, uint16_t a, uint16_t b);
+
+struct Decoder {
+  uint8_t opc;
+  uint8_t rs1, rs2, rd;
+  uint16_t imm;
+  uint8_t func;
+  Format format;
+  Decoder(uint32_t bin) : opc(bin & 0xf), rs1((bin >> 4) & 0xf), rs2((bin >> 8) & 0xf), rd((bin >> 12) & 0xf), imm((bin >> 16) & 0xffff), func(0) {
+    if(opc == OPCode::calc) func = (bin >> 16) & 0xf;
+    if(opc == OPCode::calci) func = (bin >> 8) & 0xf;
+  }
+};
