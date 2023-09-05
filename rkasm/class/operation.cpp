@@ -63,11 +63,13 @@ std::string Operation::print() {
   std::stringstream ss;
   ss << hex(address) << " | " << hex(getBin()) << " | ";
   ss << red(right(mnemonic, 6));
+  const int indent = 6;
+  int imm_indent = 2;
   for(auto arg_type : format.operand) {
-    if(arg_type == "rd") ss << blue(right(rd, 6));
-    if(arg_type == "rs1") ss << blue(right(rs1, 6));
-    if(arg_type == "rs2") ss << blue(right(rs2, 6));
-    if(arg_type == "imm") ss << "  " << imm.print();
+    if(arg_type == "rd") imm_indent--, ss << blue(right(rd, indent));
+    if(arg_type == "rs1") imm_indent--, ss << blue(right(rs1, indent));
+    if(arg_type == "rs2") imm_indent--, ss << blue(right(rs2, indent));
+    if(arg_type == "imm") ss << std::string(imm_indent * indent + 2, ' ') << imm.print();
   }
   return ss.str();
 }
