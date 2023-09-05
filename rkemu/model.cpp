@@ -54,7 +54,7 @@ void CPU::jump_interrupt() {
 }
 
 void CPU::execute(uint32_t code) {
-  OPDecoder op(code);
+  Decoder op(code);
   if(op.opc == OPCode::calc) calc(op.func, op.rd, op.rs1, op.rs2);
   if(op.opc == OPCode::calci) calci(op.func, op.rd, op.rs1, op.imm);
   if(op.opc == OPCode::load) load(op.rd, op.rs1, op.imm);

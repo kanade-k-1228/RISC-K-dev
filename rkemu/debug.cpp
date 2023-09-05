@@ -63,7 +63,7 @@ bool DumpPoints::is_dump(uint16_t pc) {
 }
 
 std::string Debug::print_code(uint32_t code) {
-  OPDecoder op(code);
+  Decoder op(code);
   if(op.opc == OPCode::calc) {
     if(op.func == ALUCode::ADD) return red("add") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
     if(op.func == ALUCode::SUB) return red("sub") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
