@@ -1,4 +1,5 @@
 #pragma once
+#include "../../rkisa/isa.hpp"
 #include "imm.hpp"
 #include "label.hpp"
 
@@ -8,6 +9,7 @@ struct Operation {
   std::vector<std::string> operand;
   std::string func, rs1, rs2, rd;
   Imm imm;
+  Format format;
   Operation(){};
   Operation(const uint16_t address, const std::vector<std::string> str);
   uint32_t getBin();

@@ -70,56 +70,59 @@ const std::vector<std::string> mnemonics_load = {"load", "pop"};
 const std::vector<std::string> mnemonics_store = {"store", "push"};
 const std::vector<std::string> mnemonics_ctrl = {"if", "ifr", "jump", "jumpr", "call", "ret", "iret"};
 
-struct Mnemonic {
+struct Format {
   std::string mnemonic;
-  std::vector<std::string> arg;
+  std::vector<std::string> operand;
   uint8_t opc;
   uint8_t func;
-  // std::tuple<int, int, int, int, int> default_value;
+  std::array<int, 5> binary;
 };
 
-const std::vector<Mnemonic> isa = {
-    {"add", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::ADD},
-    {"not", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NOT},
-    {"sl", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SL},
-    {"lrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LROT},
-    {"and", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::AND},
-    {"xor", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::XOR},
-    {"or", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::OR},
-    {"sub", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SUB},
-    {"eq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::EQ},
-    {"neq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NEQ},
-    {"ltu", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTU},
-    {"lts", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTS},
-    {"sru", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRU},
-    {"srs", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRS},
-    {"rrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::RROT},
+const std::vector<Format> isa = {
+    {"add", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
+    {"not", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NOT, {OPCode::calc, 0, 0, 0, ALUCode::NOT}},
+    {"sl", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SL, {OPCode::calc, 0, 0, 0, ALUCode::SL}},
+    {"lrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LROT, {OPCode::calc, 0, 0, 0, ALUCode::LROT}},
+    {"and", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::AND, {OPCode::calc, 0, 0, 0, ALUCode::AND}},
+    {"xor", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::XOR, {OPCode::calc, 0, 0, 0, ALUCode::XOR}},
+    {"or", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::OR, {OPCode::calc, 0, 0, 0, ALUCode::OR}},
+    {"sub", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SUB, {OPCode::calc, 0, 0, 0, ALUCode::SUB}},
+    {"eq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::EQ, {OPCode::calc, 0, 0, 0, ALUCode::EQ}},
+    {"neq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NEQ, {OPCode::calc, 0, 0, 0, ALUCode::NEQ}},
+    {"ltu", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTU, {OPCode::calc, 0, 0, 0, ALUCode::LTU}},
+    {"lts", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTS, {OPCode::calc, 0, 0, 0, ALUCode::LTS}},
+    {"sru", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRU, {OPCode::calc, 0, 0, 0, ALUCode::SRU}},
+    {"srs", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRS, {OPCode::calc, 0, 0, 0, ALUCode::SRS}},
+    {"rrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::RROT, {OPCode::calc, 0, 0, 0, ALUCode::RROT}},
 
-    {"nop", {}, OPCode::calc, ALUCode::ADD},
-    {"mov", {"rd", "rs1"}, OPCode::calc, ALUCode::ADD},
+    {"nop", {}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
+    {"mov", {"rd", "rs1"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
 
-    {"addi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::ADD},
-    {"andi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::AND},
-    {"xori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::XOR},
-    {"ori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::OR},
-    {"subi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::SUB},
-    {"eqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::EQ},
-    {"neqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::NEQ},
-    {"ltui", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTU},
-    {"ltsi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTS},
+    {"addi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::ADD, {OPCode::calci, 0, ALUCode::ADD, 0, 0}},
+    {"andi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::AND, {OPCode::calci, 0, ALUCode::AND, 0, 0}},
+    {"xori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::XOR, {OPCode::calci, 0, ALUCode::XOR, 0, 0}},
+    {"ori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::OR, {OPCode::calci, 0, ALUCode::OR, 0, 0}},
+    {"subi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::SUB, {OPCode::calci, 0, ALUCode::SUB, 0, 0}},
+    {"eqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::EQ, {OPCode::calci, 0, ALUCode::EQ, 0, 0}},
+    {"neqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::NEQ, {OPCode::calci, 0, ALUCode::NEQ, 0, 0}},
+    {"ltui", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTU, {OPCode::calci, 0, ALUCode::LTU, 0, 0}},
+    {"ltsi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTS, {OPCode::calci, 0, ALUCode::LTS, 0, 0}},
 
-    {"loadi", {"rd", "imm"}, OPCode::calci, ALUCode::ADD},
+    {"loadi", {"rd", "imm"}, OPCode::calci, ALUCode::ADD, {OPCode::calci, 0, ALUCode::ADD, 0, 0}},
 
-    {"load", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD},
-    {"pop", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD},
+    {"load", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD, {OPCode::load, 0, ALUCode::ADD, 0, 0}},
+    {"pop", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD, {OPCode::load, 0, ALUCode::ADD, 0, 1}},
 
-    {"store", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD},
-    {"push", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD},
+    {"store", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
+    {"push", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
 
-    {"if", {"rs1", "imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"ifr", {"rs1 ", " imm "}, OPCode::ctrl, ALUCode::ADD},
-    {"jump", {"imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"jumpr", {"imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"call", {"imm"}, OPCode::ctrl, ALUCode::ADD},
-    {"ret", {}, OPCode::ctrl, ALUCode::ADD},
-    {"iret", {}, OPCode::ctrl, ALUCode::ADD}};
+    {"if", {"rs1", "imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, 0, Reg::zero, 0}},
+    {"ifr", {"rs1 ", " imm "}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
+    {"jump", {"imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::zero, 0}},
+    {"jumpr", {"imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
+    {"call", {"imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::ra, 0}},
+    {"ret", {}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::ra, Reg::zero, Reg::zero, 0}},
+    {"iret", {}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::ira, Reg::zero, Reg::zero, 0}}};
+
+const Format& getFormat(std::string mnemonic);
+bool is_mnemonic(std::string str);

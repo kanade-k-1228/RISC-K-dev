@@ -1,4 +1,5 @@
 #pragma once
+#include "../utils.hpp"
 #include "imm.hpp"
 #include "label.hpp"
 #include "operation.hpp"
@@ -35,5 +36,5 @@ public:
       throw new std::string("This line is not Label");
     return label;
   }
-  std::string getStr() { return str; }
+  std::string printError(std::string msg) { return print_error(file, line, str, msg); }
 };

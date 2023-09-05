@@ -54,3 +54,12 @@ T* find(std::vector<T> vec, std::function<bool(T)> cond) {
   }
   return nullptr;
 }
+
+std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg) {
+  std::stringstream ss;
+  std::string place = fname + ":" + std::to_string(line_cnt);
+  ss << std::string(place.size(), ' ') << " | " << std::endl
+     << place << " | " << line << std::endl
+     << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << msg << std::endl;
+  return ss.str();
+}

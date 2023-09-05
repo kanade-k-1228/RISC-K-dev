@@ -1,5 +1,5 @@
+#include "../rkisa/isa.hpp"
 #include "class/line.hpp"
-#include "isa.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <iomanip>
@@ -8,16 +8,8 @@
 #include <unistd.h>
 #include <vector>
 
-void print_error(std::string fname, int line_cnt, std::string line, std::string msg) {
-  std::string place = fname + ":" + std::to_string(line_cnt);
-  std::cout << std::string(place.size(), ' ') << " | " << std::endl
-            << place << " | " << line << std::endl
-            << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << msg << std::endl;
-}
-
 std::string man
     = "rkasm [-w] [-c] [-v] .rkasm\n"
-      "  -w: print Warning    警告を表示\n"
       "  -c: print Const list 定数リストを表示\n"
       "  -v: print Var list   変数リストを表示\n"
       "FILE: asembly file     アセンブリファイル";
@@ -31,8 +23,7 @@ int main(int argc, char* argv[]) {
 
   // コマンドライン引数の処理
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "wcv")) != -1;) {
-    if(opt == 'w') opt_w = true;
+  for(int opt; (opt = getopt(argc, argv, "cv")) != -1;) {
     if(opt == 'c') opt_c = true;
     if(opt == 'v') opt_v = true;
     if(opt == '?') {
@@ -66,11 +57,10 @@ int main(int argc, char* argv[]) {
       stmts.push_back(stmt);                            // 行を追加
       if(stmt.isOperation()) ++operation_cnt;           // 命令行の場合、PCのカウントアップ
     } catch(std::string* msg) {
-      print_error(fname, line_cnt, line, *msg);
+      std::cout << print_error(fname, line_cnt, line, *msg);
       error = true;
     }
   }
-  if(error) exit(EXIT_FAILURE);
 
   // ラベルを集める
   std::cout << " 2. Collect label" << std::endl;
@@ -87,13 +77,19 @@ int main(int argc, char* argv[]) {
         stmt.getOperation().resoluteLabel(labels);
       }
     } catch(std::string* msg) {
-      print_error(fname, 0, "", *msg);
+      std::cout << stmt.printError(*msg);
       error = true;
     }
   }
-  if(error) exit(EXIT_FAILURE);
+
+  if(error) {
+    std::cout << "--------------------------------------------------" << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   // コードを出力
+  std::cout
+      << " 4. Generate binary : " << fname + ".bin" << std::endl;
   std::ofstream fout;
   fout.open(fname + ".bin", std::ios::out | std::ios::binary | std::ios::trunc);
   if(!fout) {
@@ -106,8 +102,6 @@ int main(int argc, char* argv[]) {
       fout.write((char*)&bin, sizeof(bin));
     }
   }
-  std::cout << "\r                                                  \r";  // デバッグ出力をクリア
-  std::cout << " -> " << fname + ".bin" << std::endl;
   std::cout << "--------------------------------------------------" << std::endl;
 
   // ラベルの一覧表示
@@ -136,5 +130,7 @@ int main(int argc, char* argv[]) {
                 << " |" << stmt.getOperation().print() << std::endl;
     }
   }
+  std::cout << "--------------------------------------------------" << std::endl;
+
   return EXIT_SUCCESS;
 }

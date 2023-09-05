@@ -24,3 +24,5 @@ bool include(std::vector<std::string>, std::string);
 
 template <typename T>
 T* find(std::vector<T>, std::function<bool(T)>);
+
+std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg);
