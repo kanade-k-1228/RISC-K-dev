@@ -81,30 +81,37 @@ struct Format {
 };
 
 const std::vector<Format> isa = {
+    // Arithmetic
     {"add", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
-    {"not", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NOT, {OPCode::calc, 0, 0, 0, ALUCode::NOT}},
-    {"sl", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SL, {OPCode::calc, 0, 0, 0, ALUCode::SL}},
-    {"lrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LROT, {OPCode::calc, 0, 0, 0, ALUCode::LROT}},
-    {"and", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::AND, {OPCode::calc, 0, 0, 0, ALUCode::AND}},
-    {"xor", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::XOR, {OPCode::calc, 0, 0, 0, ALUCode::XOR}},
-    {"or", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::OR, {OPCode::calc, 0, 0, 0, ALUCode::OR}},
     {"sub", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SUB, {OPCode::calc, 0, 0, 0, ALUCode::SUB}},
+    // Bit
+    {"and", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::AND, {OPCode::calc, 0, 0, 0, ALUCode::AND}},
+    {"or", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::OR, {OPCode::calc, 0, 0, 0, ALUCode::OR}},
+    {"xor", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::XOR, {OPCode::calc, 0, 0, 0, ALUCode::XOR}},
+    // Compare
     {"eq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::EQ, {OPCode::calc, 0, 0, 0, ALUCode::EQ}},
     {"neq", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::NEQ, {OPCode::calc, 0, 0, 0, ALUCode::NEQ}},
     {"ltu", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTU, {OPCode::calc, 0, 0, 0, ALUCode::LTU}},
     {"lts", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::LTS, {OPCode::calc, 0, 0, 0, ALUCode::LTS}},
-    {"sru", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRU, {OPCode::calc, 0, 0, 0, ALUCode::SRU}},
-    {"srs", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SRS, {OPCode::calc, 0, 0, 0, ALUCode::SRS}},
-    {"rrot", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::RROT, {OPCode::calc, 0, 0, 0, ALUCode::RROT}},
-
+    // Unarry
+    {"not", {"rd", "rs1"}, OPCode::calc, ALUCode::NOT, {OPCode::calc, 0, 0, 0, ALUCode::NOT}},
+    {"sl", {"rd", "rs1"}, OPCode::calc, ALUCode::SL, {OPCode::calc, 0, 0, 0, ALUCode::SL}},
+    {"lrot", {"rd", "rs1"}, OPCode::calc, ALUCode::LROT, {OPCode::calc, 0, 0, 0, ALUCode::LROT}},
+    {"sru", {"rd", "rs1"}, OPCode::calc, ALUCode::SRU, {OPCode::calc, 0, 0, 0, ALUCode::SRU}},
+    {"srs", {"rd", "rs1"}, OPCode::calc, ALUCode::SRS, {OPCode::calc, 0, 0, 0, ALUCode::SRS}},
+    {"rrot", {"rd", "rs1"}, OPCode::calc, ALUCode::RROT, {OPCode::calc, 0, 0, 0, ALUCode::RROT}},
+    // Psudo
     {"nop", {}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
     {"mov", {"rd", "rs1"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
 
+    // Arithmetic
     {"addi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::ADD, {OPCode::calci, 0, ALUCode::ADD, 0, 0}},
-    {"andi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::AND, {OPCode::calci, 0, ALUCode::AND, 0, 0}},
-    {"xori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::XOR, {OPCode::calci, 0, ALUCode::XOR, 0, 0}},
-    {"ori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::OR, {OPCode::calci, 0, ALUCode::OR, 0, 0}},
     {"subi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::SUB, {OPCode::calci, 0, ALUCode::SUB, 0, 0}},
+    // Bit
+    {"andi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::AND, {OPCode::calci, 0, ALUCode::AND, 0, 0}},
+    {"ori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::OR, {OPCode::calci, 0, ALUCode::OR, 0, 0}},
+    {"xori", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::XOR, {OPCode::calci, 0, ALUCode::XOR, 0, 0}},
+    // Compare
     {"eqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::EQ, {OPCode::calci, 0, ALUCode::EQ, 0, 0}},
     {"neqi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::NEQ, {OPCode::calci, 0, ALUCode::NEQ, 0, 0}},
     {"ltui", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::LTU, {OPCode::calci, 0, ALUCode::LTU, 0, 0}},

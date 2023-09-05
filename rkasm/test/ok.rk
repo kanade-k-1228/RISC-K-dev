@@ -26,10 +26,10 @@
     and  t2 t0 t1
     or   t2 t0 t1
     xor  t2 t0 t1
-    not  t2 t0 zero
-    srs  t2 t0 zero
-    sru  t2 t0 zero
-    sl   t2 t0 t1
+    not  t2 t0
+    srs  t2 t0
+    sru  t2 t0
+    sl   t2 t0
     eq   t2 t0 t1
     lts  t2 t0 t1
     ltu  t2 t0 t1
