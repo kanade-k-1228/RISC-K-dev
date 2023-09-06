@@ -37,6 +37,7 @@ public:
       throw new std::string("This line is not Label");
     return label;
   }
-  std::string print();
+  std::string print_pretty();
+  std::string print_format();
   std::string printError(std::string msg) { return print_error(file, line, str, msg); }
 };

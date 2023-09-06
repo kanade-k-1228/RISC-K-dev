@@ -117,7 +117,11 @@ int main(int argc, char* argv[]) {
   std::cout << "--------------------------------------------------" << std::endl;
 
   // アセンブラを表示
-  for(auto stmt : stmts) std::cout << stmt.print() << std::endl;
+  for(auto stmt : stmts) std::cout << stmt.print_pretty() << std::endl;
+  std::cout << "--------------------------------------------------" << std::endl;
+
+  // フォーマット出力
+  for(auto stmt : stmts) std::cout << stmt.print_format() << std::endl;
   std::cout << "--------------------------------------------------" << std::endl;
 
   return EXIT_SUCCESS;

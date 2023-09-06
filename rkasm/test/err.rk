@@ -2,3 +2,7 @@
     add zero zero ; Operand required
     add a0 a1 hoge ; Invalid register name
     call hoge ; Undefined label
+a:
+    nop
+a: ; Re-define
+    nop

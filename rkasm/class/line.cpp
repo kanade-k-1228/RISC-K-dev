@@ -34,12 +34,19 @@ Line::Line(const std::string file, const int line_no, const std::string str, con
   }
 }
 
-std::string Line::print() {
+std::string Line::print_pretty() {
   std::stringstream ss;
   ss << std::setw(4) << line << " | ";
-  if(isOperation()) ss << operation.print();
-  if(isLabel()) ss << "     |           | " << label.print();
-  if(isVoid()) ss << "     |           | ";
-  ss << magenta(comment);
+  if(isOperation()) ss << operation.print_pretty() << "  " << comment;
+  if(isLabel()) ss << "     |           | " << label.print_pretty() << "  " << comment;
+  if(isVoid()) ss << "     |           | " << comment;
+  return ss.str();
+}
+
+std::string Line::print_format() {
+  std::stringstream ss;
+  if(isOperation()) ss << operation.print_format() << "  " << comment;
+  if(isLabel()) ss << label.print_format() << "  " << comment;
+  if(isVoid()) ss << comment;
   return ss.str();
 }

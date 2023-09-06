@@ -15,7 +15,8 @@ class Imm {
 public:
   Imm() {}
   Imm(std::string str);
-  std::string print();
+  std::string print_pretty();
+  std::string print_format();
   bool isLabRef() { return type == LAB_REF; };
   uint16_t getValue() { return value; };
   std::string getLabel() { return label; };

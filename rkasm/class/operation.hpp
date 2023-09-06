@@ -16,6 +16,7 @@ public:
   Operation(const uint16_t address, const std::vector<std::string> str);
   void genBin();
   uint32_t getBin() { return bin; }
-  std::string print();
+  std::string print_pretty();
+  std::string print_format();
   void resoluteLabel(std::vector<Label> labels);
 };

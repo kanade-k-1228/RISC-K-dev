@@ -17,6 +17,12 @@ std::string right(const std::string str, int spacing) {
   return ss.str();
 }
 
+std::string left(const std::string str, int spacing) {
+  std::stringstream ss;
+  ss << std::setw(spacing) << std::left << str;
+  return ss.str();
+}
+
 std::string hex(const uint16_t n) {
   std::ostringstream ss;
   ss.setf(std::ios::hex, std::ios::basefield);

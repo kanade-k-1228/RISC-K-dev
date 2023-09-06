@@ -59,17 +59,30 @@ void Operation::genBin() {
         | ((slot.at(4) & 0xFFFF) << 16);
 }
 
-std::string Operation::print() {
+std::string Operation::print_pretty() {
+  const int indent = 6;
   std::stringstream ss;
   ss << hex(address) << " | " << hex(getBin()) << " | ";
-  ss << red(right(mnemonic, 6));
-  const int indent = 6;
+  ss << "    " << red(left(mnemonic, indent));
   int imm_indent = 2;
   for(auto arg_type : format.operand) {
-    if(arg_type == "rd") imm_indent--, ss << blue(right(rd, indent));
-    if(arg_type == "rs1") imm_indent--, ss << blue(right(rs1, indent));
-    if(arg_type == "rs2") imm_indent--, ss << blue(right(rs2, indent));
-    if(arg_type == "imm") ss << std::string(imm_indent * indent + 2, ' ') << imm.print();
+    if(arg_type == "rd") imm_indent--, ss << blue(left(rd, indent));
+    if(arg_type == "rs1") imm_indent--, ss << blue(left(rs1, indent));
+    if(arg_type == "rs2") imm_indent--, ss << blue(left(rs2, indent));
+    if(arg_type == "imm") ss << std::string(imm_indent * indent, ' ') << imm.print_pretty();
+  }
+  return ss.str();
+}
+
+std::string Operation::print_format() {
+  const int indent = 6;
+  std::stringstream ss;
+  ss << "    " << left(mnemonic, indent);
+  for(auto arg_type : format.operand) {
+    if(arg_type == "rd") ss << left(rd, indent);
+    if(arg_type == "rs1") ss << left(rs1, indent);
+    if(arg_type == "rs2") ss << left(rs2, indent);
+    if(arg_type == "imm") ss << imm.print_format();
   }
   return ss.str();
 }

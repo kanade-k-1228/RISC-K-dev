@@ -12,6 +12,7 @@ std::string magenta(const std::string str);
 std::string cyan(const std::string str);
 
 std::string right(const std::string str, int spacing);
+std::string left(const std::string str, int spacing);
 
 std::string hex(const uint16_t);
 std::string hex(const uint32_t);
