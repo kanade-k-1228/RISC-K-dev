@@ -1,4 +1,4 @@
-;; This is sample code for rk16 asembler
+;; Test code for rk16 emulator
 
 @0x0010 power
 @0x0020 irq_en
@@ -15,6 +15,27 @@
 #0x0033 '3'
 #0x0034 '4'
 #0x0035 '5'
+
+reset:
+    jump main
+
+main:
+    loadi zero 0xffff ; invalid
+    loadi ira  0xffff ; invalid
+    loadi pc   0xffff ; invalid
+    loadi sp   0xffff
+    loadi ra   0xffff
+    loadi fp   0xffff
+    loadi a0   0xffff
+    loadi a1   0xffff
+    loadi t0   0xffff
+    loadi t1   0xffff
+    loadi t2   0xffff
+    loadi t3   0xffff
+    loadi s0   0xffff
+    loadi s1   0xffff
+    loadi s2   0xffff
+    loadi s3   0xffff
 
 calc_test:
     nop           ; no operation
@@ -53,4 +74,5 @@ c:
 d:
     iret
 e:
-    store zero zero power ; power off
+    loadi t0 1
+    store t0 zero power ; power off

@@ -62,67 +62,86 @@ bool DumpPoints::is_dump(uint16_t pc) {
   return false;
 }
 
+std::string reg(uint8_t reg) {
+  if(reg == Reg::zero) return "zero";
+  if(reg == Reg::ira) return "ira";
+  if(reg == Reg::pc) return "pc";
+  if(reg == Reg::sp) return "sp";
+  if(reg == Reg::ra) return "sp";
+  if(reg == Reg::fp) return "sp";
+  if(reg == Reg::a0) return "a0";
+  if(reg == Reg::a1) return "a1";
+  if(reg == Reg::t0) return "t0";
+  if(reg == Reg::t1) return "t1";
+  if(reg == Reg::t2) return "t2";
+  if(reg == Reg::t3) return "t3";
+  if(reg == Reg::s0) return "s0";
+  if(reg == Reg::s1) return "s1";
+  if(reg == Reg::s2) return "s2";
+  if(reg == Reg::s3) return "s3";
+  throw new std::string("Unknown registor code: " + std::to_string(reg));
+}
+
 std::string Debug::print_code(uint32_t code) {
   Decoder op(code);
   if(op.opc == OPCode::calc) {
-    if(op.func == ALUCode::ADD) return red("add") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
-    if(op.func == ALUCode::SUB) return red("sub") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
-    if(op.func == ALUCode::AND) return red("and") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
-    if(op.func == ALUCode::OR) return red("or") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
-    if(op.func == ALUCode::XOR) return red("xor") + blue(hex(op.rd)) + blue(hex(op.rs1)) + blue(hex(op.rs2));
-    if(op.func == ALUCode::NOT) return red("not") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::SRS) return red("srs") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::SRU) return red("sru") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::SL) return red("sl") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::EQ) return red("eq") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::LTS) return red("lts") + blue(hex(op.rd)) + blue(hex(op.rs1));
-    if(op.func == ALUCode::LTU) return red("ltu") + blue(hex(op.rd)) + blue(hex(op.rs1));
+    if(op.func == ALUCode::ADD) return red(left("add", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + blue(left(reg(op.rs2), 6));
+    if(op.func == ALUCode::SUB) return red(left("sub", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + blue(left(reg(op.rs2), 6));
+    if(op.func == ALUCode::AND) return red(left("and", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + blue(left(reg(op.rs2), 6));
+    if(op.func == ALUCode::OR) return red(left("or", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + blue(left(reg(op.rs2), 6));
+    if(op.func == ALUCode::XOR) return red(left("xor", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + blue(left(reg(op.rs2), 6));
+    if(op.func == ALUCode::NOT) return red(left("not", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::SRS) return red(left("srs", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::SRU) return red(left("sru", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::SL) return red(left("sl", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::EQ) return red(left("eq", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::LTS) return red(left("lts", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
+    if(op.func == ALUCode::LTU) return red(left("ltu", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6));
     throw new std::string("Unknown FuncCode" + hex(op.func));
   }
   if(op.opc == OPCode::calci) {
-    if(op.func == ALUCode::ADD) return red("addi") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::SUB) return red("subi") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::AND) return red("andi") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::OR) return red("ori") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::XOR) return red("xori") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::EQ) return red("eqi") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::LTS) return red("ltsi") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-    if(op.func == ALUCode::LTU) return red("ltui") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::ADD) return red(left("addi", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::SUB) return red(left("subi", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::AND) return red(left("andi", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::OR) return red(left("ori", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::XOR) return red(left("xori", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::EQ) return red(left("eqi", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::LTS) return red(left("ltsi", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+    if(op.func == ALUCode::LTU) return red(left("ltui", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
     throw new std::string("Unknown FuncCode" + hex(op.func));
   }
-  if(op.opc == OPCode::load) return red("load") + blue(hex(op.rd)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-  if(op.opc == OPCode::store) return red("store") + blue(hex(op.rs2)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
-  if(op.opc == OPCode::ctrl) return red("ctrl") + blue(hex(op.rd)) + blue(hex(op.rs2)) + blue(hex(op.rs1)) + yellow(hex(op.imm));
+  if(op.opc == OPCode::load) return red(left("load", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+  if(op.opc == OPCode::store) return red(left("store", 6)) + blue(left(reg(op.rs2), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
+  if(op.opc == OPCode::ctrl) return red(left("ctrl", 6)) + blue(left(reg(op.rd), 6)) + blue(left(reg(op.rs2), 6)) + blue(left(reg(op.rs1), 6)) + yellow(hex(op.imm));
   throw new std::string("Unknown Opecode" + hex(op.opc));
 }
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-  ss << " +------------+-------------------------+" << std::endl
-     << " |  " << green("PC: " + hex(cpu.ram.get(Reg::pc))) << "  |" << std::endl
-     << " |  RA: " << hex(cpu.ram.get(Reg::ra)) << "  |  S0: " << hex(cpu.ram.get(Reg::s0)) << "  |  T0: " << hex(cpu.ram.get(Reg::t0)) << "  |" << std::endl
-     << " | IRA: " << hex(cpu.ram.get(Reg::ira)) << "  |  S1: " << hex(cpu.ram.get(Reg::s1)) << "  |  T1: " << hex(cpu.ram.get(Reg::t1)) << "  |" << std::endl
-     << " |  SP: " << hex(cpu.ram.get(Reg::sp)) << "  |  S2: " << hex(cpu.ram.get(Reg::s2)) << "  |  T2: " << hex(cpu.ram.get(Reg::t2)) << "  |" << std::endl
-     << " |  FP: " << hex(cpu.ram.get(Reg::fp)) << "  |  S3: " << hex(cpu.ram.get(Reg::s3)) << "  |  T3: " << hex(cpu.ram.get(Reg::t3)) << "  |" << std::endl
-     << " +------------+------------+------------+" << std::endl;
+  ss << " +------------+----------+----------+----------+" << std::endl
+     << " | zero: " << hex(cpu.ram.get(Reg::zero)) << " | ra: " << hex(cpu.ram.get(Reg::ra)) << " | t0: " << hex(cpu.ram.get(Reg::t0)) << " | s0: " << hex(cpu.ram.get(Reg::s0)) << " |" << std::endl
+     << " |  ira: " << hex(cpu.ram.get(Reg::ira)) << " | fp: " << hex(cpu.ram.get(Reg::fp)) << " | t1: " << hex(cpu.ram.get(Reg::t1)) << " | s1: " << hex(cpu.ram.get(Reg::s1)) << " |" << std::endl
+     << " |   pc: " << hex(cpu.ram.get(Reg::pc)) << " | a0: " << hex(cpu.ram.get(Reg::a0)) << " | t2: " << hex(cpu.ram.get(Reg::t2)) << " | s2: " << hex(cpu.ram.get(Reg::s2)) << " |" << std::endl
+     << " |   sp: " << hex(cpu.ram.get(Reg::sp)) << " | a1: " << hex(cpu.ram.get(Reg::a1)) << " | t3: " << hex(cpu.ram.get(Reg::t3)) << " | s3: " << hex(cpu.ram.get(Reg::s3)) << " |" << std::endl
+     << " +------------+----------+----------+----------+" << std::endl;
   for(uint16_t addr : opt.address)
-    ss << " | " << hex(addr) << " : " << hex(cpu.ram.get(addr)) << "                  |" << std::endl;
+    ss << " | 0x" << hex(addr) << " : " << hex(cpu.ram.get(addr)) << "                               |" << std::endl;
   if(opt.stack) {
     if(cpu.ram.get(Reg::sp) < cpu.ram.get(Reg::fp)) ss << " +--------------------------------+" << std::endl;
     for(uint16_t sp = cpu.ram.get(Reg::sp); sp < cpu.ram.get(Reg::fp); sp++)
       ss << " | " << hex((uint16_t)(sp + 1)) << " : " << hex(cpu.ram.get(sp + 1)) << "                  |" << std::endl;
   }
+  ss << " +---------------------------------------------+" << std::endl;
   return ss.str();
 }
 
 std::string Debug::dump(CPU& cpu) {
   std::stringstream ss;
-  ss << " +------------+-------------------------+" << std::endl
-     << " |  " << green("PC: " + hex(cpu.ram.get(Reg::pc))) << "  |" << std::endl
-     << " |  RA: " << hex(cpu.ram.get(Reg::ra)) << "  |  S0: " << hex(cpu.ram.get(Reg::s0)) << "  |  T0: " << hex(cpu.ram.get(Reg::t0)) << "  |" << std::endl
-     << " | IRA: " << hex(cpu.ram.get(Reg::ira)) << "  |  S1: " << hex(cpu.ram.get(Reg::s1)) << "  |  T1: " << hex(cpu.ram.get(Reg::t1)) << "  |" << std::endl
-     << " |  SP: " << hex(cpu.ram.get(Reg::sp)) << "  |  S2: " << hex(cpu.ram.get(Reg::s2)) << "  |  T2: " << hex(cpu.ram.get(Reg::t2)) << "  |" << std::endl
-     << " |  FP: " << hex(cpu.ram.get(Reg::fp)) << "  |  S3: " << hex(cpu.ram.get(Reg::s3)) << "  |  T3: " << hex(cpu.ram.get(Reg::t3)) << "  |" << std::endl
-     << " +------------+------------+------------+" << std::endl;
+  ss << " +------------+----------+----------+----------+" << std::endl
+     << " | zero: " << hex(cpu.ram.get(Reg::zero)) << " | ra: " << hex(cpu.ram.get(Reg::ra)) << " | t0: " << hex(cpu.ram.get(Reg::t0)) << " | s0: " << hex(cpu.ram.get(Reg::s0)) << " |" << std::endl
+     << " |  ira: " << hex(cpu.ram.get(Reg::ira)) << " | fp: " << hex(cpu.ram.get(Reg::fp)) << " | t1: " << hex(cpu.ram.get(Reg::t1)) << " | s1: " << hex(cpu.ram.get(Reg::s1)) << " |" << std::endl
+     << " |   pc: " << hex(cpu.ram.get(Reg::pc)) << " | a0: " << hex(cpu.ram.get(Reg::a0)) << " | t2: " << hex(cpu.ram.get(Reg::t2)) << " | s2: " << hex(cpu.ram.get(Reg::s2)) << " |" << std::endl
+     << " |   sp: " << hex(cpu.ram.get(Reg::sp)) << " | a1: " << hex(cpu.ram.get(Reg::a1)) << " | t3: " << hex(cpu.ram.get(Reg::t3)) << " | s3: " << hex(cpu.ram.get(Reg::s3)) << " |" << std::endl
+     << " +------------+----------+----------+----------+" << std::endl;
   return ss.str();
 }

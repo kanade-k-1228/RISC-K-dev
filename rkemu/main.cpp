@@ -49,18 +49,12 @@ int main(int argc, char* argv[]) {
   cpu.load_rom_file(argv[optind]);
 
   // Print Emulation Conditions
-  std::cout << "+----------------------------------------+" << std::endl
-            << "|                                        |\r"
-            << "| Emulate: " << cpu.fname << std::endl;
-  if(dump_points.use)
-    std::cout << "|                                        |\r"
-              << "|  - Dump: " << dump_points.fname << std::endl;
-  if(dump_points.all)
-    std::cout << "|  - Dump: All                           |" << std::endl;
-  if(intr_points.use)
-    std::cout << "|                                        |\r"
-              << "|  - Intr: " << intr_points.fname << std::endl;
-  std::cout << "+----------------------------------------+" << std::endl;
+  std::cout << "+-----------------------------------------------+" << std::endl
+            << "| Emulate: " << left(cpu.fname, 37) << "|" << std::endl;
+  if(dump_points.use) std::cout << "|  - Dump: " << left(dump_points.fname, 37) << "|" << std::endl;
+  if(dump_points.all) std::cout << "|  - Dump: All                                |" << std::endl;
+  if(intr_points.use) std::cout << "|  - Intr: " << left(intr_points.fname, 37) << "|" << std::endl;
+  std::cout << "+-----------------------------------------------+" << std::endl;
 
   // Run Emulator
   for(int t = 0;; ++t) {
@@ -74,8 +68,8 @@ int main(int argc, char* argv[]) {
 
     // Print Operation
     if(print_opr || dump_all || dump_points.is_dump(pc))
-      std::cout << "[" << hex((uint16_t)t) << "]  "
-                << green(hex(pc))
+      std::cout << "[" << hex((uint16_t)t) << "] "
+                << green(hex(pc)) << " : "
                 << Debug::print_code(code)
                 << ((sout != -1) ? " > " + esc_char((char)sout) : "")
                 << std::endl;
@@ -116,7 +110,7 @@ int main(int argc, char* argv[]) {
     if(interval_time) usleep(10000);
   }
   std::cout << std::endl
-            << "==========================================" << std::endl;
+            << "=================================================" << std::endl;
   return 0;
 }
 

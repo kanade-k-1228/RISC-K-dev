@@ -75,6 +75,7 @@ struct Format {
 };
 
 const std::vector<Format> isa = {
+    // Addi
     // Arithmetic
     {"add", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
     {"sub", {"rd", "rs1", "rs2"}, OPCode::calc, ALUCode::SUB, {OPCode::calc, 0, 0, 0, ALUCode::SUB}},
@@ -98,6 +99,7 @@ const std::vector<Format> isa = {
     {"nop", {}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
     {"mov", {"rd", "rs1"}, OPCode::calc, ALUCode::ADD, {OPCode::calc, 0, 0, 0, ALUCode::ADD}},
 
+    // Calci
     // Arithmetic
     {"addi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::ADD, {OPCode::calci, 0, ALUCode::ADD, 0, 0}},
     {"subi", {"rd", "rs1", "imm"}, OPCode::calci, ALUCode::SUB, {OPCode::calci, 0, ALUCode::SUB, 0, 0}},
@@ -118,8 +120,8 @@ const std::vector<Format> isa = {
     {"pop", {"rd", "rs1", "imm"}, OPCode::load, ALUCode::ADD, {OPCode::load, 0, ALUCode::ADD, 0, 1}},
 
     // Store
-    {"store", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
-    {"push", {"rd", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
+    {"store", {"rs2", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
+    {"push", {"rs2", "rs1", "imm"}, OPCode::store, ALUCode::ADD, {OPCode::store, 0, ALUCode::ADD, 0, 0}},
 
     // Control
     {"if", {"rs1", "imm"}, OPCode::ctrl, ALUCode::ADD, {OPCode::ctrl, Reg::zero, 0, Reg::zero, 0}},
@@ -141,7 +143,13 @@ struct Decoder {
   uint16_t imm;
   uint8_t func;
   Format format;
-  Decoder(uint32_t bin) : opc(bin & 0xf), rs1((bin >> 4) & 0xf), rs2((bin >> 8) & 0xf), rd((bin >> 12) & 0xf), imm((bin >> 16) & 0xffff), func(0) {
+  Decoder(uint32_t bin)
+      : opc(bin & 0xf),
+        rs1((bin >> 4) & 0xf),
+        rs2((bin >> 8) & 0xf),
+        rd((bin >> 12) & 0xf),
+        imm((bin >> 16) & 0xffff),
+        func(0) {
     if(opc == OPCode::calc) func = (bin >> 16) & 0xf;
     if(opc == OPCode::calci) func = (bin >> 8) & 0xf;
   }

@@ -3,7 +3,7 @@
 const Format& getFormat(std::string mnemonic) {
   for(auto& itr : isa)
     if(itr.mnemonic == mnemonic) return itr;
-  throw new std::string("Invalid mnemonic" + mnemonic);
+  throw new std::string("Invalid mnemonic: " + mnemonic);
 }
 
 uint8_t get_opcode(uint32_t bin) { return bin & 0xf; }

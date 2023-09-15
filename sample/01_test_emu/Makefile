@@ -1,9 +1,3 @@
-all: ok
-
-ok.rk.bin: ok.rk
-	rkasm $^
-
-ok: ok.rk.bin
-	rkemu $^
-
-.PHONY: all ok
+all:
+	rkasm test.rk
+	rkemu -a -d test.dp -i test.ir test.rk.bin
