@@ -1,5 +1,5 @@
 #include "line.hpp"
-#include "../../rkisa/isa.hpp"
+#include "../../rkarch/arch.hpp"
 #include "../utils.hpp"
 #include <iomanip>
 #include <regex>

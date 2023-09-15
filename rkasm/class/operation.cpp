@@ -1,5 +1,5 @@
 #include "operation.hpp"
-#include "../../rkisa/isa.hpp"
+#include "../../rkarch/arch.hpp"
 #include "../utils.hpp"
 #include <regex>
 #include <sstream>

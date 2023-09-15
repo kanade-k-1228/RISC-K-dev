@@ -1,4 +1,4 @@
-#include "isa.hpp"
+#include "arch.hpp"
 
 const Format& getFormat(std::string mnemonic) {
   for(auto& itr : isa)

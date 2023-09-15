@@ -1,4 +1,21 @@
-# ISA
+# RK Architecture
+
+## Registor
+
+| addr |     |            |
+| ---- | --- | ---------- |
+| 001x | w   | Power      |
+| 002x | r/w | IRQ Enable |
+| 003n | r   | IRQ#n Flag |
+
+| addr |     |         |
+| ---- | --- | ------- |
+| 0100 | w   | uart.tx |
+| 0101 | r   | uart.rx |
+
+## ISA
+
+`arch.hpp : isa`
 
 アセンブラの命令行を解釈しバイナリに変換する方法を指定する
 

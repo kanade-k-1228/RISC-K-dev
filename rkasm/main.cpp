@@ -1,4 +1,4 @@
-#include "../rkisa/isa.hpp"
+#include "../rkarch/arch.hpp"
 #include "class/line.hpp"
 #include "utils.hpp"
 #include <fstream>
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   }
   std::string input_file = argv[optind];
   std::string output_file = (o_arg == "") ? (input_file + ".bin") : o_arg;
-  std::cout << "--------------------------------------------------" << std::endl
+  std::cout << "----------------------------------------------------" << std::endl
             << "Assemble: " << input_file << std::endl;
 
   // ファイルを開く
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 
   // エラーが見つかったらコードを吐かない
   if(error) {
-    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "----------------------------------------------------" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -114,15 +114,15 @@ int main(int argc, char* argv[]) {
       fout.write((char*)&bin, sizeof(bin));
     }
   }
-  std::cout << "--------------------------------------------------" << std::endl;
+  std::cout << "----------------------------------------------------" << std::endl;
 
   // アセンブラを表示
   for(auto stmt : stmts) std::cout << stmt.print_pretty() << std::endl;
-  std::cout << "--------------------------------------------------" << std::endl;
+  std::cout << "----------------------------------------------------" << std::endl;
 
   // フォーマット出力
-  for(auto stmt : stmts) std::cout << stmt.print_format() << std::endl;
-  std::cout << "--------------------------------------------------" << std::endl;
+  // for(auto stmt : stmts) std::cout << stmt.print_format() << std::endl;
+  // std::cout << "----------------------------------------------------" << std::endl;
 
   return EXIT_SUCCESS;
 }

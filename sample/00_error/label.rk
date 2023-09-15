@@ -1,7 +1,0 @@
-    jump  here
-    nop
-    nop
-here:
-    nop
-exit:
-    ori  csr csr 0x100

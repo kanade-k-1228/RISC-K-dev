@@ -1,14 +1,14 @@
-; $ rkasm ok.rk
-; Welcome
-; This is sample code for rk16 asembler
+;; This is sample code for rk16 asembler
 
-@0x0200 hoge
-@0x0123 fuga
-@0x4567 piyo
-@0x89AB foo
-@0xcdef bar
+@0x0010 power
+@0x0020 irq_en
+@0x0030 irq_0
+@0x0031 irq_1
+@0x0032 irq_2
+@0x0033 irq_3
+@0x0100 tx
+@0x0101 rx
 
-#0x0100 const
 #0x0030 '0'
 #0x0031 '1'
 #0x0032 '2'
@@ -32,9 +32,9 @@ calc_test:
     lts  t2 t0 t1
     ltu  t2 t0 t1
 calci_test:
-    addi t2 t0 const
-    subi t2 t0 hoge
-    andi t2 t0 fuga
+    addi t2 t0 0x0101
+    subi t2 t0 0x0101
+    andi t2 t0 0x0101
     ori  t2 t0 0x0000
     xori t2 t0 0x0110
     eqi  t2 t0 0x1100
@@ -53,5 +53,4 @@ c:
 d:
     iret
 e:
-    ori  zero zero 0x100 ; exit
-;    ori  csr csr 0x100 ; exit
+    store zero zero power ; power off

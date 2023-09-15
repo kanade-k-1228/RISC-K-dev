@@ -11,5 +11,5 @@ add_executable(rkasm
     class/label.cpp
     class/operation.cpp
     class/imm.cpp
-    ../rkisa/isa.cpp
+    ../rkarch/arch.cpp
 )

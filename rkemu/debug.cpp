@@ -1,5 +1,5 @@
 #include "debug.hpp"
-#include "../rkisa/isa.hpp"
+#include "../rkarch/arch.hpp"
 #include "model.hpp"
 #include "utils.hpp"
 #include <fstream>

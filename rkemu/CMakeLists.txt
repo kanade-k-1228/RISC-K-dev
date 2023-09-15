@@ -9,7 +9,7 @@ add_executable(rkemu
     debug.cpp 
     model.cpp 
     utils.cpp
-    ../rkisa/isa.cpp
+    ../rkarch/arch.cpp
 )
 
 find_package(Curses REQUIRED)

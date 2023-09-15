@@ -53,24 +53,18 @@ const uint16_t PC_INTR = 0x0001;
 }
 
 namespace CSR {
-const uint16_t power = 0x0020;
-const uint16_t irq_en = 0x0021;
-const uint16_t irq_0 = 0x0022;
-const uint16_t irq_1 = 0x0023;
-const uint16_t irq_2 = 0x0024;
-const uint16_t irq_3 = 0x0025;
+const uint16_t power = 0x0010;
+const uint16_t irq_en = 0x0020;
+const uint16_t irq_0 = 0x0030;
+const uint16_t irq_1 = 0x0031;
+const uint16_t irq_2 = 0x0032;
+const uint16_t irq_3 = 0x0033;
 }  // namespace CSR
 
 namespace Serial {
-const uint16_t tx = 0x0020;
-const uint16_t rx = 0x0021;
+const uint16_t tx = 0x0100;
+const uint16_t rx = 0x0101;
 }  // namespace Serial
-
-const std::vector<std::string> mnemonics_calc = {"add", "not", "sl", "lrot", "and", "xor", "or", "sub", "eq", "neq", "ltu", "lts", "sru", "srs", "rrot"};
-const std::vector<std::string> mnemonics_calci = {"addi", "andi", "xori", "ori", "subi", "eqi", "neqi", "ltui", "ltsi"};
-const std::vector<std::string> mnemonics_load = {"load", "pop"};
-const std::vector<std::string> mnemonics_store = {"store", "push"};
-const std::vector<std::string> mnemonics_ctrl = {"if", "ifr", "jump", "jumpr", "call", "ret", "iret"};
 
 struct Format {
   std::string mnemonic;

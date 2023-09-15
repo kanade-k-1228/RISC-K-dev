@@ -1,9 +1,16 @@
-cd ~/RISC-K/rkasm/build
+mkdir -p rkasm/build
+cd rkasm/build
 cmake ..
 make
-cd ~/RISC-K/rkemu/build
+cd ../..
+
+mkdir -p rkemu/build
+cd rkemu/build
 cmake ..
 make
-cd ~/RISC-K/rkcc/build
+cd ../..
+
+mkdir -p rkcc/build
+cd rkcc/build
 cmake ..
 make

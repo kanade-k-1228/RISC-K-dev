@@ -4,12 +4,11 @@ type triangle: {p0: point, p1: point, p2: point};
 var a: int;
 var b: [16]int;
 var c: *int;
-var d: {m:int,n:int};
+var d: {m : int, n : int};
 var e: point;
 var z: int;
 
-
-func add: (r0:point,r1:point)=>point{
+func add: (r0 : point, r1 : point) => point {
   var ret: point;
   ret.x = r0.x + r1.x;
   ret.y = r0.y + r1.y;
@@ -17,7 +16,7 @@ func add: (r0:point,r1:point)=>point{
   return ret;
 }
 
-func center:(t:triangle)=>point{
+func center: (t : triangle) => point {
   var ret: point;
   ret.x = (t.p0.x + t.p1.x + t.p2.x) // 3;
   ret.y = (t.p0.y + t.p1.y + t.p2.y) // 3;

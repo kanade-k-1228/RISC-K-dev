@@ -1,5 +1,5 @@
 #pragma once
-#include "../rkisa/isa.hpp"
+#include "../rkarch/arch.hpp"
 #include <array>
 #include <fstream>
 #include <string>

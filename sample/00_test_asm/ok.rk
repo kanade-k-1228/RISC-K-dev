@@ -1,0 +1,56 @@
+;; This is sample code for rk16 asembler
+
+@0x0200 hoge
+@0x0123 fuga
+@0x4567 piyo
+@0x89AB foo
+@0xcdef bar
+@0x0010 exit
+
+#0x0100 const
+#0x0030 '0'
+#0x0031 '1'
+#0x0032 '2'
+#0x0033 '3'
+#0x0034 '4'
+#0x0035 '5'
+
+calc_test:
+    nop           ; no operation
+    mov  s0 s1    ; s0 <= s1
+    add  t2 t0 t1 ; t2 <= t0 + t1
+    sub  t2 t0 t1
+    and  t2 t0 t1
+    or   t2 t0 t1
+    xor  t2 t0 t1
+    not  t2 t0
+    srs  t2 t0
+    sru  t2 t0
+    sl   t2 t0
+    eq   t2 t0 t1
+    lts  t2 t0 t1
+    ltu  t2 t0 t1
+calci_test:
+    addi t2 t0 const
+    subi t2 t0 hoge
+    andi t2 t0 fuga
+    ori  t2 t0 0x0000
+    xori t2 t0 0x0110
+    eqi  t2 t0 0x1100
+    ltsi t2 t0 0xf000
+    ltui t2 t0 0xf000
+
+a:
+    jump   e
+    jumpr  0x1
+    if  zero b
+    ifr zero b
+b:
+    call c
+c:
+    ret
+d:
+    iret
+e:
+    loadi t0 1
+    store t0 zero exit

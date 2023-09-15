@@ -1,5 +1,5 @@
 #include "model.hpp"
-#include "../rkisa/isa.hpp"
+#include "../rkarch/arch.hpp"
 #include "utils.hpp"
 #include <bitset>
 #include <iomanip>
