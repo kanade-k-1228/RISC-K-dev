@@ -23,35 +23,35 @@ bool is_mnemonic(std::string str) {
 
 uint16_t alu(uint8_t code, uint16_t a, uint16_t b) {
   switch(code) {
-  case ALUCode::ADD:
+  case CalcFunc::ADD:
     return a + b;
-  case ALUCode::NOT:
+  case CalcFunc::NOT:
     return !a;
-  case ALUCode::SL:
+  case CalcFunc::SL:
     return (a << 1);
-  case ALUCode::LROT:
+  case CalcFunc::LROT:
     return ((a << 1) & 0xfffe) | ((a >> 15) & 0x0001);
-  case ALUCode::AND:
+  case CalcFunc::AND:
     return a & b;
-  case ALUCode::XOR:
+  case CalcFunc::XOR:
     return a ^ b;
-  case ALUCode::OR:
+  case CalcFunc::OR:
     return a | b;
-  case ALUCode::SUB:
+  case CalcFunc::SUB:
     return a - b;
-  case ALUCode::EQ:
+  case CalcFunc::EQ:
     return a == b ? 0xffff : 0x0000;
-  case ALUCode::NEQ:
+  case CalcFunc::NEQ:
     return a != b ? 0xffff : 0x0000;
-  case ALUCode::LTU:
+  case CalcFunc::LTU:
     return ((uint16_t)a < (uint16_t)b) ? 0xffff : 0x0000;
-  case ALUCode::LTS:
+  case CalcFunc::LTS:
     return ((int16_t)a < (int16_t)b) ? 0xffff : 0x0000;
-  case ALUCode::SRU:
+  case CalcFunc::SRU:
     return (a >> 1) & 0x7fff;
-  case ALUCode::SRS:
+  case CalcFunc::SRS:
     return ((a >> 1) & 0x7fff) | (a & 0x8000);
-  case ALUCode::RROT:
+  case CalcFunc::RROT:
     return ((a >> 1) & 0x7fff) | (a << 15 & 0x8000);
   }
   throw "Undefined ALU Code";

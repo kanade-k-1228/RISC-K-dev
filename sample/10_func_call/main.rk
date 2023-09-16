@@ -1,32 +1,46 @@
-zero:
-    loadi  sp 0xffff
+main:
 ; レジスタにダミーデータをセット
-    loadi  s0  0x0000
-    loadi  s1  0x1111
-    loadi  s2  0x2222
-    loadi  s3  0x3333
-    loadi  t0  0x4444
-    loadi  t1  0x5555
-    loadi  t2  0x6666
-    loadi  t3  0x7777
-; スタックに退避
-    subi   sp  sp  4
-    store  t0  sp  1
-    store  t1  sp  2
-    store  t2  sp  3
-    store  t3  sp  4
-; Call
-    call   func
-; ここに戻ってくる
-; Tレジスタを復元
-    load   t3  sp  4
-    load   t2  sp  3
-    load   t1  sp  2
-    load   t0  sp  1
-    addi   sp  sp  4
-
-_exit:
-    ori  csr csr 0x100
+    loadi  zero 0x1111
+    loadi  ira  0x2222
+    loadi  pc   0x3333
+    loadi  a0   0xAA00
+    loadi  a1   0xAA11
+    loadi  t0   0xBB00
+    loadi  t1   0xBB11
+    loadi  t2   0xBB22
+    loadi  t3   0xBB33
+    loadi  s0   0xCC00
+    loadi  s1   0xCC11
+    loadi  s2   0xCC22
+    loadi  s3   0xCC33
+; プロローグ
+; 呼び出し側保存レジスタをスタックに退避
+    subi   sp sp 8
+    store  a0 sp 8
+    store  a1 sp 7
+    store  t0 sp 6
+    store  t1 sp 5
+    store  t2 sp 4
+    store  t3 sp 3
+    store  fp sp 2
+    store  ra sp 1
+; 関数呼び出し
+; Call func(1,2)
+    loadi a0 0x0001
+    loadi a1 0x0002
+    call  func
+; エピローグ
+; レジスタを復元
+    load  ra sp 1
+    load  fp sp 2
+    load  t3 sp 3
+    load  t2 sp 4
+    load  t1 sp 5
+    load  t0 sp 6
+    load  a1 sp 7
+    load  a0 sp 8
+    addi  sp sp 8
+    ret
 
 ; 足し算を計算する関数
 ; t0 = t0 + t1
@@ -42,6 +56,7 @@ func:
 
 ; 関数の本体
     add   t0  t0  t1
+
 ; レジスタを荒らす
     loadi s0  0xffff
     loadi s1  0xffff
