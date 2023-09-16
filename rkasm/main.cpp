@@ -34,31 +34,39 @@ int main(int argc, char* argv[]) {
     std::cout << man << std::endl;
     return EXIT_FAILURE;
   }
-  std::string input_file = argv[optind];
-  std::string output_file = (o_arg == "") ? (input_file + ".bin") : o_arg;
-  std::cout << "----------------------------------------------------" << std::endl
-            << "Assemble: " << input_file << std::endl;
-
-  // ファイルを開く
-  std::ifstream fin(input_file, std::ios::in);
-  if(!fin) {
-    std::cout << "Cannot open input file: " << input_file << std::endl;
-    return EXIT_FAILURE;
+  std::vector<std::string> input_files;
+  for(int i = optind; i < argc; ++i) {
+    input_files.emplace_back(argv[i]);
   }
+  std::string output_file = (o_arg == "") ? "out.rk.bin" : o_arg;
 
-  // 一行ずつスキャンし、命令リストに格納
-  std::cout << " 1. Parse" << std::endl;
-  std::string line;
+  std::cout << "----------------------------------------------------" << std::endl
+            << "Assemble: ";
+  for(auto input_file : input_files) std::cout << input_file << " ";
+  std::cout << std::endl;
+
+  // アセンブリファイルを順番にスキャン
   std::vector<Line> stmts;     // コードリスト
   uint16_t operation_cnt = 0;  // 機械語命令カウンタ
-  for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
-    try {
-      Line stmt(input_file, line_cnt, line, operation_cnt);  // 行を解釈
-      stmts.push_back(stmt);                                 // 行を追加
-      if(stmt.isOperation()) ++operation_cnt;                // 命令行の場合、PCのカウントアップ
-    } catch(std::string* msg) {
-      std::cout << print_error(input_file, line_cnt, line, *msg);
-      error = true;
+  for(auto input_file : input_files) {
+    // ファイルを開く
+    std::ifstream fin(input_file, std::ios::in);
+    if(!fin) {
+      std::cout << "Cannot open input file: " << input_file << std::endl;
+      return EXIT_FAILURE;
+    }
+    // 一行ずつスキャンし、命令リストに格納
+    std::cout << " 1. Parse: " << input_file << std::endl;
+    std::string line;
+    for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
+      try {
+        Line stmt(input_file, line_cnt, line, operation_cnt);  // 行を解釈
+        stmts.push_back(stmt);                                 // 行を追加
+        if(stmt.isOperation()) ++operation_cnt;                // 命令行の場合、PCのカウントアップ
+      } catch(std::string* msg) {
+        std::cout << print_error(input_file, line_cnt, line, *msg);
+        error = true;
+      }
     }
   }
 
