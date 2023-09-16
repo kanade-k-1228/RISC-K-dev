@@ -23,20 +23,18 @@ int main(int argc, char* argv[]) {
   CPU cpu;
   DumpPoints dump_points;
   IntrPoints intr_points;
+  int terminal = -1;
   bool print_opr = false;
-  bool interval_time = false;
   bool dump_all = false;
-  bool step_by_step = false;
 
   // Init Emulator with Comandline options
   opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "d:i:otas")) != -1;) {
+  for(int opt; (opt = getopt(argc, argv, "d:i:t:oa")) != -1;) {
     if(opt == 'd') dump_points.init(optarg);
     if(opt == 'i') intr_points.init(optarg);
     if(opt == 'o') print_opr = true;
-    if(opt == 't') interval_time = true;
+    if(opt == 't') terminal = std::stoi(optarg);
     if(opt == 'a') dump_all = true;
-    if(opt == 's') step_by_step = true;
     if(opt == '?') {
       std::cout << man << std::endl;
       return EXIT_FAILURE;
@@ -64,15 +62,11 @@ int main(int argc, char* argv[]) {
     // Execute
     cpu.execute(code);
     int sout = cpu.serial();
-    bool exit = cpu.is_shutdowned();
 
     // Print Operation
     if(print_opr || dump_all || dump_points.is_dump(pc))
-      std::cout << "[" << hex((uint16_t)t) << "] "
-                << green(hex(pc)) << " : "
-                << Debug::print_code(code)
-                << ((sout != -1) ? " > " + esc_char((char)sout) : "")
-                << std::endl;
+      std::cout << "[" << hex((uint16_t)t) << "] " << green(hex(pc)) << " : " << Debug::print_code(code)
+                << ((sout != -1) ? " > " + esc_char((char)sout) : "") << std::endl;
     else if(sout != -1)
       std::cout << (char)sout;
 
@@ -80,7 +74,7 @@ int main(int argc, char* argv[]) {
     if(dump_points.is_dump(pc))
       std::cout << Debug::dump(cpu, dump_points.at(pc));
     else if(dump_all)
-      std::cout << Debug::dump(cpu);
+      std::cout << Debug::dump_reg(cpu);
 
     // Interrupt
     cpu.jump_interrupt();
@@ -88,26 +82,8 @@ int main(int argc, char* argv[]) {
     if(intr_points.is_intr(t))
       cpu.external_irq(intr_points.at(t).ino);
 
-    // Goto Next Operation
-    if(step_by_step) {
-      char cmd = getch();
-      while(!cmd) {
-        if(cmd == '\n') continue;
-        if(cmd == '\e') break;
-        if(cmd == 'i') {
-          std::cout << "Interrupt No ? ";
-          std::cin >> cmd;
-          int intr_no = cmd - '0';
-          cpu.external_irq(intr_no);
-        }
-      }
-    }
-
     // Exit Emulator
-    if(exit) break;
-
-    // Interval Time between Operation
-    if(interval_time) usleep(10000);
+    if(cpu.is_shutdowned() || (terminal != -1 && t > terminal)) break;
   }
   std::cout << std::endl
             << "=================================================" << std::endl;

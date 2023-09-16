@@ -118,7 +118,7 @@ std::string Debug::print_code(uint32_t code) {
 
 std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   std::stringstream ss;
-  ss << dump(cpu);
+  ss << dump_reg(cpu);
   for(uint16_t addr : opt.address)
     ss << " | " << hex(addr) << " : " << hex(cpu.ram.get(addr)) << "                                 |" << std::endl;
   if(opt.stack) {
@@ -129,7 +129,7 @@ std::string Debug::dump(CPU& cpu, DumpOption& opt) {
   return ss.str();
 }
 
-std::string Debug::dump(CPU& cpu) {
+std::string Debug::dump_reg(CPU& cpu) {
   std::stringstream ss;
   ss << " +------------+----------+----------+----------+" << std::endl
      << " | zero: " << hex(cpu.ram.get(Reg::zero)) << " | ra: " << hex(cpu.ram.get(Reg::ra)) << " | t0: " << hex(cpu.ram.get(Reg::t0)) << " | s0: " << hex(cpu.ram.get(Reg::s0)) << " |" << std::endl

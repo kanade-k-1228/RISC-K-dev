@@ -8,7 +8,7 @@ _start:
     jump _main
 
 _irq:
-    jump _exit
+    jump irq
 
 _main:
     loadi sp 0xffff

@@ -19,6 +19,9 @@
 reset:
     jump main
 
+irq:
+    iret
+
 main:
     loadi zero 0xffff ; invalid
     loadi ira  0xffff ; invalid

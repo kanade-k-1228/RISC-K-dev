@@ -26,11 +26,11 @@ public:
 };
 
 class CPU {
+  bool irq_latch[4] = {false};
 public:
   RAM ram;
   std::array<uint32_t, 0x10000> rom;
   std::string fname;
-  bool irq_latch[4] = {false};
 
   CPU();
 
@@ -39,6 +39,7 @@ public:
   bool is_shutdowned() { return ram.get(CSR::power); }
   int serial();
 
+  void scan_irq(bool irq[4]);
   void external_irq(int);
   void catch_interrupt();
   void jump_interrupt();
