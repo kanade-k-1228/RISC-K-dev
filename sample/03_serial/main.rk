@@ -1,0 +1,26 @@
+main:
+    loadi t0 'H'
+    store t0 zero stx
+    loadi t0 'e'
+    store t0 zero stx
+    loadi t0 'l'
+    store t0 zero stx
+    loadi t0 'l'
+    store t0 zero stx
+    loadi t0 'o'
+    store t0 zero stx
+    loadi t0 ''
+    store t0 zero stx
+    loadi t0 'W'
+    store t0 zero stx
+    loadi t0 'o'
+    store t0 zero stx
+    loadi t0 'r'
+    store t0 zero stx
+    loadi t0 'l'
+    store t0 zero stx
+    loadi t0 'd'
+    store t0 zero stx
+    loadi t0 '!'
+    store t0 zero stx
+    ret

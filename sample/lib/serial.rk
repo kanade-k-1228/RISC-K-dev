@@ -1,3 +1,7 @@
+;; Serial
+
+@0x0100 stx
+@0x0101 srx
 
 #0x20 ''
 #0x21 '!'
@@ -67,24 +71,3 @@
 #0x78 'x'
 #0x79 'y'
 #0x7A 'z'
-
-#0x100 exit
-
-loadi cout 'H'
-loadi cout 'e'
-loadi cout 'l'
-loadi cout 'l'
-loadi cout 'o'
-loadi cout ''
-loadi cout 'W'
-loadi cout 'o'
-loadi cout 'r'
-loadi cout 'l'
-loadi cout 'd'
-loadi cout ''
-loadi cout '!'
-loadi cout ''
-loadi cout '!'
-loadi cout ''
-loadi cout '!'
-ori   csr csr exit

@@ -1,0 +1,14 @@
+;; start.rk
+
+@0x0010 _power
+#0x0000 _power_on
+#0x0001 _power_off
+
+_start:
+    loadi sp 0xffff
+    call main
+_exit:
+    loadi t0 _power_off
+    store t0 zero _power
+_irq:
+    jump _exit
