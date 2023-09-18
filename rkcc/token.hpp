@@ -13,14 +13,17 @@ public:
   Type type;
   std::string str;
   int val;
+
+
   Token(Type type, std::string str, int val);
-  bool type_is(Type type) { return this->type == type; }
+  bool is_sign() { return this->type == Type::Sign; }
+  bool is_ident() { return this->type == Type::Identifier; }
+  bool is_number() { return this->type == Type::Number; }
   bool str_is(std::string str) { return this->str == str; };
   std::string get_str() { return str; }
   int get_val() { return val; }
+  std::string print();
 };
-
-std::ostream& operator<<(std::ostream&, Token);
 
 namespace TokenRegex {
 const std::regex blank("^\\s");

@@ -14,6 +14,9 @@
 #include <vector>
 
 int main(int argc, char* argv[]) {
+
+  bool print_token = true;
+
   // ファイルの読み取り
   if(argc < 1) exit(EXIT_FAILURE);
   std::string fname = argv[1];
@@ -21,36 +24,42 @@ int main(int argc, char* argv[]) {
   if(!fin) exit(EXIT_FAILURE);
 
   // トークン化
-  // 先頭から読み取っていく
-  std::string line;
   std::smatch match;
   Tokens tokens;
+  std::string line;
+  int line_cnt = 0;
   while(std::getline(fin, line)) {
+    line_cnt++;
     try {
       tokenize(line, tokens);
     } catch(std::string e) {
-      print_error(fname, 0, line, e);
+      print_error(fname, line_cnt, line, e);
     }
   }
 
-  // for(auto t : tokens.tokens) std::cout << t;
-  // std::cout << std::endl;
+  if(print_token) {
+    std::cout << "------[Tokens]------" << std::endl;
+    for(auto t : tokens.tokens) std::cout << t.print() << " ";
+    std::cout << std::endl;
+  }
 
   // 構文木の構築
-  Node* root = program(tokens);
+  Node* root;
+  try {
+    root = program(tokens);
+  } catch(std::string e) {
+    print_error(fname, 0, "", e);
+  }
+
   // std::cout << root << std::endl;
   // シンボルテーブル生成
   Symbols symbols(root);
   std::cout << "------[Symbols]------" << std::endl;
   for(auto gs : symbols.symbols) {
-    std::cout << "+ " << gs->kind
-              << " : " << std::setw(8) << std::left << gs->name
-              << " : " << gs->type
-              << std::endl;
+    std::cout << "+ " << gs->print() << std::endl;
     if(gs->kind == Symbol::Kind::Func) {
       for(auto ls : gs->local->symbols) {
-        std::cout << "|  + " << ls->kind << " : " << std::setw(6) << std::left << ls->name
-                  << " : " << ls->type << std::endl;
+        std::cout << "|  + " << gs->print() << std::endl;
       }
     }
   }

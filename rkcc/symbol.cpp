@@ -1,10 +1,16 @@
 #include "symbol.hpp"
+#include "utils.hpp"
 
-std::ostream& operator<<(std::ostream& ss, Symbol::Kind kind) {
-  if(kind == Symbol::Kind::Func) ss << "func";
-  if(kind == Symbol::Kind::GVar) ss << "var";
-  if(kind == Symbol::Kind::LVar) ss << "var";
-  if(kind == Symbol::Kind::Arg) ss << "arg";
-  if(kind == Symbol::Kind::Type) ss << "type";
-  return ss;
+std::string Symbol::print_kind() {
+  if(kind == Symbol::Kind::Func) return "func";
+  if(kind == Symbol::Kind::GVar) return "var";
+  if(kind == Symbol::Kind::LVar) return "var";
+  if(kind == Symbol::Kind::Arg) return "arg";
+  if(kind == Symbol::Kind::Type) return "type";
+}
+
+std::string Symbol::print() {
+  std::stringstream ss;
+  ss << this->print_kind() << " : " << left(this->name, 8) << " : " << this->type;
+  return ss.str();
 }

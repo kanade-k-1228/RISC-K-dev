@@ -82,6 +82,8 @@ public:
 
   void add_child(Node* node) { childs.push_back(node); }
 
+  std::string print();
+
   // Type
   Node* type_base() { return childs.at(0); }
   int array_len() { return childs.at(1)->val; }

@@ -1,14 +1,15 @@
 #include "token.hpp"
+#include "utils.hpp"
 #include <iostream>
 
 Token::Token(Type type, std::string str, int val)
     : type(type), str(str), val(val) {}
 
-std::ostream& operator<<(std::ostream& ss, Token token) {
-  if(token.type_is(Token::Type::Sign)) ss << "\033[31m" << token.str << "\033[m ";
-  if(token.type_is(Token::Type::Identifier)) ss << "\033[34m" << token.str << "\033[m ";
-  if(token.type_is(Token::Type::Number)) ss << "\033[32m" << token.val << "\033[m ";
-  return ss;
+std::string Token::print() {
+  if(this->is_sign()) return red(this->str);
+  if(this->is_ident()) return blue(this->str);
+  if(this->is_number()) return green(std::to_string(this->val));
+  throw new std::string("Undefined token type");
 }
 
 void tokenize(std::string code, Tokens& tokens) {

@@ -46,7 +46,7 @@ Node* type(Tokens& tokens) {
     return new Node(Node::Type::TypePointer, {type(tokens)});
   }
   // ベース型
-  if(tokens.head().type_is(Token::Type::Identifier)) {
+  if(tokens.head().is_ident()) {
     return new Node(Node::Type::TypePrim, {new Node(tokens.pop().str)});
   }
   return nullptr;
@@ -295,9 +295,9 @@ Node* prim(Tokens& tokens) {
     Node* node = expr(tokens);
     tokens.consume(")");
     return node;
-  } else if(tokens.head().type_is(Token::Type::Number)) {
+  } else if(tokens.head().is_number()) {
     return num(tokens);
-  } else if(tokens.head().type_is(Token::Type::Identifier)) {
+  } else if(tokens.head().is_ident()) {
     return ident(tokens);
   } else {
     throw new std::string("Expected Primitive: " + tokens.head().str);
