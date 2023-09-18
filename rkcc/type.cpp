@@ -1,5 +1,4 @@
 #include "type.hpp"
-#include "utils.hpp"
 
 int type_size(Node* node) {
   switch(node->type) {

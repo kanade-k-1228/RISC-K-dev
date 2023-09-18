@@ -25,8 +25,14 @@ int main(int argc, char* argv[]) {
   std::string line;
   std::smatch match;
   Tokens tokens;
-  while(std::getline(fin, line))
-    tokenize(line, tokens);
+  while(std::getline(fin, line)) {
+    try {
+      tokenize(line, tokens);
+    } catch(std::string e) {
+      print_error(fname, 0, line, e);
+    }
+  }
+
   // for(auto t : tokens.tokens) std::cout << t;
   // std::cout << std::endl;
 
