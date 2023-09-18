@@ -11,6 +11,6 @@ std::string Symbol::print_kind() {
 
 std::string Symbol::print() {
   std::stringstream ss;
-  ss << this->print_kind() << " : " << left(this->name, 8) << " : " << this->type;
+  ss << left(this->print_kind(), 4) << " : " << left(this->name, 8) << " : " << this->type;
   return ss.str();
 }
