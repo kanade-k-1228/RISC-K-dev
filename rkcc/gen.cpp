@@ -1,5 +1,5 @@
 #include "gen.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 #include <iomanip>
 #include <iostream>
 
@@ -29,7 +29,7 @@ uint16_t CodeGen::type_size(Node* node) {
     // 定義された型 : シンボルテーブルから探す
     Symbol* defined_type = symbols->find(type_name);
     if(defined_type == nullptr)
-      error("Cannot find def of type: " + node->def_name()->str);
+      throw new std::string("Cannot find def of type: " + node->def_name()->str);
     return type_size(defined_type->type);
   }
 
@@ -55,7 +55,7 @@ uint16_t CodeGen::type_size(Node* node) {
   if(node->type_is(Node::Type::TypeFunc)) {
     return 0;
   }
-  error("This node is not type");
+  throw new std::string("This node is not type");
   return 0;
 }
 

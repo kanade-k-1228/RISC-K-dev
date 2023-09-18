@@ -1,5 +1,5 @@
 #include "type.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 
 int type_size(Node* node) {
   switch(node->type) {
@@ -17,7 +17,7 @@ int type_size(Node* node) {
   case Node::Type::TypeFunc:  // 関数型 : RAM上になし
     return 0;
   default:
-    error("This node is not type: ");
+    throw new std::string("This node is not type: ");
     return 0;
   }
 }

@@ -1,5 +1,5 @@
 #include "ast.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -151,7 +151,7 @@ Node* stmt(Tokens& tokens) {
       return new Node(Node::Type::Assign, {body, rhs});
     }
   }
-  error("Cannot read as stmt" + tokens.head().str);
+  throw new std::string("Cannot read as stmt" + tokens.head().str);
   return nullptr;
 }
 
@@ -301,7 +301,7 @@ Node* prim(Tokens& tokens) {
   } else if(tokens.head().type_is(Token::Type::Identifier)) {
     return ident(tokens);
   } else {
-    error("Expected Primitive: " + tokens.head().str);
+    throw new std::string("Expected Primitive: " + tokens.head().str);
     return nullptr;
   }
 }

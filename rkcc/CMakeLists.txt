@@ -13,5 +13,5 @@ add_executable(rkcc
     type.cpp
     code.cpp
     gen.cpp
-    ../utils/utils.cpp
+    utils.cpp
 )

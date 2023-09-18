@@ -1,5 +1,5 @@
 #include "code.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 #include <sstream>
 
 void Code::comment(std::string comment) { code.push_back("; " + comment); }
@@ -11,8 +11,8 @@ void Code::comment(Node* node) {
 void Code::newline() { code.push_back(""); }
 
 void Code::label(std::string label) { code.push_back(label + ":"); };
-void Code::addr_label(std::string label, uint16_t addr) { code.push_back("@" + hex(true, addr) + " " + label); };
-void Code::const_label(std::string label, uint16_t value) { code.push_back("#" + hex(true, value) + " " + label); };
+void Code::addr_label(std::string label, uint16_t addr) { code.push_back("@" + hex(addr) + " " + label); };
+void Code::const_label(std::string label, uint16_t value) { code.push_back("#" + hex(value) + " " + label); };
 
 void Code::add(std::string rd, std::string rs1, std::string rs2) { code.push_back("  add   " + rd + " " + rs1 + " " + rs2); }
 void Code::sub(std::string rd, std::string rs1, std::string rs2) { code.push_back("  sub   " + rd + " " + rs1 + " " + rs2); }

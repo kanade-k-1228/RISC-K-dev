@@ -1,5 +1,5 @@
 #include "token.hpp"
-#include "../utils/utils.hpp"
+#include "utils.hpp"
 #include <iostream>
 
 Token::Token(Type type, std::string str, int val)
@@ -43,7 +43,7 @@ void tokenize(std::string code, Tokens& tokens) {
       Token new_token(Token::Type::Number, match_str, std::stoi(match_str));
       tokens.push_back(new_token);
     } else {
-      error("Undefined Token: " + code);
+      throw new std::string("Undefined Token: " + code);
     }
   }
 }

@@ -1,4 +1,3 @@
-#include "../utils/utils.hpp"
 #include "ast.hpp"
 #include "code.hpp"
 #include "dfs.hpp"
@@ -6,6 +5,7 @@
 #include "symbols.hpp"
 #include "token.hpp"
 #include "type.hpp"
+#include "utils.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
