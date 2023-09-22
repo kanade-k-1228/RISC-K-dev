@@ -1,6 +1,8 @@
 main:
+; 割り込み許可
     loadi t0 1
     store t0 zero _irq_en
+; 本体
     loadi t0 'H'
     store t0 zero stx
     loadi t0 'e'
@@ -28,7 +30,16 @@ main:
     ret
 
 irq:
+    
     loadi t0 '\n'
+    store t0 zero stx
+    loadi t0 '!'
+    store t0 zero stx
+    loadi t0 '!'
+    store t0 zero stx
+    loadi t0 '!'
+    store t0 zero stx
+    loadi t0 ''
     store t0 zero stx
     loadi t0 'I'
     store t0 zero stx
@@ -40,4 +51,4 @@ irq:
     store t0 zero stx
     loadi t0 '\n'
     store t0 zero stx
-    iret
+    ret

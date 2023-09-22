@@ -8,7 +8,41 @@ _start:
     jump _main
 
 _irq:
-    jump irq
+    ; 割り込み禁止
+    store zero zero _irq_en
+    subi   sp  sp  12
+    store  a0  sp  12
+    store  a1  sp  11
+    store  t0  sp  10
+    store  t1  sp   9
+    store  t2  sp   8
+    store  t3  sp   7
+    store  s0  sp   6
+    store  s1  sp   5
+    store  s2  sp   4
+    store  s3  sp   3
+    store  fp  sp   2
+    store  ra  sp   1
+    call irq
+    load   ra  sp   1
+    load   fp  sp   2
+    load   s3  sp   3
+    load   s2  sp   4
+    load   s1  sp   5
+    load   s0  sp   6
+    load   t3  sp   7
+    load   t2  sp   8
+    load   t1  sp   9
+    load   t0  sp  10
+    load   a1  sp  11
+    load   a0  sp  12
+    addi   sp  sp  12
+    ; 割り込み許可
+    ; 割り込み時にレジスタが汚れる問題
+    ; 割り込みに入った時点で自動的に割り込み禁止にする？
+    loadi t0 1
+    store t0 zero _irq_en
+    iret
 
 _main:
     loadi sp 0xffff

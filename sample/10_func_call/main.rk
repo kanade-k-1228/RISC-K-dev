@@ -77,3 +77,6 @@ func:
 
 ; Return
     ret
+
+irq:
+    ret
