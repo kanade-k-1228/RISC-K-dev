@@ -1,3 +1,3 @@
 all: ../lib/start.rk main.rk
 	rkasm $^
-	rkemu out.rk.bin
+	rkemu -a out.rk.bin

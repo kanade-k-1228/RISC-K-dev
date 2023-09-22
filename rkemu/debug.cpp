@@ -15,7 +15,7 @@ void IntrPoints::init(std::string fname) {
     auto tokens = split(line, ' ');
     IntrOption intr_opt;
     int t = std::stoi(tokens.at(0), nullptr, 0);
-    intr_opt.ino = std::stoi(tokens.at(1));
+    intr_opt.irq_flag = std::stoi(tokens.at(1));
     this->insert(std::make_pair(t, intr_opt));
   }
 }

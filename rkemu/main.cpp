@@ -76,11 +76,9 @@ int main(int argc, char* argv[]) {
     else if(dump_all)
       std::cout << Debug::dump_reg(cpu);
 
+    // Catch external pin
     // Interrupt
-    cpu.jump_interrupt();
-    cpu.catch_interrupt();
-    if(intr_points.is_intr(t))
-      cpu.external_irq(intr_points.at(t).ino);
+    cpu.interrupt(intr_points.is_intr(t) ? intr_points.at(t).irq_flag : 0);
 
     // Exit Emulator
     if(cpu.is_shutdowned() || (terminal != -1 && t > terminal)) break;

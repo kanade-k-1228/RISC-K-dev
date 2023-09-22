@@ -31,29 +31,19 @@ int CPU::serial() {
   }
 }
 
-void CPU::scan_irq(bool irq[4]) {
-}
-
-void CPU::external_irq(int irq_no) {
-  irq_latch[irq_no] = true;
-}
-
-void CPU::catch_interrupt() {
-  if(ram.get(CSR::irq_en)) {  // 割り込み許可か
-    if(irq_latch[0]) ram.set(CSR::irq_0, 1);
-    if(irq_latch[1]) ram.set(CSR::irq_1, 1);
-    if(irq_latch[2]) ram.set(CSR::irq_2, 1);
-    if(irq_latch[3]) ram.set(CSR::irq_3, 1);
+void CPU::interrupt(uint16_t irq_flag) {
+  static int irq_flag_latch;
+  static const uint16_t irq_0 = 1;
+  static const uint16_t irq_1 = 2;
+  static const uint16_t irq_2 = 4;
+  static const uint16_t irq_3 = 8;
+  if(ram.get(CSR::irq_en)) {
+    if(irq_flag_latch & (irq_0 | irq_1 | irq_2 | irq_3)) {
+      ram.set_ira();
+      ram.set_pc(Addr::PC_INTR);
+    }
   }
-}
-
-void CPU::jump_interrupt() {
-  if(ram.get(CSR::irq_en)) {  // 割り込み許可か
-    if(ram.get(CSR::irq_0)) irq_latch[0] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
-    if(ram.get(CSR::irq_1)) irq_latch[1] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
-    if(ram.get(CSR::irq_2)) irq_latch[2] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
-    if(ram.get(CSR::irq_3)) irq_latch[3] = false, ram.set_ira(), ram.set_pc(Addr::PC_INTR);
-  }
+  irq_flag_latch = irq_flag;
 }
 
 void CPU::execute(uint32_t code) {

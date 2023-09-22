@@ -36,18 +36,14 @@ public:
 
   void load_rom_file(std::string);
 
-  bool is_shutdowned() { return ram.get(CSR::power); }
-  int serial();
-
-  void scan_irq(bool irq[4]);
-  void external_irq(int);
-  void catch_interrupt();
-  void jump_interrupt();
-
   void execute(uint32_t);
   void calc(uint8_t alu_func, uint16_t rd, uint16_t rs1, uint16_t rs2);
   void calci(uint8_t alu_func, uint16_t rd, uint16_t rs1, uint16_t imm);
   void load(uint16_t, uint16_t, uint16_t);
   void store(uint16_t, uint16_t, uint16_t);
   void ctrl(uint16_t, uint16_t, uint16_t, uint16_t);
+
+  bool is_shutdowned() { return ram.get(CSR::power); }
+  int serial();
+  void interrupt(uint16_t irq_flag);
 };

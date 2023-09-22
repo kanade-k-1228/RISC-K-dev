@@ -7,7 +7,7 @@
 #include <vector>
 
 struct IntrOption {
-  int ino;
+  int irq_flag;
 };
 
 class IntrPoints : public std::map<int, IntrOption> {
