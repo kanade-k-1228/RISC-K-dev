@@ -30,7 +30,6 @@ main:
     ret
 
 irq:
-    
     loadi t0 '\n'
     store t0 zero stx
     loadi t0 '!'
