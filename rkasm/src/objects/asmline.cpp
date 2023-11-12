@@ -1,4 +1,4 @@
-#include "line.hpp"
+#include "asmline.hpp"
 #include "arch/arch.hpp"
 #include "utils/utils.hpp"
 #include <iomanip>
@@ -7,7 +7,7 @@
 
 bool match_label(std::string s) { return s.front() == '@' || s.front() == '#' || s.back() == ':'; }
 
-Line::Line(const Position position, const std::string str, const uint16_t pc)
+ASMLine::ASMLine(const Position position, const std::string str, const uint16_t pc)
     : position(position), str(str) {
   // コメントを分離
   const auto pos = str.find(";");  // 最初にヒットした ; の位置

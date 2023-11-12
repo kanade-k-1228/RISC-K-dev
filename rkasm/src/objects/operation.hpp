@@ -17,5 +17,5 @@ public:
   void genBin();
   uint32_t getBin() { return bin; }
   void resoluteLabel(std::vector<Label> labels);
-  friend std::string pprint(Operation&);
+  friend std::string print(Operation&);
 };

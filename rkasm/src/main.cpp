@@ -1,5 +1,5 @@
 #include "arch/arch.hpp"
-#include "class/line.hpp"
+#include "objects/objects.hpp"
 #include "utils/utils.hpp"
 #include <fstream>
 #include <iomanip>
@@ -15,13 +15,16 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl
             << "Assemble: " << input_files << std::endl;
 
-  std::vector<Line> asms;
+  std::vector<ASMLine> asms;
+
   for(auto input_file : input_files) {
     std::ifstream fin(input_file, std::ios::in);
+
     if(!fin) {
       std::cout << "Cannot open input file: " << input_file << std::endl;
       exit(EXIT_FAILURE);
     }
+
     std::cout << " 1. Parse: " << input_file << std::endl;
 
     int line_cnt = 0;
@@ -29,11 +32,15 @@ int main(int argc, char* argv[]) {
     std::string line;
 
     while(std::getline(fin, line)) {
+
       line_cnt++;
+
       try {
-        Line asmline({input_file, line_cnt}, line, pc_cnt);
+
+        ASMLine asmline({input_file, line_cnt}, line, pc_cnt);
         asms.push_back(asmline);
         if(asmline.isOperation()) pc_cnt++;
+
       } catch(std::string* msg) {
         std::cout << print_error({input_file, line_cnt}, line, *msg);
       }
@@ -89,11 +96,11 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl;
 
   // アセンブラを表示
-  for(auto stmt : asms) std::cout << pprint(stmt) << std::endl;
+  for(auto stmt : asms) std::cout << print(stmt) << std::endl;
   std::cout << "----------------------------------------------------" << std::endl;
 
   // フォーマット出力
-  // for(auto stmt : stmts) std::cout << stmt.print_format() << std::endl;
+  // for(auto stmt : stmts) std::cout << format(stmt) << std::endl;
   // std::cout << "----------------------------------------------------" << std::endl;
 
   return EXIT_SUCCESS;
