@@ -35,11 +35,3 @@ std::string printPretty(Label& lab) {
   if(lab.isOpr()) ss << green(lab.name + ":");
   return ss.str();
 }
-
-std::string printPretty(Imm& imm) {
-  if(imm.type == Imm::LITERAL) return yellow(hex(imm.value));
-  if(imm.type == Imm::OPR_LAB_REF) return green(hex(imm.value) + " = " + imm.label);
-  if(imm.type == Imm::VAR_LAB_REF) return cyan(hex(imm.value) + " = " + imm.label);
-  if(imm.type == Imm::CONST_LAB_REF) return yellow(hex(imm.value) + " = " + imm.label);
-  return "";
-}
