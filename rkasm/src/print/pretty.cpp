@@ -20,11 +20,10 @@ std::string printPretty(Instruction& opr) {
   ss << hex(opr.address) << " | " << hex(opr.getBin()) << " | ";
   ss << "    " << red(left(opr.mnemonic, indent));
   int imm_indent = 2;
-  for(auto arg_type : opr.format.operand) {
-    if(arg_type == "rd") imm_indent--, ss << blue(left(opr.rd, indent));
-    if(arg_type == "rs1") imm_indent--, ss << blue(left(opr.rs1, indent));
-    if(arg_type == "rs2") imm_indent--, ss << blue(left(opr.rs2, indent));
-    if(arg_type == "imm") ss << std::string(imm_indent * indent, ' ') << printPretty(opr.imm);
+  for(auto [key, str, val, type, lab] : opr.argResolved) {
+    if(type == ArgType::Reg) imm_indent--, ss << blue(left(str, indent));
+    if(type == ArgType::Imm) ss << std::string(imm_indent * indent, ' ') << yellow(hex((uint16_t)val));
+    if(type == ArgType::Lab) ss << std::string(imm_indent * indent, ' ') << printPretty(lab.value());
   }
   return ss.str();
 }

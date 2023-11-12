@@ -1,6 +1,30 @@
 #pragma once
 #include <string>
+#include <variant>
 #include <vector>
+
+class LabelBase {
+  std::string name;
+  uint16_t value;
+public:
+};
+
+class OprLabel : LabelBase {
+public:
+  static bool match(std::string str) { return str.back() == ':'; }
+};
+
+class VarLabel : LabelBase {
+public:
+  static bool match(std::string str) { return str.front() == '@'; }
+};
+
+class ConstLabel : LabelBase {
+public:
+  static bool match(std::string str) { return str.front() == '#'; }
+};
+
+using LabelWIP = std::variant<OprLabel, VarLabel, ConstLabel>;
 
 class Label {
   enum Type {

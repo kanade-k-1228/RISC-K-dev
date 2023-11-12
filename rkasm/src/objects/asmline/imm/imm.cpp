@@ -3,13 +3,13 @@
 #include <iostream>
 
 Imm::Imm(std::string str) {
-  try {
-    this->value = std::stoi(str, nullptr, 0);
+  auto ret = stoios(str);
+  if(std::holds_alternative<int>(ret)) {
+    this->value = std::get<int>(ret);
     this->type = LITERAL;
-  } catch(std::out_of_range& e) {
-    throw new std::string("Immidiate Out of Range: " + str);
-  } catch(std::invalid_argument& e) {
-    this->label = str;
+  }
+  if(std::holds_alternative<std::string>(ret)) {
+    this->label = std::get<std::string>(ret);
     this->type = LAB_REF;
   }
 }

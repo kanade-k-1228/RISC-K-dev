@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
   for(auto& stmt : asmlines) {
     try {
       if(stmt.isOperation()) {
-        stmt.getOperation().resolveLabel(labels);
+        stmt.getOperation().resolveArgs(labels);
       }
     } catch(std::string* msg) {
       std::cout << stmt.printError(*msg);

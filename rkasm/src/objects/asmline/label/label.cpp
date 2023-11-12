@@ -6,7 +6,7 @@
 
 Label::Label(const uint16_t address, const std::vector<std::string> str) {
   std::string str0 = str.at(0);
-  if(str0.back() == ':') {  // 命令ラベル hoge:
+  if(OprLabel::match(str0)) {  // 命令ラベル hoge:
     type = OPR;
     str0.pop_back();
     name = str0;
