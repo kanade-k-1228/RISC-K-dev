@@ -2,15 +2,15 @@
 #include "format.hpp"
 #include <vector>
 
-namespace OPCode {
+namespace OPC {
 const uint8_t calc = 0b0000;
 const uint8_t calci = 0b0001;
 const uint8_t load = 0b0011;
 const uint8_t store = 0b0111;
 const uint8_t ctrl = 0b1111;
-}  // namespace OPCode
+}  // namespace OPC
 
-namespace CalcFunc {
+namespace Func {
 const uint8_t ADD = 0x0;
 const uint8_t NOT = 0x1;
 const uint8_t SL = 0x2;
@@ -26,7 +26,7 @@ const uint8_t LTS = 0xB;
 const uint8_t SRU = 0xC;
 const uint8_t SRS = 0xD;
 const uint8_t RROT = 0xE;
-}  // namespace CalcFunc
+}  // namespace Func
 
 namespace Reg {
 const uint8_t zero = 0x0;
@@ -47,60 +47,60 @@ const uint8_t s2 = 0xE;
 const uint8_t s3 = 0xF;
 }  // namespace Reg
 
-const std::vector<InstructionFormat> isa = {
+const std::vector<Format> isa = {
     // Addi
     // Arithmetic
-    {"add", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::ADD, {OPCode::calc, 0, 0, 0, CalcFunc::ADD}},
-    {"sub", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::SUB, {OPCode::calc, 0, 0, 0, CalcFunc::SUB}},
+    {"add", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::ADD}},
+    {"sub", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::SUB}},
     // Bit
-    {"and", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::AND, {OPCode::calc, 0, 0, 0, CalcFunc::AND}},
-    {"or", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::OR, {OPCode::calc, 0, 0, 0, CalcFunc::OR}},
-    {"xor", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::XOR, {OPCode::calc, 0, 0, 0, CalcFunc::XOR}},
+    {"and", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::AND}},
+    {"or", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::OR}},
+    {"xor", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::XOR}},
     // Compare
-    {"eq", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::EQ, {OPCode::calc, 0, 0, 0, CalcFunc::EQ}},
-    {"neq", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::NEQ, {OPCode::calc, 0, 0, 0, CalcFunc::NEQ}},
-    {"ltu", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::LTU, {OPCode::calc, 0, 0, 0, CalcFunc::LTU}},
-    {"lts", {"rd", "rs1", "rs2"}, OPCode::calc, CalcFunc::LTS, {OPCode::calc, 0, 0, 0, CalcFunc::LTS}},
+    {"eq", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::EQ}},
+    {"neq", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::NEQ}},
+    {"ltu", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::LTU}},
+    {"lts", {"rd", "rs1", "rs2"}, {OPC::calc, 0, 0, 0, Func::LTS}},
     // Unarry
-    {"not", {"rd", "rs1"}, OPCode::calc, CalcFunc::NOT, {OPCode::calc, 0, 0, 0, CalcFunc::NOT}},
-    {"sl", {"rd", "rs1"}, OPCode::calc, CalcFunc::SL, {OPCode::calc, 0, 0, 0, CalcFunc::SL}},
-    {"lrot", {"rd", "rs1"}, OPCode::calc, CalcFunc::LROT, {OPCode::calc, 0, 0, 0, CalcFunc::LROT}},
-    {"sru", {"rd", "rs1"}, OPCode::calc, CalcFunc::SRU, {OPCode::calc, 0, 0, 0, CalcFunc::SRU}},
-    {"srs", {"rd", "rs1"}, OPCode::calc, CalcFunc::SRS, {OPCode::calc, 0, 0, 0, CalcFunc::SRS}},
-    {"rrot", {"rd", "rs1"}, OPCode::calc, CalcFunc::RROT, {OPCode::calc, 0, 0, 0, CalcFunc::RROT}},
+    {"not", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::NOT}},
+    {"sl", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::SL}},
+    {"lrot", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::LROT}},
+    {"sru", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::SRU}},
+    {"srs", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::SRS}},
+    {"rrot", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::RROT}},
     // Psudo
-    {"nop", {}, OPCode::calc, CalcFunc::ADD, {OPCode::calc, 0, 0, 0, CalcFunc::ADD}},
-    {"mov", {"rd", "rs1"}, OPCode::calc, CalcFunc::ADD, {OPCode::calc, 0, 0, 0, CalcFunc::ADD}},
+    {"nop", {}, {OPC::calc, 0, 0, 0, Func::ADD}},
+    {"mov", {"rd", "rs1"}, {OPC::calc, 0, 0, 0, Func::ADD}},
 
     // Calci
     // Arithmetic
-    {"addi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::ADD, {OPCode::calci, 0, CalcFunc::ADD, 0, 0}},
-    {"subi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::SUB, {OPCode::calci, 0, CalcFunc::SUB, 0, 0}},
+    {"addi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::ADD, 0, 0}},
+    {"subi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::SUB, 0, 0}},
     // Bit
-    {"andi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::AND, {OPCode::calci, 0, CalcFunc::AND, 0, 0}},
-    {"ori", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::OR, {OPCode::calci, 0, CalcFunc::OR, 0, 0}},
-    {"xori", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::XOR, {OPCode::calci, 0, CalcFunc::XOR, 0, 0}},
+    {"andi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::AND, 0, 0}},
+    {"ori", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::OR, 0, 0}},
+    {"xori", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::XOR, 0, 0}},
     // Compare
-    {"eqi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::EQ, {OPCode::calci, 0, CalcFunc::EQ, 0, 0}},
-    {"neqi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::NEQ, {OPCode::calci, 0, CalcFunc::NEQ, 0, 0}},
-    {"ltui", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::LTU, {OPCode::calci, 0, CalcFunc::LTU, 0, 0}},
-    {"ltsi", {"rd", "rs1", "imm"}, OPCode::calci, CalcFunc::LTS, {OPCode::calci, 0, CalcFunc::LTS, 0, 0}},
+    {"eqi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::EQ, 0, 0}},
+    {"neqi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::NEQ, 0, 0}},
+    {"ltui", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::LTU, 0, 0}},
+    {"ltsi", {"rd", "rs1", "imm"}, {OPC::calci, 0, Func::LTS, 0, 0}},
     // Psudo
-    {"loadi", {"rd", "imm"}, OPCode::calci, CalcFunc::ADD, {OPCode::calci, 0, CalcFunc::ADD, 0, 0}},
+    {"loadi", {"rd", "imm"}, {OPC::calci, 0, Func::ADD, 0, 0}},
 
     // Load
-    {"load", {"rd", "rs1", "imm"}, OPCode::load, CalcFunc::ADD, {OPCode::load, 0, CalcFunc::ADD, 0, 0}},
-    {"pop", {"rd"}, OPCode::load, CalcFunc::ADD, {OPCode::load, Reg::sp, CalcFunc::ADD, 0, 1}},
+    {"load", {"rd", "rs1", "imm"}, {OPC::load, 0, Func::ADD, 0, 0}},
+    {"pop", {"rd"}, {OPC::load, Reg::sp, Func::ADD, 0, 1}},
 
     // Store
-    {"store", {"rs2", "rs1", "imm"}, OPCode::store, CalcFunc::ADD, {OPCode::store, 0, CalcFunc::ADD, 0, 0}},
-    {"push", {"rs2"}, OPCode::store, CalcFunc::ADD, {OPCode::store, 0, CalcFunc::ADD, 0, 0}},
+    {"store", {"rs2", "rs1", "imm"}, {OPC::store, 0, Func::ADD, 0, 0}},
+    {"push", {"rs2"}, {OPC::store, 0, Func::ADD, 0, 0}},
 
     // Control
-    {"if", {"rs1", "imm"}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::zero, 0, Reg::zero, 0}},
-    {"ifr", {"rs1 ", " imm "}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
-    {"jump", {"imm"}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::zero, 0}},
-    {"jumpr", {"imm"}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
-    {"call", {"imm"}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::ra, 0}},
-    {"ret", {}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::ra, Reg::zero, Reg::zero, 0}},
-    {"iret", {}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::ira, Reg::zero, Reg::zero, 0}}};
+    {"if", {"rs1", "imm"}, {OPC::ctrl, Reg::zero, 0, Reg::zero, 0}},
+    {"ifr", {"rs1 ", " imm "}, {OPC::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
+    {"jump", {"imm"}, {OPC::ctrl, Reg::zero, Reg::zero, Reg::zero, 0}},
+    {"jumpr", {"imm"}, {OPC::ctrl, Reg::pc, Reg::zero, Reg::zero, 0}},
+    {"call", {"imm"}, {OPC::ctrl, Reg::zero, Reg::zero, Reg::ra, 0}},
+    {"ret", {}, {OPC::ctrl, Reg::ra, Reg::zero, Reg::zero, 0}},
+    {"iret", {}, {OPC::ctrl, Reg::ira, Reg::zero, Reg::zero, 0}}};

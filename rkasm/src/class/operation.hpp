@@ -9,7 +9,7 @@ class Operation {
   std::vector<std::string> operand;
   std::string func, rs1, rs2, rd;
   Imm imm;
-  InstructionFormat format;
+  Format format;
   uint32_t bin;
 public:
   Operation(){};

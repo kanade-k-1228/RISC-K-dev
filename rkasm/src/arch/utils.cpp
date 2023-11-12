@@ -1,7 +1,7 @@
 #include "utils.hpp"
 #include "isa.hpp"
 
-const std::optional<InstructionFormat> get_operation(std::string mnemonic) {
+const std::optional<Format> get_operation(std::string mnemonic) {
   for(auto itr : isa) {
     if(itr.mnemonic == mnemonic) {
       return itr;
