@@ -98,7 +98,7 @@ const std::vector<Format> isa = {
 
     // Control
     {"if", {"rs1", "imm"}, {OPC::ctrl, "rs1", Reg::zero, Reg::zero, "imm"}},
-    {"ifr", {"imm"}, {OPC::ctrl, Reg::pc, Reg::zero, Reg::zero, "imm"}},
+    {"ifr", {"rs1", "imm"}, {OPC::ctrl, "rs1", Reg::pc, Reg::zero, "imm"}},
     {"jump", {"imm"}, {OPC::ctrl, Reg::zero, Reg::zero, Reg::zero, "imm"}},
     {"jumpr", {"imm"}, {OPC::ctrl, Reg::pc, Reg::zero, Reg::zero, "imm"}},
     {"call", {"imm"}, {OPC::ctrl, Reg::zero, Reg::zero, Reg::ra, "imm"}},

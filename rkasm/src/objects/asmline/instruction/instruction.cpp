@@ -26,9 +26,10 @@ void Instruction::resolveArgs(std::vector<Label> labels) {
       argResolved.emplace_back(key, str, reg_stoi(str), ArgType::Reg, std::nullopt);
     }
     if(key.front() == 'i') {
-      if(str == "is number") {
-      }
-      if(str == "is label") {
+      auto result = stoi_opt(str);
+      if(result.has_value()) {
+        argResolved.emplace_back(key, str, result.value(), ArgType::Imm, std::nullopt);
+      } else {
         auto label = findLabel(labels, str);
         argResolved.emplace_back(key, str, label.getValue(), ArgType::Lab, std::optional<Label>(label));
       }
@@ -37,12 +38,12 @@ void Instruction::resolveArgs(std::vector<Label> labels) {
 }
 
 void Instruction::genBin() {
-  auto slot = format.binary;
   std::vector<int> bin_sliced;
-  for(auto s : slot) {
+  for(auto s : format.binary) {
     if(std::holds_alternative<std::string>(s)) {
       auto key = std::get<std::string>(s);
-      // bin_sliced.push_back(argResolved.at(key));
+      auto result = std::find_if(argResolved.begin(), argResolved.end(), [key](auto i) { return std::get<0>(i) == key; });
+      bin_sliced.push_back(std::get<2>(*result));
     }
     if(std::holds_alternative<int>(s)) {
       auto val = std::get<int>(s);
@@ -55,7 +56,6 @@ void Instruction::genBin() {
         | ((bin_sliced.at(3) & 0x0F) << 12)
         | ((bin_sliced.at(4) & 0xFFFF) << 16);
 }
-
 
 bool Instruction::match(std::vector<std::string> splited) {
   auto s = splited.at(0);
