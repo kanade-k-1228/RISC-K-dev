@@ -1,49 +1,26 @@
 #include "../rkarch/arch.hpp"
 #include "class/line.hpp"
 #include "utils.hpp"
+#include "utils/args.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <unistd.h>
 #include <vector>
 
-std::string man
-    = "rkasm [-o] .rkasm\n"
-      "  -o: output file\n"
-      "FILE: asembly file";
+template <class T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+  std::copy(v.begin(), v.end(), std::ostream_iterator<T>(os, " "));
+  return os;
+}
 
 int main(int argc, char* argv[]) {
-
-  // エラー検出
-  bool error = false;
-
-  // コマンドライン引数の処理
-  std::string o_arg;
-  opterr = 0;
-  for(int opt; (opt = getopt(argc, argv, "o:")) != -1;) {
-    if(opt == 'o') {
-      o_arg = optarg;
-    }
-    if(opt == '?') {
-      std::cout << man << std::endl;
-      return EXIT_FAILURE;
-    }
-  }
-  if(!(optind < argc)) {
-    std::cout << man << std::endl;
-    return EXIT_FAILURE;
-  }
-  std::vector<std::string> input_files;
-  for(int i = optind; i < argc; ++i) {
-    input_files.emplace_back(argv[i]);
-  }
-  std::string output_file = (o_arg == "") ? "out.rk.bin" : o_arg;
+  auto [input_files, output_file] = parse_arg(argc, argv);
 
   std::cout << "----------------------------------------------------" << std::endl
-            << "Assemble: ";
-  for(auto input_file : input_files) std::cout << input_file << " ";
-  std::cout << std::endl;
+            << "Assemble: " << input_files << std::endl;
 
   // アセンブリファイルを順番にスキャン
   std::vector<Line> stmts;     // コードリスト
@@ -53,7 +30,7 @@ int main(int argc, char* argv[]) {
     std::ifstream fin(input_file, std::ios::in);
     if(!fin) {
       std::cout << "Cannot open input file: " << input_file << std::endl;
-      return EXIT_FAILURE;
+      exit(EXIT_FAILURE);
     }
     // 一行ずつスキャンし、命令リストに格納
     std::cout << " 1. Parse: " << input_file << std::endl;
@@ -65,7 +42,6 @@ int main(int argc, char* argv[]) {
         if(stmt.isOperation()) ++operation_cnt;                // 命令行の場合、PCのカウントアップ
       } catch(std::string* msg) {
         std::cout << print_error(input_file, line_cnt, line, *msg);
-        error = true;
       }
     }
   }
@@ -86,7 +62,6 @@ int main(int argc, char* argv[]) {
       }
     } catch(std::string* msg) {
       std::cout << stmt.printError(*msg);
-      error = true;
     }
   }
 
@@ -99,15 +74,10 @@ int main(int argc, char* argv[]) {
       }
     } catch(std::string* msg) {
       std::cout << stmt.printError(*msg);
-      error = true;
     }
   }
 
   // エラーが見つかったらコードを吐かない
-  if(error) {
-    std::cout << "----------------------------------------------------" << std::endl;
-    return EXIT_FAILURE;
-  }
 
   // コードを出力
   std::cout << " 5. Output file : " << output_file << std::endl;

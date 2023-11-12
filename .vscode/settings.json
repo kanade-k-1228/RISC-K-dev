@@ -83,5 +83,6 @@
     "numbers": "cpp",
     "semaphore": "cpp",
     "stop_token": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "/home/ohta/RISC-K/rkasm"
 }
