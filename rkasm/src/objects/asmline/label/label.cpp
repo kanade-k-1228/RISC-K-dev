@@ -1,5 +1,6 @@
 #include "label.hpp"
 #include "utils/utils.hpp"
+#include <algorithm>
 #include <sstream>
 #include <string>
 
@@ -26,4 +27,13 @@ Label::Label(const uint16_t address, const std::vector<std::string> str) {
 bool Label::match(std::vector<std::string> splited) {
   auto s = splited.at(0);
   return s.front() == '@' || s.front() == '#' || s.back() == ':';
+}
+
+Label& findLabel(std::vector<Label> vec, std::string name) {
+  auto result = std::find_if(vec.begin(), vec.end(), [name](Label l) { return l.is(name); });
+  if(result == vec.end()) {
+    throw new std::string("Undefined label: " + name);
+  } else {
+    return *result;
+  }
 }

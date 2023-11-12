@@ -29,3 +29,5 @@ public:
 
   static bool match(std::vector<std::string> splited);
 };
+
+Label& findLabel(std::vector<Label> vec, std::string name);
