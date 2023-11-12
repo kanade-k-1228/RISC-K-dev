@@ -18,4 +18,5 @@ public:
   void resoluteLabel(std::vector<Label> labels);
   friend std::string printPretty(Instruction&);
   friend std::string printFormat(Instruction&);
+  static bool match(std::vector<std::string> splitd);
 };

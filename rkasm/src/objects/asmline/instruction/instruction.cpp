@@ -56,3 +56,8 @@ void Instruction::resoluteLabel(std::vector<Label> labels) {
     }
   }
 }
+
+bool Instruction::match(std::vector<std::string> splited) {
+  auto s = splited.at(0);
+  return is_mnemonic(s);
+}

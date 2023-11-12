@@ -22,3 +22,8 @@ Label::Label(const uint16_t address, const std::vector<std::string> str) {
     value = std::stoi(str0, nullptr, 0);
   }
 }
+
+bool Label::match(std::vector<std::string> splited) {
+  auto s = splited.at(0);
+  return s.front() == '@' || s.front() == '#' || s.back() == ':';
+}

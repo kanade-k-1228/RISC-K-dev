@@ -5,24 +5,26 @@
 #include <regex>
 #include <sstream>
 
-bool match_label(std::string s) { return s.front() == '@' || s.front() == '#' || s.back() == ':'; }
-
 ASMLine::ASMLine(const Position position, const std::string str, const uint16_t pc)
     : position(position), str(str) {
   // コメントを分離
   const auto pos = str.find(";");  // 最初にヒットした ; の位置
+
   if(pos != std::string::npos) {
     comment.emplace(Comment{pos, str.substr(pos)});
   } else {
     comment = std::nullopt;
   }
+
   const auto splited = split(str.substr(0, pos), ' ');
+  const auto head = (splited.size() == 0 ? std::nullopt : std::optional<std::string>(splited.at(0)));
+
   // 行を分類
   if(splited.size() == 0) {
     content = std::monostate();
-  } else if(is_mnemonic(splited.at(0))) {
+  } else if(Instruction::match(splited)) {
     content = Instruction(pc, splited);
-  } else if(match_label(splited.at(0))) {
+  } else if(Label::match(splited)) {
     content = Label(pc, splited);
   } else {
     throw new std::string("Undefined statement");
