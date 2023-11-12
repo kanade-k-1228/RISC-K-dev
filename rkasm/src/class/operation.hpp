@@ -1,5 +1,5 @@
 #pragma once
-#include "../../rkarch/arch.hpp"
+#include "arch/arch.hpp"
 #include "imm.hpp"
 #include "label.hpp"
 

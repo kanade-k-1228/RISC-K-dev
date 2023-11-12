@@ -1,7 +1,6 @@
-#include "../rkarch/arch.hpp"
+#include "arch/arch.hpp"
 #include "class/line.hpp"
-#include "utils.hpp"
-#include "utils/args.hpp"
+#include "utils/utils.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>

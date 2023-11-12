@@ -1,15 +1,7 @@
-#include "utils.hpp"
+#include "print.hpp"
 #include <iomanip>
 #include <iostream>
-#include <regex>
-#include <sstream>
-
-std::string red(const std::string str) { return "\e[31m" + str + "\e[m"; };
-std::string green(const std::string str) { return "\e[32m" + str + "\e[m"; };
-std::string yellow(const std::string str) { return "\e[33m" + str + "\e[m"; };
-std::string blue(const std::string str) { return "\e[34m" + str + "\e[m"; };
-std::string magenta(const std::string str) { return "\e[35m" + str + "\e[m"; };
-std::string cyan(const std::string str) { return "\e[36m" + str + "\e[m"; };
+#include <iterator>
 
 std::string right(const std::string str, int spacing) {
   std::stringstream ss;
@@ -40,18 +32,6 @@ std::string hex(const uint32_t n) {
      << "_" << std::setw(4) << (n & 0xffff);
   ss.fill(fill_save);
   return ss.str();
-}
-
-// 区切り文字 sep で分割
-std::vector<std::string> split(const std::string& str, const char sep) {
-  std::vector<std::string> v;
-  std::stringstream ss(str);
-  std::string buffer;
-  while(std::getline(ss, buffer, sep)) {
-    if(buffer == "") continue;  // 区切り文字が連続した場合、削除
-    v.push_back(buffer);
-  }
-  return v;
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& v) {

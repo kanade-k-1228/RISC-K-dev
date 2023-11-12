@@ -1,6 +1,6 @@
 #include "operation.hpp"
-#include "../../rkarch/arch.hpp"
-#include "../utils.hpp"
+#include "arch/arch.hpp"
+#include "utils/utils.hpp"
 #include <regex>
 #include <sstream>
 
