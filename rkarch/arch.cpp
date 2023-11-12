@@ -1,6 +1,6 @@
 #include "arch.hpp"
 
-const Format& getFormat(std::string mnemonic) {
+const InstructionFormat& getFormat(std::string mnemonic) {
   for(auto& itr : isa)
     if(itr.mnemonic == mnemonic) return itr;
   throw new std::string("Invalid mnemonic: " + mnemonic);
@@ -8,7 +8,7 @@ const Format& getFormat(std::string mnemonic) {
 
 uint8_t get_opcode(uint32_t bin) { return bin & 0xf; }
 
-const Format& getFormat(uint32_t bin) {
+const InstructionFormat& getFormat(uint32_t bin) {
   Decoder decoded(bin);
   for(auto& itr : isa)
     if(itr.opc == decoded.opc) return itr;

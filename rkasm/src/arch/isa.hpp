@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <tuple>
+#include "format.hpp"
 #include <vector>
 
 namespace OPCode {
@@ -47,32 +46,6 @@ const uint8_t s1 = 0xD;
 const uint8_t s2 = 0xE;
 const uint8_t s3 = 0xF;
 }  // namespace Reg
-
-namespace Addr {
-const uint16_t PC_INTR = 0x0001;
-}
-
-namespace CSR {
-const uint16_t power = 0x0010;
-const uint16_t irq_en = 0x0020;
-const uint16_t irq_0 = 0x0030;
-const uint16_t irq_1 = 0x0031;
-const uint16_t irq_2 = 0x0032;
-const uint16_t irq_3 = 0x0033;
-}  // namespace CSR
-
-namespace Serial {
-const uint16_t tx = 0x0100;
-const uint16_t rx = 0x0101;
-}  // namespace Serial
-
-struct InstructionFormat {
-  std::string mnemonic;
-  std::vector<std::string> operand;
-  uint8_t opc;
-  uint8_t func;
-  std::array<int, 5> binary;
-};
 
 const std::vector<InstructionFormat> isa = {
     // Addi
@@ -131,26 +104,3 @@ const std::vector<InstructionFormat> isa = {
     {"call", {"imm"}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::zero, Reg::zero, Reg::ra, 0}},
     {"ret", {}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::ra, Reg::zero, Reg::zero, 0}},
     {"iret", {}, OPCode::ctrl, CalcFunc::ADD, {OPCode::ctrl, Reg::ira, Reg::zero, Reg::zero, 0}}};
-
-const InstructionFormat& getFormat(std::string mnemonic);
-bool is_mnemonic(std::string str);
-
-uint16_t alu(uint8_t code, uint16_t a, uint16_t b);
-
-struct Decoder {
-  uint8_t opc;
-  uint8_t rs1, rs2, rd;
-  uint16_t imm;
-  uint8_t func;
-  InstructionFormat format;
-  Decoder(uint32_t bin)
-      : opc(bin & 0xf),
-        rs1((bin >> 4) & 0xf),
-        rs2((bin >> 8) & 0xf),
-        rd((bin >> 12) & 0xf),
-        imm((bin >> 16) & 0xffff),
-        func(0) {
-    if(opc == OPCode::calc) func = (bin >> 16) & 0xf;
-    if(opc == OPCode::calci) func = (bin >> 8) & 0xf;
-  }
-};

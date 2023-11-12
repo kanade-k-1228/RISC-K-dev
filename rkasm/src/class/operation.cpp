@@ -4,31 +4,10 @@
 #include <regex>
 #include <sstream>
 
-uint16_t reg_stoi(std::string name) {
-  if(name == "zero") return Reg::zero;
-  if(name == "pc") return Reg::pc;
-  if(name == "ira") return Reg::ira;
-  if(name == "sp") return Reg::sp;
-  if(name == "ra") return Reg::ra;
-  if(name == "fp") return Reg::fp;
-  if(name == "a0") return Reg::a0;
-  if(name == "a1") return Reg::a1;
-  if(name == "t0") return Reg::t0;
-  if(name == "t1") return Reg::t1;
-  if(name == "t2") return Reg::t2;
-  if(name == "t3") return Reg::t3;
-  if(name == "s0") return Reg::s0;
-  if(name == "s1") return Reg::s1;
-  if(name == "s2") return Reg::s2;
-  if(name == "s3") return Reg::s3;
-  throw new std::string("Invalid Registor Name: " + name);
-  return 0;
-}
-
 Operation::Operation(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rs1("zero"), rs2("zero"), rd("zero") {
 
-  format = getFormat(mnemonic);
+  format = get_operation(mnemonic).value();
 
   const std::vector<std::string> arg(str.begin() + 1, str.end());
   if(arg.size() != format.operand.size())
