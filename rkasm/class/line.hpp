@@ -1,43 +1,30 @@
 #pragma once
 #include "../utils.hpp"
+#include "../utils/error.hpp"
+#include "comment.hpp"
 #include "imm.hpp"
 #include "label.hpp"
 #include "operation.hpp"
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 class Line {
-  enum Type {
-    VOID,
-    OPERATION,
-    LABEL
-  };
-  std::string file;
-  int line;
-  std::string str;
-  std::string comment;
-  std::vector<std::string> splited;
-  Type type;
-  Operation operation;  // 命令文
-  Label label;          // ラベル文
+  Position position;
+  std::string line;
+  std::variant<std::monostate, Operation, Label> content;
+  std::optional<Comment> comment;
 public:
-  Line(const std::string file, const int line_no, const std::string str, const uint16_t pc);
-  bool isVoid() { return type == Type::VOID; }
-  bool isOperation() { return type == Type::OPERATION; }
-  bool isLabel() { return type == Type::LABEL; }
-  Operation& getOperation() {
-    if(type != Type::OPERATION)
-      throw new std::string("This line is not Operation");
-    return operation;
-  }
-  Label& getLabel() {
-    if(type != Type::LABEL)
-      throw new std::string("This line is not Label");
-    return label;
-  }
+  Line(const Position position, const std::string str);
+  bool isVoid() { return std::holds_alternative<std::monostate>(content); }
+  bool isOperation() { return std::holds_alternative<Operation>(content); }
+  bool isLabel() { return std::holds_alternative<Label>(content); }
+  Operation& getOperation() { return std::get<Operation>(content); }
+  Label& getLabel() { return std::get<Label>(content); }
   std::string print_pretty();
-  std::string print_format();
-  std::string printError(std::string msg) { return print_error(file, line, str, msg); }
+  // std::string print_format();
+  std::string printError(std::string msg) { return print_error(position, line, msg); }
 };

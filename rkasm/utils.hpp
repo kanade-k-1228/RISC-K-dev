@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -19,4 +20,4 @@ std::string hex(const uint32_t);
 
 std::vector<std::string> split(const std::string&, const char);
 
-std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg);
+std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& v);

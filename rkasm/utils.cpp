@@ -54,11 +54,7 @@ std::vector<std::string> split(const std::string& str, const char sep) {
   return v;
 }
 
-std::string print_error(std::string fname, int line_cnt, std::string line, std::string msg) {
-  std::stringstream ss;
-  std::string place = fname + ":" + std::to_string(line_cnt);
-  ss << std::string(place.size(), ' ') << " | " << std::endl
-     << place << " | " << line << std::endl
-     << std::string(place.size(), ' ') << " | \033[31m ERROR! \033[m " << msg << std::endl;
-  return ss.str();
+std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& v) {
+  std::copy(v.begin(), v.end(), std::ostream_iterator<std::string>(os, " "));
+  return os;
 }

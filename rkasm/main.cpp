@@ -10,38 +10,27 @@
 #include <unistd.h>
 #include <vector>
 
-template <class T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
-  std::copy(v.begin(), v.end(), std::ostream_iterator<T>(os, " "));
-  return os;
-}
-
 int main(int argc, char* argv[]) {
   auto [input_files, output_file] = parse_arg(argc, argv);
 
   std::cout << "----------------------------------------------------" << std::endl
             << "Assemble: " << input_files << std::endl;
 
-  // アセンブリファイルを順番にスキャン
-  std::vector<Line> stmts;     // コードリスト
-  uint16_t operation_cnt = 0;  // 機械語命令カウンタ
+  std::vector<Line> asms;
   for(auto input_file : input_files) {
-    // ファイルを開く
     std::ifstream fin(input_file, std::ios::in);
     if(!fin) {
       std::cout << "Cannot open input file: " << input_file << std::endl;
       exit(EXIT_FAILURE);
     }
-    // 一行ずつスキャンし、命令リストに格納
     std::cout << " 1. Parse: " << input_file << std::endl;
-    std::string line;
-    for(int line_cnt = 1; std::getline(fin, line); ++line_cnt) {
+    int line_cnt = 0;
+    for(std::string line; std::getline(fin, line); ++line_cnt) {
+      const auto position = Position{input_file, line_cnt};
       try {
-        Line stmt(input_file, line_cnt, line, operation_cnt);  // 行を解釈
-        stmts.push_back(stmt);                                 // 行を追加
-        if(stmt.isOperation()) ++operation_cnt;                // 命令行の場合、PCのカウントアップ
+        asms.emplace_back(position, line);
       } catch(std::string* msg) {
-        std::cout << print_error(input_file, line_cnt, line, *msg);
+        std::cout << print_error(position, line, *msg);
       }
     }
   }
@@ -49,13 +38,13 @@ int main(int argc, char* argv[]) {
   // ラベルを集める
   std::cout << " 2. Collect label" << std::endl;
   std::vector<Label> labels;
-  for(auto& stmt : stmts) {
+  for(auto& stmt : asms) {
     if(stmt.isLabel()) labels.push_back(stmt.getLabel());
   }
 
   // ラベルの解決
-  std::cout << " 3. Resolute label" << std::endl;
-  for(auto& stmt : stmts) {
+  std::cout << " 3. Resolve label" << std::endl;
+  for(auto& stmt : asms) {
     try {
       if(stmt.isOperation()) {
         stmt.getOperation().resoluteLabel(labels);
@@ -67,7 +56,7 @@ int main(int argc, char* argv[]) {
 
   // バイナリを生成
   std::cout << " 4. Generate binary" << std::endl;
-  for(auto& stmt : stmts) {
+  for(auto& stmt : asms) {
     try {
       if(stmt.isOperation()) {
         stmt.getOperation().genBin();
@@ -86,7 +75,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Can't open file: " << output_file << std::endl;
     return EXIT_FAILURE;
   }
-  for(auto& stmt : stmts) {
+  for(auto& stmt : asms) {
     if(stmt.isOperation()) {
       uint32_t bin = stmt.getOperation().getBin();
       fout.write((char*)&bin, sizeof(bin));
@@ -95,7 +84,7 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl;
 
   // アセンブラを表示
-  for(auto stmt : stmts) std::cout << stmt.print_pretty() << std::endl;
+  for(auto stmt : asms) std::cout << stmt.print_pretty() << std::endl;
   std::cout << "----------------------------------------------------" << std::endl;
 
   // フォーマット出力

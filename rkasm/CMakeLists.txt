@@ -11,6 +11,7 @@ add_executable(rkasm
     main.cpp
     utils.cpp
     utils/args.cpp
+    utils/error.cpp
     class/line.cpp
     class/label.cpp
     class/operation.cpp
