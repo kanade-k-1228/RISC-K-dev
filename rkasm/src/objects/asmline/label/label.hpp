@@ -48,7 +48,7 @@ public:
   bool isConst() { return type == CONST; }
   bool isOpr() { return type == OPR; }
 
-  friend std::string printPretty(Label&);
+  friend std::string printPretty(Label&, bool);
   friend std::string printFormat(Label&);
 
   static bool match(std::vector<std::string> splited);
