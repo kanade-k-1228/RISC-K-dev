@@ -13,17 +13,16 @@
 
 class Line {
   Position position;
-  std::string line;
+  std::string str;
   std::variant<std::monostate, Operation, Label> content;
   std::optional<Comment> comment;
 public:
-  Line(const Position position, const std::string str);
+  Line(const Position position, const std::string str, const uint16_t pc);
   bool isVoid() { return std::holds_alternative<std::monostate>(content); }
   bool isOperation() { return std::holds_alternative<Operation>(content); }
   bool isLabel() { return std::holds_alternative<Label>(content); }
   Operation& getOperation() { return std::get<Operation>(content); }
   Label& getLabel() { return std::get<Label>(content); }
-  std::string print_pretty();
-  // std::string print_format();
-  std::string printError(std::string msg) { return print_error(position, line, msg); }
+  std::string printError(std::string msg) { return print_error(position, str, msg); }
+  friend std::string pprint(Line&);
 };

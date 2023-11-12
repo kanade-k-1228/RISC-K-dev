@@ -15,12 +15,11 @@ class Imm {
 public:
   Imm() {}
   Imm(std::string str);
-  std::string print_pretty();
-  std::string print_format();
   bool isLabRef() { return type == LAB_REF; };
   uint16_t getValue() { return value; };
   std::string getLabel() { return label; };
   void resoluteAsOpr(uint16_t val) { type = OPR_LAB_REF, value = val; };
   void resoluteAsVar(uint16_t val) { type = VAR_LAB_REF, value = val; };
   void resoluteAsConst(uint16_t val) { type = CONST_LAB_REF, value = val; };
+  friend std::string pprint(Imm&);
 };

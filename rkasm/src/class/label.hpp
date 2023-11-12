@@ -20,6 +20,5 @@ public:
   bool isConst() { return type == CONST; }
   bool isOpr() { return type == OPR; }
   std::string getName() { return name; }
-  std::string print_pretty();
-  std::string print_format();
+  friend std::string pprint(Label&);
 };

@@ -22,19 +22,3 @@ Label::Label(const uint16_t address, const std::vector<std::string> str) {
     value = std::stoi(str0, nullptr, 0);
   }
 }
-
-std::string Label::print_pretty() {
-  std::stringstream ss;
-  if(isConst()) ss << yellow(hex(value) + " = " + name);
-  if(isVar()) ss << blue(hex(value) + " = " + name);
-  if(isOpr()) ss << green(name + ":");
-  return ss.str();
-}
-
-std::string Label::print_format() {
-  std::stringstream ss;
-  if(isConst()) ss << "#0x" << hex(value) << " " << name;
-  if(isVar()) ss << "@0x" << hex(value) << " " << name;
-  if(isOpr()) ss << name << ":";
-  return ss.str();
-}

@@ -23,13 +23,19 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     std::cout << " 1. Parse: " << input_file << std::endl;
+
     int line_cnt = 0;
-    for(std::string line; std::getline(fin, line); ++line_cnt) {
-      const auto position = Position{input_file, line_cnt};
+    uint16_t pc_cnt = 0;
+    std::string line;
+
+    while(std::getline(fin, line)) {
+      line_cnt++;
       try {
-        asms.emplace_back(position, line);
+        Line asmline({input_file, line_cnt}, line, pc_cnt);
+        asms.push_back(asmline);
+        if(asmline.isOperation()) pc_cnt++;
       } catch(std::string* msg) {
-        std::cout << print_error(position, line, *msg);
+        std::cout << print_error({input_file, line_cnt}, line, *msg);
       }
     }
   }
@@ -83,7 +89,7 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl;
 
   // アセンブラを表示
-  for(auto stmt : asms) std::cout << stmt.print_pretty() << std::endl;
+  for(auto stmt : asms) std::cout << pprint(stmt) << std::endl;
   std::cout << "----------------------------------------------------" << std::endl;
 
   // フォーマット出力
