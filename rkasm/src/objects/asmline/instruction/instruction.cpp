@@ -1,10 +1,10 @@
-#include "operation.hpp"
+#include "instruction.hpp"
 #include "arch/arch.hpp"
 #include "utils/utils.hpp"
 #include <regex>
 #include <sstream>
 
-Operation::Operation(const uint16_t address, const std::vector<std::string> str)
+Instruction::Instruction(const uint16_t address, const std::vector<std::string> str)
     : address(address), mnemonic(str.at(0)), rs1("zero"), rs2("zero"), rd("zero") {
 
   format = get_operation(mnemonic).value();
@@ -23,7 +23,7 @@ Operation::Operation(const uint16_t address, const std::vector<std::string> str)
   }
 }
 
-void Operation::genBin() {
+void Instruction::genBin() {
   std::array<int, 5> slot = format.binary;
   for(auto arg_type : format.operand) {
     if(arg_type == "rs1") slot.at(1) = reg_stoi(rs1);
@@ -44,7 +44,7 @@ Label& findLabel(std::vector<Label> vec, std::string name) {
   throw new std::string("Undefined label: " + name);
 }
 
-void Operation::resoluteLabel(std::vector<Label> labels) {
+void Instruction::resoluteLabel(std::vector<Label> labels) {
   if(imm.isLabRef()) {
     Label labref = findLabel(labels, imm.getLabel());
     if(labref.isOpr()) {

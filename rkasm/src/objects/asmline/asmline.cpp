@@ -21,7 +21,7 @@ ASMLine::ASMLine(const Position position, const std::string str, const uint16_t 
   if(splited.size() == 0) {
     content = std::monostate();
   } else if(is_mnemonic(splited.at(0))) {
-    content = Operation(pc, splited);
+    content = Instruction(pc, splited);
   } else if(match_label(splited.at(0))) {
     content = Label(pc, splited);
   } else {

@@ -1,9 +1,8 @@
 #pragma once
+#include "../imm/imm.hpp"
 #include "arch/arch.hpp"
-#include "imm.hpp"
-#include "label.hpp"
 
-class Operation {
+class Instruction {
   uint16_t address;
   std::string mnemonic;
   std::vector<std::string> operand;
@@ -12,10 +11,11 @@ class Operation {
   Format format;
   uint32_t bin;
 public:
-  Operation(){};
-  Operation(const uint16_t address, const std::vector<std::string> str);
+  Instruction(){};
+  Instruction(const uint16_t address, const std::vector<std::string> str);
   void genBin();
   uint32_t getBin() { return bin; }
   void resoluteLabel(std::vector<Label> labels);
-  friend std::string print(Operation&);
+  friend std::string printPretty(Instruction&);
+  friend std::string printFormat(Instruction&);
 };

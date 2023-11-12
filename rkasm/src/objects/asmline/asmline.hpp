@@ -1,8 +1,6 @@
 #pragma once
-#include "comment.hpp"
-#include "imm.hpp"
-#include "label.hpp"
-#include "operation.hpp"
+#include "instruction/instruction.hpp"
+#include "label/label.hpp"
 #include "utils/utils.hpp"
 #include <optional>
 #include <sstream>
@@ -11,18 +9,27 @@
 #include <variant>
 #include <vector>
 
+struct Comment {
+  std::size_t pos;
+  std::string comment;
+};
+
 class ASMLine {
   Position position;
   std::string str;
-  std::variant<std::monostate, Operation, Label> content;
+  std::variant<std::monostate, Instruction, Label> content;
   std::optional<Comment> comment;
 public:
   ASMLine(const Position position, const std::string str, const uint16_t pc);
+
   bool isVoid() { return std::holds_alternative<std::monostate>(content); }
-  bool isOperation() { return std::holds_alternative<Operation>(content); }
+  bool isOperation() { return std::holds_alternative<Instruction>(content); }
   bool isLabel() { return std::holds_alternative<Label>(content); }
-  Operation& getOperation() { return std::get<Operation>(content); }
+
+  Instruction& getOperation() { return std::get<Instruction>(content); }
   Label& getLabel() { return std::get<Label>(content); }
+
   std::string printError(std::string msg) { return print_error(position, str, msg); }
-  friend std::string print(ASMLine&);
+  friend std::string printPretty(ASMLine&);
+  friend std::string printFormat(ASMLine&);
 };

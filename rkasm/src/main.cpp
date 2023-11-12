@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl
             << "Assemble: " << input_files << std::endl;
 
-  std::vector<ASMLine> asms;
+  std::vector<ASMLine> asmlines;
 
   for(auto input_file : input_files) {
     std::ifstream fin(input_file, std::ios::in);
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
       try {
 
         ASMLine asmline({input_file, line_cnt}, line, pc_cnt);
-        asms.push_back(asmline);
+        asmlines.push_back(asmline);
         if(asmline.isOperation()) pc_cnt++;
 
       } catch(std::string* msg) {
@@ -50,13 +50,13 @@ int main(int argc, char* argv[]) {
   // ラベルを集める
   std::cout << " 2. Collect label" << std::endl;
   std::vector<Label> labels;
-  for(auto& stmt : asms) {
+  for(auto& stmt : asmlines) {
     if(stmt.isLabel()) labels.push_back(stmt.getLabel());
   }
 
   // ラベルの解決
   std::cout << " 3. Resolve label" << std::endl;
-  for(auto& stmt : asms) {
+  for(auto& stmt : asmlines) {
     try {
       if(stmt.isOperation()) {
         stmt.getOperation().resoluteLabel(labels);
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
   // バイナリを生成
   std::cout << " 4. Generate binary" << std::endl;
-  for(auto& stmt : asms) {
+  for(auto& stmt : asmlines) {
     try {
       if(stmt.isOperation()) {
         stmt.getOperation().genBin();
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Can't open file: " << output_file << std::endl;
     return EXIT_FAILURE;
   }
-  for(auto& stmt : asms) {
+  for(auto& stmt : asmlines) {
     if(stmt.isOperation()) {
       uint32_t bin = stmt.getOperation().getBin();
       fout.write((char*)&bin, sizeof(bin));
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
   std::cout << "----------------------------------------------------" << std::endl;
 
   // アセンブラを表示
-  for(auto stmt : asms) std::cout << print(stmt) << std::endl;
+  for(auto stmt : asmlines) std::cout << printPretty(stmt) << std::endl;
   std::cout << "----------------------------------------------------" << std::endl;
 
   // フォーマット出力
