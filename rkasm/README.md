@@ -54,3 +54,7 @@ RAM のアドレスに別名をつけることができる。
 - pop x = subi sp 1, load x zero
 - call
 - ret
+
+## TODO
+
+ラベルをMapで持つ

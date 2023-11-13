@@ -7,7 +7,7 @@
 std::string printPretty(ASMLine& line) {
   std::stringstream ss;
   ss << std::setw(4) << line.position.line << " | ";
-  if(line.isOperation()) ss << printPretty(line.getOperation());
+  if(line.isInstruction()) ss << printPretty(line.getInstruction());
   if(line.isLabel()) ss << "     |           | " << printPretty(line.getLabel(), false);
   if(line.isVoid()) ss << "     |           | ";
   ss << (line.comment.has_value() ? line.comment.value().comment : "");
@@ -33,8 +33,8 @@ std::string printPretty(Instruction& opr) {
 
 std::string printPretty(Label& lab, bool opt) {
   std::stringstream ss;
-  if(lab.isConst()) ss << yellow(hex(lab.value) + " = " + lab.name);
-  if(lab.isVar()) ss << blue(hex(lab.value) + " = " + lab.name);
-  if(lab.isOpr()) ss << (opt ? green(hex(lab.value) + " : " + lab.name) : green(lab.name + ":"));
+  if(lab.isConst()) ss << yellow(hex(lab.getValue()) + " = " + lab.getName());
+  if(lab.isVar()) ss << blue(hex(lab.getValue()) + " = " + lab.getName());
+  if(lab.isOpr()) ss << (opt ? green(hex(lab.getValue()) + " : " + lab.getName()) : green(lab.getName() + ":"));
   return ss.str();
 }

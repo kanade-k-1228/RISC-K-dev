@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
         ASMLine asmline({input_file, line_cnt}, line, pc_cnt);
         asmlines.push_back(asmline);
-        if(asmline.isOperation()) pc_cnt++;
+        if(asmline.isInstruction()) pc_cnt++;
 
       } catch(std::string* msg) {
         std::cout << print_error({input_file, line_cnt}, line, *msg);
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
   std::cout << " 3. Resolve label" << std::endl;
   for(auto& stmt : asmlines) {
     try {
-      if(stmt.isOperation()) {
-        stmt.getOperation().resolveArgs(labels);
+      if(stmt.isInstruction()) {
+        stmt.getInstruction().resolveArgs(labels);
       }
     } catch(std::string* msg) {
       std::cout << stmt.printError(*msg);
@@ -70,8 +70,8 @@ int main(int argc, char* argv[]) {
   std::cout << " 4. Generate binary" << std::endl;
   for(auto& stmt : asmlines) {
     try {
-      if(stmt.isOperation()) {
-        stmt.getOperation().genBin();
+      if(stmt.isInstruction()) {
+        stmt.getInstruction().genBin();
       }
     } catch(std::string* msg) {
       std::cout << stmt.printError(*msg);
@@ -88,8 +88,8 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
   for(auto& stmt : asmlines) {
-    if(stmt.isOperation()) {
-      uint32_t bin = stmt.getOperation().getBin();
+    if(stmt.isInstruction()) {
+      uint32_t bin = stmt.getInstruction().getBin();
       fout.write((char*)&bin, sizeof(bin));
     }
   }

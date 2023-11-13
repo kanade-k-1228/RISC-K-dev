@@ -4,33 +4,20 @@
 #include <sstream>
 #include <string>
 
-Label::Label(const uint16_t address, const std::vector<std::string> str) {
-  std::string str0 = str.at(0);
-  if(OprLabel::match(str0)) {  // 命令ラベル hoge:
-    type = OPR;
-    str0.pop_back();
-    name = str0;
-    value = address;
-  } else if(str0.front() == '@') {  // 変数ラベル @0x00 hoge
-    type = VAR;
-    name = str.at(1);
-    str0.erase(str0.begin());
-    value = std::stoi(str0, nullptr, 0);
-  } else if(str0.front() == '#') {  // 定数ラベル #0x00 hoge
-    type = CONST;
-    name = str.at(1);
-    str0.erase(str0.begin());
-    value = std::stoi(str0, nullptr, 0);
+Label::Label(const std::vector<std::string>& splited, const uint16_t program_address) {
+  if(OprLabel::match(splited)) {
+    label.emplace<OprLabel>(splited, program_address);
+  } else if(VarLabel::match(splited)) {
+    label.emplace<VarLabel>(splited, program_address);
+  } else if(ConstLabel::match(splited)) {
+    label.emplace<ConstLabel>(splited, program_address);
+  } else {
+    throw new std::string("Invalid label: " + splited.at(0));
   }
 }
 
-bool Label::match(std::vector<std::string> splited) {
-  auto s = splited.at(0);
-  return s.front() == '@' || s.front() == '#' || s.back() == ':';
-}
-
-Label& findLabel(std::vector<Label> vec, std::string name) {
-  auto result = std::find_if(vec.begin(), vec.end(), [name](Label l) { return l.is(name); });
+Label& findLabel(std::vector<Label>& vec, std::string name) {
+  auto result = std::find_if(vec.begin(), vec.end(), [name](Label l) { return l.getName() == name; });
   if(result == vec.end()) {
     throw new std::string("Undefined label: " + name);
   } else {

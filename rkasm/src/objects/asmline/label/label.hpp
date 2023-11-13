@@ -3,55 +3,79 @@
 #include <variant>
 #include <vector>
 
-class LabelBase {
+class OprLabel {
   std::string name;
   uint16_t value;
 public:
+  OprLabel() {}
+  OprLabel(const std::vector<std::string>& splited, const uint16_t program_addr)
+      : name(splited.at(0).begin(), splited.at(0).end() - 1),
+        value(program_addr) {}
+  std::string getName() { return name; }
+  uint16_t getValue() { return value; }
+
+  static bool match(const std::vector<std::string>& splited) {
+    return splited.at(0).back() == ':';
+  }
 };
 
-class OprLabel : LabelBase {
+class VarLabel {
+  std::string name;
+  uint16_t value;
 public:
-  static bool match(std::string str) { return str.back() == ':'; }
+  VarLabel(const std::vector<std::string>& splited, const uint16_t program_addr)
+      : name(splited.at(1)),
+        value(std::stoi(std::string(splited.at(0).begin() + 1, splited.at(0).end()), nullptr, 0)) {}
+  std::string getName() { return name; }
+  uint16_t getValue() { return value; }
+
+  static bool match(const std::vector<std::string>& splited) {
+    return splited.at(0).front() == '@';
+  }
 };
 
-class VarLabel : LabelBase {
+class ConstLabel {
+  std::string name;
+  uint16_t value;
 public:
-  static bool match(std::string str) { return str.front() == '@'; }
+  ConstLabel(const std::vector<std::string>& splited, const uint16_t program_addr)
+      : name(splited.at(1)),
+        value(std::stoi(std::string(splited.at(0).begin() + 1, splited.at(0).end()), nullptr, 0)) {}
+  std::string getName() { return name; }
+  uint16_t getValue() { return value; }
+
+  static bool match(const std::vector<std::string>& splited) {
+    return splited.at(0).front() == '#';
+  }
 };
 
-class ConstLabel : LabelBase {
-public:
-  static bool match(std::string str) { return str.front() == '#'; }
-};
-
-using LabelWIP = std::variant<OprLabel, VarLabel, ConstLabel>;
+using _Label = std::variant<OprLabel, VarLabel, ConstLabel>;
 
 class Label {
-  enum Type {
-    OPR,
-    VAR,
-    CONST
-  };
-  Type type;
-  std::string name;
-  uint16_t value;
+  _Label label;
 public:
-  Label(){};
-  Label(const uint16_t address, const std::vector<std::string> str);
+  Label(const std::vector<std::string>& splited, const uint16_t program_address);
 
-  uint16_t getValue() { return value; }
-  std::string getName() { return name; }
+  uint16_t getValue() {
+    return std::visit([](auto a) { return a.getValue(); }, label);
+  }
 
-  bool is(std::string lab) { return name == lab; }
+  std::string getName() {
+    return std::visit([](auto a) { return a.getName(); }, label);
+  }
 
-  bool isVar() { return type == VAR; }
-  bool isConst() { return type == CONST; }
-  bool isOpr() { return type == OPR; }
+  bool isOpr() { return std::holds_alternative<OprLabel>(label); }
+  bool isVar() { return std::holds_alternative<VarLabel>(label); }
+  bool isConst() { return std::holds_alternative<ConstLabel>(label); }
 
   friend std::string printPretty(Label&, bool);
   friend std::string printFormat(Label&);
 
-  static bool match(std::vector<std::string> splited);
+  static bool match(std::vector<std::string> splited) {
+    return OprLabel::match(splited)
+           || VarLabel::match(splited)
+           || ConstLabel::match(splited);
+  }
 };
 
-Label& findLabel(std::vector<Label> vec, std::string name);
+Label& findLabel(std::vector<Label>& vec, std::string name);

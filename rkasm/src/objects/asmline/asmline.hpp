@@ -23,10 +23,10 @@ public:
   ASMLine(const Position position, const std::string str, const uint16_t pc);
 
   bool isVoid() { return std::holds_alternative<std::monostate>(content); }
-  bool isOperation() { return std::holds_alternative<Instruction>(content); }
+  bool isInstruction() { return std::holds_alternative<Instruction>(content); }
   bool isLabel() { return std::holds_alternative<Label>(content); }
 
-  Instruction& getOperation() { return std::get<Instruction>(content); }
+  Instruction& getInstruction() { return std::get<Instruction>(content); }
   Label& getLabel() { return std::get<Label>(content); }
 
   std::string printError(std::string msg) { return print_error(position, str, msg); }

@@ -9,9 +9,8 @@ ASMLine::ASMLine(const Position position, const std::string str, const uint16_t 
     : position(position), str(str) {
   // コメントを分離
   const auto pos = str.find(";");  // 最初にヒットした ; の位置
-
   if(pos != std::string::npos) {
-    comment.emplace(Comment{pos, str.substr(pos)});
+    comment.emplace(pos, str.substr(pos));
   } else {
     comment = std::nullopt;
   }
@@ -25,7 +24,7 @@ ASMLine::ASMLine(const Position position, const std::string str, const uint16_t 
   } else if(Instruction::match(splited)) {
     content = Instruction(pc, splited);
   } else if(Label::match(splited)) {
-    content = Label(pc, splited);
+    content = Label(splited, pc);
   } else {
     throw new std::string("Undefined statement");
   }
