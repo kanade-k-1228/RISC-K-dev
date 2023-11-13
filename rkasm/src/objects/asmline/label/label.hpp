@@ -23,7 +23,7 @@ class VarLabel {
   std::string name;
   uint16_t value;
 public:
-  VarLabel(const std::vector<std::string>& splited, const uint16_t program_addr)
+  VarLabel(const std::vector<std::string>& splited)
       : name(splited.at(1)),
         value(std::stoi(std::string(splited.at(0).begin() + 1, splited.at(0).end()), nullptr, 0)) {}
   std::string getName() { return name; }
@@ -38,7 +38,7 @@ class ConstLabel {
   std::string name;
   uint16_t value;
 public:
-  ConstLabel(const std::vector<std::string>& splited, const uint16_t program_addr)
+  ConstLabel(const std::vector<std::string>& splited)
       : name(splited.at(1)),
         value(std::stoi(std::string(splited.at(0).begin() + 1, splited.at(0).end()), nullptr, 0)) {}
   std::string getName() { return name; }
@@ -49,19 +49,19 @@ public:
   }
 };
 
-using _Label = std::variant<OprLabel, VarLabel, ConstLabel>;
+using Label_ = std::variant<OprLabel, VarLabel, ConstLabel>;
 
 class Label {
-  _Label label;
+  Label_ label;
 public:
   Label(const std::vector<std::string>& splited, const uint16_t program_address);
 
   uint16_t getValue() {
-    return std::visit([](auto a) { return a.getValue(); }, label);
+    return std::visit([](auto&& l) { return l.getValue(); }, label);
   }
 
   std::string getName() {
-    return std::visit([](auto a) { return a.getName(); }, label);
+    return std::visit([](auto&& l) { return l.getName(); }, label);
   }
 
   bool isOpr() { return std::holds_alternative<OprLabel>(label); }

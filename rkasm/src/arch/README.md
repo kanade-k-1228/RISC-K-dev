@@ -13,9 +13,29 @@
 ## 命令の変換規則
 
 ```cpp:
-auto rd = {"rd", reg_to_int()};
+int reg_to_int(string);
 
-auto add = Format{"add", {rd, rs1, rs2}, {{OPC::calc, 4}, {"rs1", 4}, {"rs2", 4}, {"rd", 4}, {Func::ADD,16}}};
+template <int n>
+struct BinMap{
+    std::array<n, int> map;
+    std::array<n, TmpVar | int> content;
+};
+
+struct TmpVar{
+    std::string key;
+    std::function<int(std::string)> str_to_int;
+    std::function<std::string(int)> int_to_str;
+};
+
+auto rd = TmpVar{"rd", reg_to_int, int_to_reg};
+
+auto imm = TmpVar{""};
+
+auto mapA = {4,4,4,4,16};
+
+auto isa = std::vector<InsnFormat>{
+    {"add", {rd, rs1, rs2}, {mapA,{OPC::calc, rs1, rs2, rd, Func::ADD}}}
+};
 ```
 
 最初のフィールド `"add"` は、命令のニーモニックを指定しています。

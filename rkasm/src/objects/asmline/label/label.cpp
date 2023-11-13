@@ -8,9 +8,9 @@ Label::Label(const std::vector<std::string>& splited, const uint16_t program_add
   if(OprLabel::match(splited)) {
     label.emplace<OprLabel>(splited, program_address);
   } else if(VarLabel::match(splited)) {
-    label.emplace<VarLabel>(splited, program_address);
+    label.emplace<VarLabel>(splited);
   } else if(ConstLabel::match(splited)) {
-    label.emplace<ConstLabel>(splited, program_address);
+    label.emplace<ConstLabel>(splited);
   } else {
     throw new std::string("Invalid label: " + splited.at(0));
   }
