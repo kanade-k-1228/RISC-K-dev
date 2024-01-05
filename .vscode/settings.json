@@ -7,6 +7,7 @@
     "*.bin": "hexEditor.hexedit"
   },
   "files.associations": {
+    "*.tc": "plaintext",
     "array": "cpp",
     "atomic": "cpp",
     "bit": "cpp",
@@ -82,7 +83,8 @@
     "unordered_set": "cpp",
     "numbers": "cpp",
     "semaphore": "cpp",
-    "stop_token": "cpp"
+    "stop_token": "cpp",
+    "valarray": "cpp"
   },
   "cmake.sourceDirectory": "/home/ohta/RISC-K/rkasm"
 }
