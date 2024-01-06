@@ -4,35 +4,15 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
-#[derive(Parser)]
-#[clap(
-    name = "RK16 Assembler",
-    author = "kanade-k-1228",
-    version = "v1.0.0",
-    about = "Assembler for RISC-K 16 ISA"
-)]
-struct AppArg {
-    #[clap()]
-    input: Vec<String>,
-    #[clap(short = 'o', long = "output", default_value = "out.rk.bin")]
-    output: String,
-}
-
-#[derive(Debug)]
-struct Line {
-    file: String,
-    line: usize,
-    code: String,
-}
+mod parser;
 
 fn main() {
-    let arg: AppArg = AppArg::parse();
+    let args: AppArgs = AppArgs::parse();
 
     println!("----------------------------------------------------");
     println!("RK16 Assembler by kanade-k-1228");
-    println!("1. Read Files: ");
-
-    let lines: Vec<Line> = arg
+    println!("1. Parse Files: ");
+    let lines: Vec<parser::Line> = args
         .input
         .iter()
         .flat_map(|fpath| {
@@ -42,24 +22,30 @@ fn main() {
             let buf = BufReader::new(file);
             buf.lines()
                 .enumerate()
-                .map(|(idx, line)| {
-                    let s = line.unwrap();
-                    // println!("{:04} | {}", idx, s);
-                    return Line {
-                        file: fpath.to_string(),
-                        line: idx,
-                        code: s,
-                    };
-                })
-                .collect::<Vec<Line>>()
+                .map(|(idx, line)| parser::Line::new(fpath, idx, &line.unwrap()))
+                .collect::<Vec<parser::Line>>()
         })
         .collect();
 
-    for line in lines {
-        println!("{}:{:04} | {}", line.file, line.line, line.code);
+    for line in &lines {
+        println!("{}", line.cprint());
     }
 
-    println!("2. Parse Statements: ");
+    println!("2. Resolve Label: ");
 
     println!("3. Generate Binary: ");
+}
+
+#[derive(Parser)]
+#[clap(
+    name = "RK16 Assembler",
+    author = "kanade-k-1228",
+    version = "v1.0.0",
+    about = "Assembler for RISC-K 16 ISA"
+)]
+struct AppArgs {
+    #[clap()]
+    input: Vec<String>,
+    #[clap(short = 'o', long = "output", default_value = "out.rk.bin")]
+    output: String,
 }
