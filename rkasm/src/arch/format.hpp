@@ -4,10 +4,10 @@
 #include <variant>
 #include <vector>
 
-using BinFormat = std::variant<int, std::string>;
+using BitField = std::variant<int, std::string>;
 
 struct Format {
   std::string mnemonic;
   std::vector<std::string> operand;
-  std::array<BinFormat, 5> binary;
+  std::array<BitField, 5> binary;
 };

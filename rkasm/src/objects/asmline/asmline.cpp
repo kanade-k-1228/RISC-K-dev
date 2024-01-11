@@ -10,6 +10,7 @@ ASMLine::ASMLine(const Position position, const std::string str, const uint16_t 
   // コメントを分離
   const auto pos = str.find(";");  // 最初にヒットした ; の位置
   if(pos != std::string::npos) {
+    // comment = Comment{pos, str.substr(pos)};
     comment.emplace(pos, str.substr(pos));
   } else {
     comment = std::nullopt;

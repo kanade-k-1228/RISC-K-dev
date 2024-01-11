@@ -87,6 +87,52 @@ impl Imm {
 }
 
 // ----------------------------------------------------------------------------
+// Assembly Operations
+
+enum Field {
+    Calc(Reg, Reg, Reg, u8),
+    CalcI(Reg, Reg, u16, u8),
+    Load(),
+    Store(),
+    Ctrl(),
+}
+
+enum Arg {
+    Reg,
+    Imm,
+}
+
+struct Asm {
+    name: &'static str,
+    args: [Arg; 3],
+    bit: Field,
+}
+
+macro_rules! asm {
+    () => {
+        Asm {
+            name: "addi",
+            args: [Arg::Reg, Arg::Reg, Arg::Reg],
+            bit: Field::Calc(Reg::T0, Reg::T0, Reg::T0, 0),
+        }
+    };
+}
+
+const ASMS: [Asm; 3] = [
+    Asm {
+        name: "add",
+        args: [Arg::Reg, Arg::Reg, Arg::Reg],
+        bit: Field::Calc(Reg::T0, Reg::T0, Reg::T0, 0),
+    },
+    Asm {
+        name: "sub",
+        args: [Arg::Reg, Arg::Reg, Arg::Reg],
+        bit: Field::Calc(Reg::T0, Reg::T0, Reg::T0, 0),
+    },
+    asm!(),
+];
+
+// ----------------------------------------------------------------------------
 // Assembly line
 
 #[derive(Debug)]
@@ -128,14 +174,14 @@ pub struct Sub {
 pub struct Load {
     rd: Reg,
     rs1: Reg,
-    rs2: Reg,
+    imm: Imm,
 }
 
 #[derive(Debug)]
 pub struct Store {
     rd: Reg,
     rs1: Reg,
-    rs2: Reg,
+    imm: Imm,
 }
 
 #[derive(Debug)]
@@ -244,6 +290,7 @@ impl Line {
                 Stmt::CodeLabel(lab) => lab.cprint(),
                 Stmt::ConstLabel(lab) => lab.cprint(),
                 Stmt::Add(add) => add.cprint(),
+                Stmt::Sub(sub) => sub.cprint(),
                 _ => format!("{:?}", stmt),
             },
             None => format!("{}", self.code),
@@ -277,6 +324,31 @@ impl Add {
             "add",
             self.rs1.print(),
             self.rs2.print(),
+            self.rd.print()
+        )
+    }
+}
+
+impl Sub {
+    fn cprint(&self) -> String {
+        cformat!(
+            "    <red>{:<6}</><blue>{:<4}{:<4}{:<4}</>",
+            "sub",
+            self.rs1.print(),
+            self.rs2.print(),
+            self.rd.print()
+        )
+    }
+}
+
+impl Load {
+    fn cprint(&self) -> String {
+        cformat!(
+            "    <red>{:<6}</><blue>{:<4}{:<4}{:<4}</>",
+            "sub",
+            self.rs1.print(),
+            self.rs1.print(),
+            // self.imm.print(),
             self.rd.print()
         )
     }

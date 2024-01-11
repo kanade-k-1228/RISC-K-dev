@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
 # コンパイラの設定
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+SET (CMAKE_C_COMPILER   "/usr/bin/clang")
+SET (CMAKE_CXX_COMPILER "/usr/bin/clang++")
+SET (CMAKE_CXX_FLAGS    "-Wall -Wextra -std=c++2b -stdlib=libc++")
 
 # ソースコードの検索
 file(GLOB_RECURSE SOURCES src/**.cpp)
