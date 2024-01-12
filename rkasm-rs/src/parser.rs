@@ -102,9 +102,9 @@ enum Arg {
     Imm,
 }
 
-struct Asm {
+struct Asm<const ARG_LEN: usize> {
     name: &'static str,
-    args: [Arg; 3],
+    args: [Arg; ARG_LEN],
     bit: Field,
 }
 
@@ -118,7 +118,7 @@ macro_rules! asm {
     };
 }
 
-const ASMS: [Asm; 3] = [
+const ASMS: (Asm<3>, Asm<3>, Asm<3>) = (
     Asm {
         name: "add",
         args: [Arg::Reg, Arg::Reg, Arg::Reg],
@@ -130,7 +130,11 @@ const ASMS: [Asm; 3] = [
         bit: Field::Calc(Reg::T0, Reg::T0, Reg::T0, 0),
     },
     asm!(),
-];
+);
+
+macro_rules! bin_array {
+    () => {};
+}
 
 // ----------------------------------------------------------------------------
 // Assembly line
@@ -154,6 +158,11 @@ enum Stmt {
     AddrLabel(AddrLabel),
     CodeLabel(CodeLabel),
     ConstLabel(ConstLabel),
+}
+
+#[derive(Debug)]
+pub enum Op {
+    Add { rd: Reg, rs1: Reg, rs2: Reg },
 }
 
 #[derive(Debug)]
@@ -278,7 +287,7 @@ fn parse_with_prefix(s: &str) -> u16 {
 // ----------------------------------------------------------------------------
 // Print
 
-use std::fmt::format;
+use std::{any, arch::asm, fmt::format};
 
 use color_print::cformat;
 

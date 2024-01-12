@@ -2,7 +2,7 @@ simu: build/rom.hex build/top_tb.vcd
 #	gtkwave $^
 	gtkwave top_tb.gtkw
 
-build/rom.inv.hex: ../../sample/00_test/main.rk.bin
+build/rom.inv.hex: ../../sample/00_test_asm/ok.rk.bin
 	xxd -c4 -ps $^ > $@
 
 build/rom.hex: build/rom.inv.hex

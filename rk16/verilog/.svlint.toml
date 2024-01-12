@@ -1,0 +1,7 @@
+[option]
+
+[textrules]
+style_semicolon = true
+
+[syntaxrules]
+module_nonansi_forbidden = true
